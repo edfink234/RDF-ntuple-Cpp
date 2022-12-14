@@ -30,7 +30,7 @@ void RealRDFtest()
 {
     auto start_time = Clock::now();
     
-    std::vector<std::string> input_filenames = {"../user.kschmied.28655874._000025.LGNTuple.root"};
+    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/user.kschmied.28655874._000025.LGNTuple.root"};
     
     SchottDataFrame df(MakeRDF(input_filenames, 8));
     
