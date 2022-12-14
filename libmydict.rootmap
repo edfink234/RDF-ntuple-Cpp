@@ -1,9 +1,0 @@
-{ decls }
-namespace std { inline namespace __1 {  } }
-
-[ libmydict.so ]
-# List of selected classes
-class vector<vector<basic_string<char,char_traits<char>,allocator<char> > > >
-class vector<vector<float> >
-class vector<vector<int> >
-class vector<vector<string> >
