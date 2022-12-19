@@ -1,11 +1,15 @@
+#include <vector>
+#include <string>
+#include <algorithm>
+
 #include "TChain.h"
 #include "TH1F.h"
 #include "TBranch.h"
 #include "TInterpreter.h"
 
 #include "MakeRDF.h"
-
 #include "RDFObjects.h"
+#include "RDFevent.h"
 
 TChain RDFTree::__chain{"physics"};
 TChain RDFTree::__event_info_chain{"full_event_info"};
@@ -19,7 +23,7 @@ using namespace ROOT::VecOps;
 */
 SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
 {
-    if (numThreads > 0)
+    if (numThreads > 0) //Enabling Multi-threading 
     {
         ROOT::EnableImplicitMT(numThreads);
     }
@@ -63,23 +67,13 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         }
         return x;
     }, {"mc_pdg_id", "mc_barcode", "mc_parent_barcode", "mc_status", "mc_pt", "mc_charge", "mc_eta", "mc_phi", "mc_e", "mc_mass"})
-    .Define("electrons",[&](RVec<float>& electron_charge, RVec<float>& electron_pt, RVec<float>& electron_e, RVec<float>& electron_eta, RVec<float>& electron_phi, /*RVec<float>& electron_id,*/ RVec<float>& electron_isolation, RVec<float>& electron_d0, RVec<float>& electron_z0, /*RVec<float>& electron_id_medium,*/ RVec<TruthParticle>& truth_particles)
+    .Define("electrons",[&](RVec<float>& electron_charge, RVec<float>& electron_pt, RVec<float>& electron_e, RVec<float>& electron_eta, RVec<float>& electron_phi, /*RVec<float>& electron_id,*/ RVec<float>& electron_isolation, RVec<float>& electron_d0, RVec<float>& electron_z0 /*, RVec<float>& electron_id_medium*/)
     {
         RVec<Electron> x;
         x.reserve(electron_pt.size());
         Electron temp;
         for (size_t i = 0; i < electron_pt.size(); i++)
         {
-            temp.mc_pdg_id =  truth_particles[i].mc_pdg_id;
-            temp.mc_barcode =  truth_particles[i].mc_barcode;
-            temp.mc_parent_barcode =  truth_particles[i].mc_parent_barcode;
-            temp.mc_status =  truth_particles[i].mc_status;
-            temp.mc_pt =  truth_particles[i].mc_pt;
-            temp.mc_charge =  truth_particles[i].mc_charge;
-            temp.mc_eta =  truth_particles[i].mc_eta;
-            temp.mc_phi =  truth_particles[i].mc_phi;
-            temp.mc_e =  truth_particles[i].mc_e;
-            temp.mc_mass =  truth_particles[i].mc_mass;
             temp.electron_charge =  electron_charge[i];
             temp.electron_pt =  electron_pt[i];
             temp.electron_e =  electron_e[i];
@@ -93,24 +87,14 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
             x.push_back(temp);
         }
         return x;
-    }, {"electron_charge", "electron_pt", "electron_e", "electron_eta", "electron_phi", /*"electron_id",*/ "electron_isolation", "electron_d0", "electron_z0", /*"electron_id_medium",*/ "truth_particles"})
-    .Define("muons",[&](RVec<int>& muon_charge, RVec<float>& muon_pt, RVec<float>& muon_e, RVec<float>& muon_eta, RVec<float>& muon_phi, RVec<TruthParticle>& truth_particles)
+    }, {"electron_charge", "electron_pt", "electron_e", "electron_eta", "electron_phi", /*"electron_id",*/ "electron_isolation", "electron_d0", "electron_z0", /*"electron_id_medium",*/})
+    .Define("muons",[&](RVec<int>& muon_charge, RVec<float>& muon_pt, RVec<float>& muon_e, RVec<float>& muon_eta, RVec<float>& muon_phi)
     {
         RVec<Muon> x;
         x.reserve(muon_pt.size());
         Muon temp;
         for (size_t i = 0; i < muon_pt.size(); i++)
         {
-            temp.mc_pdg_id =  truth_particles[i].mc_pdg_id;
-            temp.mc_barcode =  truth_particles[i].mc_barcode;
-            temp.mc_parent_barcode =  truth_particles[i].mc_parent_barcode;
-            temp.mc_status =  truth_particles[i].mc_status;
-            temp.mc_pt =  truth_particles[i].mc_pt;
-            temp.mc_charge =  truth_particles[i].mc_charge;
-            temp.mc_eta =  truth_particles[i].mc_eta;
-            temp.mc_phi =  truth_particles[i].mc_phi;
-            temp.mc_e =  truth_particles[i].mc_e;
-            temp.mc_mass =  truth_particles[i].mc_mass;
             temp.muon_charge =  muon_charge[i];
             temp.muon_pt =  muon_pt[i];
             temp.muon_e =  muon_e[i];
@@ -119,24 +103,14 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
             x.push_back(temp);
         }
         return x;
-    }, {"muon_charge", "muon_pt", "muon_e", "muon_eta", "muon_phi", "truth_particles"})
-    .Define("photons",[&](RVec<float>& photon_pt, RVec<float>& photon_e, RVec<float>& photon_eta, RVec<float>& photon_phi,  RVec<float>& photon_etcone40, RVec<int>& photon_id, RVec<int>& photon_id_loose, RVec<int>& photon_id_tight, RVec<float>& photon_cluster_eta_be_2, /*RVec<int>& photon_id_nn,*/ RVec<TruthParticle>& truth_particles)
+    }, {"muon_charge", "muon_pt", "muon_e", "muon_eta", "muon_phi"})
+    .Define("photons",[&](RVec<float>& photon_pt, RVec<float>& photon_e, RVec<float>& photon_eta, RVec<float>& photon_phi,  RVec<float>& photon_etcone40, RVec<int>& photon_id, RVec<int>& photon_id_loose, RVec<int>& photon_id_tight, RVec<float>& photon_cluster_eta_be_2 /*, RVec<int>& photon_id_nn */)
     {
         RVec<Photon> x;
         x.reserve(photon_pt.size());
         Photon temp;
         for (size_t i = 0; i < photon_pt.size(); i++)
         {
-            temp.mc_pdg_id =  truth_particles[i].mc_pdg_id;
-            temp.mc_barcode =  truth_particles[i].mc_barcode;
-            temp.mc_parent_barcode =  truth_particles[i].mc_parent_barcode;
-            temp.mc_status =  truth_particles[i].mc_status;
-            temp.mc_pt =  truth_particles[i].mc_pt;
-            temp.mc_charge =  truth_particles[i].mc_charge;
-            temp.mc_eta =  truth_particles[i].mc_eta;
-            temp.mc_phi =  truth_particles[i].mc_phi;
-            temp.mc_e =  truth_particles[i].mc_e;
-            temp.mc_mass =  truth_particles[i].mc_mass;
             temp.photon_pt =  photon_pt[i];
             temp.photon_e =  photon_e[i];
             temp.photon_eta =  photon_eta[i];
@@ -150,8 +124,8 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
             x.push_back(temp);
         }
         return x;
-    }, {"photon_pt", "photon_e", "photon_eta", "photon_phi", "photon_etcone40", "photon_id", "photon_id_loose", "photon_id_tight", "photon_cluster_eta_be_2", /*"photon_id_nn",*/ "truth_particles"})
-    .Define("clusters",[&](RVec<float>& cluster_pt, RVec<float>& cluster_eta, RVec<float>& cluster_phi, RVec<float>& cluster_e)
+    }, {"photon_pt", "photon_e", "photon_eta", "photon_phi", "photon_etcone40", "photon_id", "photon_id_loose", "photon_id_tight", "photon_cluster_eta_be_2", /*"photon_id_nn"*/})
+    .Define("clusters",[&](RVec<float>& cluster_pt, RVec<float>& cluster_phi, RVec<float>& cluster_e, RVec<float>& cluster_eta)
     {
         RVec<Cluster> x;
         x.reserve(cluster_pt.size());
@@ -183,7 +157,49 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
             x.push_back(temp);
         }
         return x;
-    }, {"track_pt", "track_charge", "track_eta", "track_phi", /*"track_e",*/ "track_num_pixel_hits", "track_num_sct_hits"});
+    }, {"track_pt", "track_eta", "track_phi", /*"track_e",*/ "track_charge", "track_num_pixel_hits", "track_num_sct_hits"})
+    .Vary("photons",[&](RVec<Photon>& photons, RVec<float>& photon_pt, RVec<std::vector<std::string>>& photon_syst_name, RVec<std::vector<float>>& photon_syst_pt, RVec<std::vector<float>>& photon_syst_e)
+    {
+        int index;
+        RVec<RVec<Photon>> variedPhotons;
+        variedPhotons.reserve(Event::systematics.size());
+        RVec<Photon> x;
+        auto length = photon_pt.size();
+        x.reserve(length);
+        Photon temp;
+        
+        for (auto& systematic: Event::systematics)
+        {
+            for (size_t i = 0; i < photon_pt.size(); i++)
+            {
+                auto it = std::find(photon_syst_name[i].begin(), photon_syst_name[i].end(), systematic);
+                if (it == photon_syst_name[i].end())
+                {
+                    continue;
+                }
+                
+                index = it - photon_syst_name[i].begin();
+                temp.photon_pt = photon_syst_pt[i][index];
+                temp.photon_e = photon_syst_e[i][index];
+                temp.photon_eta =  photons[i].photon_eta;
+                temp.photon_phi =  photons[i].photon_phi;
+                temp.photon_etcone40 =  photons[i].photon_etcone40;
+                temp.photon_id =  photons[i].photon_id;
+                temp.photon_id_loose =  photons[i].photon_id_loose;
+                temp.photon_id_tight =  photons[i].photon_id_tight;
+                temp.photon_cluster_eta_be_2 =  photons[i].photon_cluster_eta_be_2;
+    //            temp.photon_id_nn = photons[i].photon_id_nn;
+                
+                x.push_back(temp);
+            }
+            variedPhotons.push_back(x);
+            x.clear();
+        }
+        
+        return variedPhotons;
+        
+    }, {"photons", "photon_pt", "photon_syst_name", "photon_syst_pt", "photon_syst_e"}, Event::systematics);
+    
     
     return NewDf;
 }

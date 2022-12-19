@@ -8,9 +8,8 @@
 
 using SchottDataFrame = ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager>;
 
-SchottDataFrame MakeRDF(const std::vector<std::string>&);
 class RDFTree;
-SchottDataFrame MakeRDF(const std::vector<std::string>&, short numThreads);
+SchottDataFrame MakeRDF(const std::vector<std::string>&, short numThreads = -1);
 
 class RDFTree
 {

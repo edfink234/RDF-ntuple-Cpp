@@ -26,7 +26,7 @@ using namespace ROOT::Math; // PtEtaPhiEVector
 using Clock = std::chrono::high_resolution_clock;
 
 //https://root-forum.cern.ch/t/rdataframe-count-and-report-re-looping-over-whole-dataframe/46592
-void RealRDFtest()
+void RDF_analyse_h_Za()
 {
     auto start_time = Clock::now();
     
@@ -296,6 +296,6 @@ void RealRDFtest()
 
 int main()
 {
-    RealRDFtest();
+    RDF_analyse_h_Za();
 }
 
