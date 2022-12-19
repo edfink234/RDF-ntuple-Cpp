@@ -8,7 +8,7 @@
 
 //using namespace ROOT::Math;
 
-struct TruthParticle
+struct TruthParticle final
 {
     static const std::string PREFIX;
     
@@ -24,7 +24,7 @@ struct TruthParticle
     float mc_mass;
 };
 
-struct Electron final : public TruthParticle
+struct Electron final
 {
     static const std::string PREFIX;
     static const int PDG_ID;
@@ -41,7 +41,7 @@ struct Electron final : public TruthParticle
 //    int   electron_id_medium;
 };
 
-struct Muon final : public TruthParticle
+struct Muon final
 {
     static const std::string PREFIX;
     static const int PDG_ID;
@@ -53,7 +53,7 @@ struct Muon final : public TruthParticle
     float muon_phi;
 };
 
-struct Photon final : public TruthParticle
+struct Photon final
 {
     static const std::string PREFIX;
     static const int PDG_ID;
