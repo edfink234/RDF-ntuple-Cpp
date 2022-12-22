@@ -6,7 +6,7 @@
 #include "Math/Vector4D.h"
 #include "ROOT/RDataFrame.hxx"
 
-//using namespace ROOT::Math;
+using namespace ROOT::Math;
 
 struct TruthParticle final
 {
@@ -22,6 +22,11 @@ struct TruthParticle final
     float mc_phi;
     float mc_e;
     float mc_mass;
+    
+    PtEtaPhiEVector Vector()
+    {
+        return PtEtaPhiEVector(mc_pt, mc_eta, mc_phi, mc_e);
+    }
 };
 
 struct Electron final
@@ -39,6 +44,11 @@ struct Electron final
     float electron_d0;
     float electron_z0;
 //    int   electron_id_medium;
+    
+    PtEtaPhiEVector Vector()
+    {
+        return PtEtaPhiEVector(electron_pt, electron_eta, electron_phi, electron_e);
+    }
 };
 
 struct Muon final
@@ -51,6 +61,11 @@ struct Muon final
     float muon_e;
     float muon_eta;
     float muon_phi;
+    
+    PtEtaPhiEVector Vector()
+    {
+        return PtEtaPhiEVector(muon_pt, muon_eta, muon_phi, muon_e);
+    }
 };
 
 struct Photon final
@@ -68,6 +83,11 @@ struct Photon final
     int   photon_id_tight;
     float photon_cluster_eta_be_2;
     int   photon_id_nn;
+    
+    PtEtaPhiEVector Vector()
+    {
+        return PtEtaPhiEVector(photon_pt, photon_eta, photon_phi, photon_e);
+    }
 };
 
 struct Cluster final
@@ -78,6 +98,11 @@ struct Cluster final
     float cluster_eta;
     float cluster_phi;
     float cluster_e;
+    
+    PtEtaPhiEVector Vector()
+    {
+        return PtEtaPhiEVector(cluster_pt, cluster_eta, cluster_phi, cluster_e);
+    }
 };
 
 struct Track final
@@ -91,6 +116,11 @@ struct Track final
 //    float track_e;
     int   track_num_pixel_hits;
     int   track_num_sct_hits;
+    
+    PtEtaPhiEVector Vector()
+    {
+        return PtEtaPhiEVector(track_pt, track_eta, track_phi, 0 /*track_e*/);
+    }
 };
 
 namespace cling

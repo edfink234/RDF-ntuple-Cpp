@@ -260,7 +260,7 @@ void RDF_analyse_h_Za()
     std::cout << "# events for nominal = " << *nEntriesAfterCuts << '\n';
     
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos;
-    histos.reserve(10);
+    histos.reserve(12);
     
     histos = {stable_truth_photons_pt.Histo1D<RVec<float>>({"stable_truth_photons_pt", "histTitle", 20u, 0, 200}, "stable_truth_photons_pt"),
         stable_truth_photons_eta.Histo1D<RVec<float>>({"stable_truth_photons_eta", "histTitle", 40u, -6, 6}, "stable_truth_photons_eta"),
