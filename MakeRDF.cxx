@@ -140,24 +140,28 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         }
         return x;
     }, {"cluster_pt", "cluster_phi", "cluster_e", "cluster_eta"})
-    .Define("tracks",[&](RVec<float>& track_pt, RVec<float>& track_eta, RVec<float>& track_phi, /*RVec<float>& track_e,*/ RVec<float>& track_charge, RVec<int>& track_num_pixel_hits, RVec<int>& track_num_sct_hits)
+    .Define("tracks",[&](RVec<int>& track_type, RVec<float>& track_pt, RVec<float>& track_eta, RVec<float>& track_phi, /*RVec<float>& track_e,*/ RVec<float>& track_charge, RVec<int>& track_num_pixel_hits, RVec<int>& track_num_sct_hits)
     {
         RVec<Track> x;
         x.reserve(track_pt.size());
         Track temp;
+        int temp_track_type;
         for (size_t i = 0; i < track_pt.size(); i++)
         {
-            temp.track_pt =  track_pt[i];
-            temp.track_eta =  track_eta[i];
-            temp.track_phi =  track_phi[i];
-//            temp.track_e =  track_e[i];
-            temp.track_charge =  track_charge[i];
-            temp.track_num_pixel_hits =  track_num_pixel_hits[i];
-            temp.track_num_sct_hits =  track_num_sct_hits[i];
-            x.push_back(temp);
+            if (track_type[i]==0)
+            {
+                temp.track_pt =  track_pt[i];
+                temp.track_eta =  track_eta[i];
+                temp.track_phi =  track_phi[i];
+    //            temp.track_e =  track_e[i];
+                temp.track_charge =  track_charge[i];
+                temp.track_num_pixel_hits =  track_num_pixel_hits[i];
+                temp.track_num_sct_hits =  track_num_sct_hits[i];
+                x.push_back(temp);
+            }
         }
         return x;
-    }, {"track_pt", "track_eta", "track_phi", /*"track_e",*/ "track_charge", "track_num_pixel_hits", "track_num_sct_hits"})
+    }, {"track_type", "track_pt", "track_eta", "track_phi", /*"track_e",*/ "track_charge", "track_num_pixel_hits", "track_num_sct_hits"})
     .Vary("photons",[&](RVec<Photon>& photons, RVec<float>& photon_pt, RVec<std::vector<std::string>>& photon_syst_name, RVec<std::vector<float>>& photon_syst_pt, RVec<std::vector<float>>& photon_syst_e)
     {
         int index;
@@ -198,8 +202,50 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         
         return variedPhotons;
         
-    }, {"photons", "photon_pt", "photon_syst_name", "photon_syst_pt", "photon_syst_e"}, Event::systematics);
-    
+    }, {"photons", "photon_pt", "photon_syst_name", "photon_syst_pt", "photon_syst_e"}, Event::systematics)
+    .Vary("electrons",[&](RVec<Electron>& electrons, RVec<float>& electron_pt, RVec<std::vector<std::string>>& electron_syst_name, RVec<std::vector<float>>& electron_syst_pt, RVec<std::vector<float>>& electron_syst_e)
+    {
+        int index;
+        RVec<RVec<Electron>> variedElectrons;
+        variedElectrons.reserve(Event::systematics.size());
+        RVec<Electron> x;
+        auto length = electron_pt.size();
+        x.reserve(length);
+        Electron temp;
+        
+        for (auto& systematic: Event::systematics)
+        {
+            for (size_t i = 0; i < electron_pt.size(); i++)
+            {
+                auto it = std::find(electron_syst_name[i].begin(), electron_syst_name[i].end(), systematic);
+                if (it == electron_syst_name[i].end())
+                {
+                    continue;
+                }
+                
+                index = it - electron_syst_name[i].begin();
+                temp.electron_pt = electron_syst_pt[i][index];
+                temp.electron_e = electron_syst_e[i][index];
+                temp.electron_charge =  electrons[i].electron_charge;
+                temp.electron_pt =  electrons[i].electron_pt;
+                temp.electron_e =  electrons[i].electron_e;
+                temp.electron_eta =  electrons[i].electron_eta;
+                temp.electron_phi =  electrons[i].electron_phi;
+    //            temp.electron_id =  electrons[i].electron_id;
+                temp.electron_isolation =  electrons[i].electron_isolation;
+                temp.electron_d0 =  electrons[i].electron_d0;
+                temp.electron_z0 =  electrons[i].electron_z0;
+    //            temp.electron_id_medium =  electrons[i].electron_id_medium;
+                
+                x.push_back(temp);
+            }
+            variedElectrons.push_back(x);
+            x.clear();
+        }
+        
+        return variedElectrons;
+        
+    }, {"electrons", "electron_pt", "electron_syst_name", "electron_syst_pt", "electron_syst_e"}, Event::systematics);
     
     return NewDf;
 }
