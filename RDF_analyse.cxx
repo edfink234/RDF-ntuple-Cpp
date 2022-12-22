@@ -416,20 +416,16 @@ void RDF_analyse()
         
     };
     
-//    TCanvas *c1;
-    
     TCanvas *c1;
     std::string str;
     for (auto& h: histos)
     {
         auto hVar = VariationsFor(h);
-//        for (auto& var: hVar.GetKeys())
+        for (auto& var: hVar.GetKeys())
         {
             c1 = new TCanvas("","",800, 700);
-//            hVar[var].Draw("same");
-            h->Draw("same");
-//            str = var;
-            str="";
+            hVar[var].Draw("same");
+            str = var;
             str.erase(std::remove(str.begin(), str.end(), ':'), str.end());
             c1->SaveAs((str+h->GetName()+std::string(".png")).c_str());
         }
