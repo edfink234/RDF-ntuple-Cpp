@@ -138,7 +138,7 @@ void RDF_analyse()
     Event::systematics = {"EG_RESOLUTION_ALL__1down"};
     std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/user.kschmied.28655874._000025.LGNTuple.root"};
     
-    SchottDataFrame df(MakeRDF(input_filenames));
+    SchottDataFrame df(MakeRDF(input_filenames, 8));
     
 //    printNominalAndVariedObjects<Electron>(df, "electrons", 10);
 //    printNominalAndVariedObjects<Photon>(df, "photons", 10);
@@ -247,7 +247,6 @@ void RDF_analyse()
         
         return four_momentum.M()/1e3;
     }, {"selected_photons"})
-
     .Define("num_tracks", [&](RVec<Track>& tracks)
     {
         return tracks.size();
@@ -416,18 +415,28 @@ void RDF_analyse()
         
     };
     
-    TCanvas *c1;
-    std::string str;
+    std::vector<RResultMap<TH1D>> resultmaps;
+    std::vector<std::string> histNames;
+    resultmaps.reserve(53);
+    histNames.reserve(53);
+
     for (auto& h: histos)
     {
-        auto hVar = VariationsFor(h);
-        for (auto& var: hVar.GetKeys())
+        resultmaps.push_back(VariationsFor(h));
+        histNames.push_back(h->GetName());
+    }
+
+    TCanvas *c1;
+    std::string str;
+    for (auto i = 0; i < resultmaps.size(); i++)
+    {
+        for (auto& var: resultmaps[i].GetKeys())
         {
             c1 = new TCanvas("","",800, 700);
-            hVar[var].Draw("same");
+            resultmaps[i][var].Draw("same");
             str = var;
             str.erase(std::remove(str.begin(), str.end(), ':'), str.end());
-            c1->SaveAs((str+h->GetName()+std::string(".png")).c_str());
+            c1->SaveAs((str+histNames[i]+std::string(".png")).c_str());
         }
     }
     
