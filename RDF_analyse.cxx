@@ -138,7 +138,7 @@ void RDF_analyse()
     Event::systematics = {"EG_RESOLUTION_ALL__1down"};
     std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/user.kschmied.28655874._000025.LGNTuple.root"};
     
-    SchottDataFrame df(MakeRDF(input_filenames, 8));
+    SchottDataFrame df(MakeRDF(input_filenames));
     
 //    printNominalAndVariedObjects<Electron>(df, "electrons", 10);
 //    printNominalAndVariedObjects<Photon>(df, "photons", 10);
@@ -436,7 +436,7 @@ void RDF_analyse()
             resultmaps[i][var].Draw("same");
             str = var;
             str.erase(std::remove(str.begin(), str.end(), ':'), str.end());
-            c1->SaveAs((str+histNames[i]+std::string(".png")).c_str());
+            c1->SaveAs((str+histNames[i]+".png").c_str());
         }
     }
     
