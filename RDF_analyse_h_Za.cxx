@@ -281,11 +281,11 @@ void RDF_analyse_h_Za()
     {
         c1 = new TCanvas("","",800, 700);
         h->Draw("same");
-        c1->SaveAs((h->GetName()+std::string(".pdf")).c_str());
+        c1->SaveAs((h->GetName()+std::string(".png")).c_str());
     }
     
-    system("convert *pdf -quality 100 file.pdf"); //Only if imagemagick is installed.
-    system(R"--(ls *pdf | grep -xv "file.pdf" | parallel rm)--");
+//    system("convert *pdf -quality 100 file.pdf"); //Only if imagemagick is installed.
+//    system(R"--(ls *pdf | grep -xv "file.pdf" | parallel rm)--");
 
     auto end_time = Clock::now();
     std::cout << "Time difference:"
