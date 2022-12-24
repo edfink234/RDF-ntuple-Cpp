@@ -437,6 +437,12 @@ void RDF_analyse()
             str = var;
             str.erase(std::remove(str.begin(), str.end(), ':'), str.end());
             c1->SaveAs((str+histNames[i]+".png").c_str());
+            if (histNames[i] == "02MassCutTrackingNumTracks")
+            {
+//                std::cout << *no_tracks_inv_mass.Count() << '\n';
+                std::cout << "# events for " << var << " = "
+                << resultmaps[i][var].GetEntries() << '\n';
+            }
         }
     }
     
