@@ -35,7 +35,7 @@ void RDF_analyse_h_Za()
     SchottDataFrame df(MakeRDF(input_filenames, 8));
     
 //    df.Describe().Print();
-    
+//    exit(1);
 //    auto verbosity = ROOT::Experimental::RLogScopedVerbosity(ROOT::Detail::RDF::RDFLogChannel(), ROOT::Experimental::ELogLevel::kInfo);
     
     auto stable_truth_photons = df.Define("stable_truth_photons", [&](RVec<TruthParticle> truth_particles)
