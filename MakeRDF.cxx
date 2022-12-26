@@ -7,9 +7,9 @@
 #include "TBranch.h"
 #include "TInterpreter.h"
 
-#include "MakeRDF.h"
-#include "RDFObjects.h"
-#include "RDFevent.h"
+#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
+#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
+#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFevent.h"
 
 TChain RDFTree::__chain{"physics"};
 TChain RDFTree::__event_info_chain{"full_event_info"};
@@ -27,16 +27,24 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
     {
         ROOT::EnableImplicitMT(numThreads);
     }
-    //load objects
-    gInterpreter->LoadMacro("RDFObjects.h");
-    //then load printValue overloads so objects can be printed
-    gInterpreter->Declare("std::string cling::printValue(TruthParticle *);");
-    gInterpreter->Declare("std::string cling::printValue(Electron *);");
-    gInterpreter->Declare("std::string cling::printValue(Muon *);");
-    gInterpreter->Declare("std::string cling::printValue(Photon *);");
-    gInterpreter->Declare("std::string cling::printValue(Cluster *);");
-    gInterpreter->Declare("std::string cling::printValue(Track *);");
+    static bool loaded = false;
     
+    if (!loaded)
+    {
+        //load objects
+        gInterpreter->LoadMacro("/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h");
+        //then load printValue overloads so objects can be printed
+        gInterpreter->Declare("std::string cling::printValue(TruthParticle *);");
+        gInterpreter->Declare("std::string cling::printValue(Electron *);");
+        gInterpreter->Declare("std::string cling::printValue(Muon *);");
+        gInterpreter->Declare("std::string cling::printValue(Photon *);");
+        gInterpreter->Declare("std::string cling::printValue(Cluster *);");
+        gInterpreter->Declare("std::string cling::printValue(Track *);");
+        loaded = true;
+    }
+    
+    RDFTree::__chain.Reset();
+    RDFTree::__event_info_chain.Reset();
     for (const auto& f: files)
     {
         RDFTree::__chain.Add(f.c_str());

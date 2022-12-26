@@ -296,7 +296,6 @@ void RDF_analyse()
         
         return four_momentum.M()/1e3;
     }, {"selected_photons"})
-
     .Define("num_tracks_no_tracks_inv_mass", [&](RVec<Track>& tracks)
     {
         return tracks.size();
@@ -344,7 +343,6 @@ void RDF_analyse()
         
         return four_momentum.M()/1e3;
     }, {"selected_photons"})
-
     .Define("num_tracks_no_tracks", [&](RVec<Track>& tracks)
     {
         return tracks.size();
