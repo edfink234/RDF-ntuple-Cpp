@@ -43,7 +43,7 @@ struct Electron final
     float electron_isolation;
     float electron_d0;
     float electron_z0;
-//    int   electron_id_medium;
+    int   electron_id_medium;
     
     PtEtaPhiEVector Vector()
     {

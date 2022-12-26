@@ -75,7 +75,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         }
         return x;
     }, {"mc_pdg_id", "mc_barcode", "mc_parent_barcode", "mc_status", "mc_pt", "mc_charge", "mc_eta", "mc_phi", "mc_e", "mc_mass"})
-    .Define("electrons",[&](RVec<float>& electron_charge, RVec<float>& electron_pt, RVec<float>& electron_e, RVec<float>& electron_eta, RVec<float>& electron_phi, /*RVec<float>& electron_id,*/ RVec<float>& electron_isolation, RVec<float>& electron_d0, RVec<float>& electron_z0 /*, RVec<float>& electron_id_medium*/)
+    .Define("electrons",[&](RVec<float>& electron_charge, RVec<float>& electron_pt, RVec<float>& electron_e, RVec<float>& electron_eta, RVec<float>& electron_phi, /*RVec<float>& electron_id,*/ RVec<float>& electron_isolation, RVec<float>& electron_d0, RVec<float>& electron_z0 , RVec<int>& electron_id_medium)
     {
         RVec<Electron> x;
         x.reserve(electron_pt.size());
@@ -91,11 +91,11 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
             temp.electron_isolation =  electron_isolation[i];
             temp.electron_d0 =  electron_d0[i];
             temp.electron_z0 =  electron_z0[i];
-//            temp.electron_id_medium =  electron_id_medium[i];
+            temp.electron_id_medium =  electron_id_medium[i];
             x.push_back(temp);
         }
         return x;
-    }, {"electron_charge", "electron_pt", "electron_e", "electron_eta", "electron_phi", /*"electron_id",*/ "electron_isolation", "electron_d0", "electron_z0", /*"electron_id_medium",*/})
+    }, {"electron_charge", "electron_pt", "electron_e", "electron_eta", "electron_phi", /*"electron_id",*/ "electron_isolation", "electron_d0", "electron_z0", "electron_id_medium",})
     .Define("muons",[&](RVec<int>& muon_charge, RVec<float>& muon_pt, RVec<float>& muon_e, RVec<float>& muon_eta, RVec<float>& muon_phi)
     {
         RVec<Muon> x;
