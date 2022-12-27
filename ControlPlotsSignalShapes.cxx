@@ -76,10 +76,10 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-
+//Other mA5 file: /Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root
 void fig1A()
 {
-    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
+    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
     };
     
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos;
@@ -185,7 +185,8 @@ void fig1A()
             h->Scale(factor/h->Integral());
             h->SetTitle(";m_{ll}  [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
-            h->SetAxisRange(0., 3300,"Y");
+            h->SetAxisRange(0., 350,"Y");
+//            h->SetAxisRange(0., 3300,"Y");
             h->Draw("HIST");
         }
         else
@@ -365,7 +366,7 @@ void fig5()
     histos[0]->SetTitle(";Truth photon p_{T}  [GeV];Events");
     histos[0]->SetTitleOffset(1.2);
     histos[0]->GetYaxis()->CenterTitle(true);
-    histos[0]->SetAxisRange(0., 2000,"Y");
+    histos[0]->SetAxisRange(0., 1800,"Y");
     
     histos[1]->Scale(factor/histos[1]->Integral());
     histos[1]->SetLineColor(colors[1]);
@@ -391,7 +392,7 @@ void fig5()
     histos[2]->Draw("HIST");
     
     histos[2]->GetYaxis()->CenterTitle(true);
-    histos[2]->SetAxisRange(0., 1500,"Y");
+    histos[2]->SetAxisRange(0., 1200,"Y");
     
     legend->AddEntry(&(*histos[2]), histos[2]->GetTitle(), "l");
     histos[2]->SetTitle(";Truth #Delta R_{#gamma#gamma}; Events");
@@ -643,7 +644,7 @@ void fig6()
     histos[0]->SetTitle(";photon p_{T}  [GeV];Events");
     histos[0]->SetTitleOffset(1.2);
     histos[0]->GetYaxis()->CenterTitle(true);
-    histos[0]->SetAxisRange(0., 100,"Y");
+    histos[0]->SetAxisRange(0., 80,"Y");
     
     histos[1]->Scale(factor/histos[1]->Integral());
     histos[1]->SetLineColor(colors[1]);
@@ -688,7 +689,7 @@ void fig6()
 void fig8()
 {
     std::vector<std::string> input_filenames = {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
     };
     
@@ -980,7 +981,8 @@ void fig8()
             h->Scale(factor/h->Integral());
             h->SetTitle(";ll p_{T} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
-            h->SetAxisRange(0., 300,"Y");
+            h->SetAxisRange(0., 48,"Y");
+//            h->SetAxisRange(0., 300,"Y");
             h->Draw("HIST");
         }
         else
@@ -1014,7 +1016,8 @@ void fig8()
             h->Scale(factor/h->Integral());
             h->SetTitle(";#gamma#gamma p_{T} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
-            h->SetAxisRange(0., 250,"Y");
+            h->SetAxisRange(0., 38,"Y");
+//            h->SetAxisRange(0., 250,"Y");
             h->Draw("HIST");
         }
         else
@@ -1022,7 +1025,8 @@ void fig8()
             h->Scale(factor/h->Integral());
             h->SetTitle(";#gamma#gamma p_{T} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
-            h->SetAxisRange(0., 250,"Y");
+            h->SetAxisRange(0., 38,"Y");
+//            h->SetAxisRange(0., 250,"Y");
             h->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
@@ -1049,7 +1053,8 @@ void fig8()
             h->Scale(factor/h->Integral());
             h->SetTitle(";ll#gamma#gamma p_{T} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
-            h->SetAxisRange(0., 155,"Y");
+            h->SetAxisRange(0., 25,"Y");
+//            h->SetAxisRange(0., 155,"Y");
             h->Draw("HIST");
         }
         else
@@ -1057,7 +1062,8 @@ void fig8()
             h->Scale(factor/h->Integral());
             h->SetTitle(";ll#gamma#gamma p_{T} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
-            h->SetAxisRange(0., 155,"Y");
+            h->SetAxisRange(0., 25,"Y");
+//            h->SetAxisRange(0., 155,"Y");
             h->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
@@ -1084,7 +1090,8 @@ void fig8()
             h->Scale(factor/h->Integral());
             h->SetTitle(";#Delta R ll#gamma#gamma;Events");
             h->GetYaxis()->CenterTitle(true);
-            h->SetAxisRange(0., 130,"Y");
+            h->SetAxisRange(0., 20,"Y");
+//            h->SetAxisRange(0., 130,"Y");
             h->Draw("HIST");
         }
         else
@@ -1092,7 +1099,8 @@ void fig8()
             h->Scale(factor/h->Integral());
             h->SetTitle(";#Delta R ll#gamma#gamma;Events");
             h->GetYaxis()->CenterTitle(true);
-            h->SetAxisRange(0., 130,"Y");
+            h->SetAxisRange(0., 20,"Y");
+//            h->SetAxisRange(0., 130,"Y");
             h->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
@@ -1119,7 +1127,8 @@ void fig8()
             h->Scale(factor/h->Integral());
             h->SetTitle(";#Delta#phi ll#gamma#gamma;Events");
             h->GetYaxis()->CenterTitle(true);
-            h->SetAxisRange(0., 200,"Y");
+            h->SetAxisRange(0., 35,"Y");
+//            h->SetAxisRange(0., 200,"Y");
             h->Draw("HIST");
         }
         else
@@ -1127,7 +1136,8 @@ void fig8()
             h->Scale(factor/h->Integral());
             h->SetTitle(";#Delta#phi ll#gamma#gamma;Events");
             h->GetYaxis()->CenterTitle(true);
-            h->SetAxisRange(0., 200,"Y");
+            h->SetAxisRange(0., 35,"Y");
+//            h->SetAxisRange(0., 200,"Y");
             h->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
@@ -1154,7 +1164,8 @@ void fig8()
             h->Scale(factor/h->Integral());
             h->SetTitle(";#Delta#eta ll#gamma#gamma;Events");
             h->GetYaxis()->CenterTitle(true);
-            h->SetAxisRange(0., 130,"Y");
+            h->SetAxisRange(0., 20,"Y");
+//            h->SetAxisRange(0., 130,"Y");
             h->Draw("HIST");
         }
         else
@@ -1162,7 +1173,8 @@ void fig8()
             h->Scale(factor/h->Integral());
             h->SetTitle(";#Delta#eta ll#gamma#gamma;Events");
             h->GetYaxis()->CenterTitle(true);
-            h->SetAxisRange(0., 130,"Y");
+            h->SetAxisRange(0., 20,"Y");
+//            h->SetAxisRange(0., 130,"Y");
             h->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
@@ -1179,7 +1191,7 @@ void fig8()
 void fig10()
 {
     std::vector<std::string> input_filenames = {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
     };
     
@@ -1490,7 +1502,7 @@ void fig10()
 void fig18()
 {
     std::vector<std::string> input_filenames = {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
     };
     
@@ -1751,7 +1763,8 @@ void fig18()
             h->SetTitle(";p_{T_{#gamma#gamma}} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 1250,"Y");
+            h->SetAxisRange(0., 170,"Y");
+//            h->SetAxisRange(0., 1250,"Y");
             h->Draw("HIST");
         }
         else
@@ -1787,7 +1800,7 @@ void fig18()
             h->SetTitle(";p_{T_{#gamma#gamma}} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 450,"Y");
+            h->SetAxisRange(0., 430,"Y");
             h->Draw("HIST");
         }
         else
@@ -1796,7 +1809,7 @@ void fig18()
             h->SetTitle(";p_{T_{#gamma#gamma}} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 450,"Y");
+            h->SetAxisRange(0., 430,"Y");
             h->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
@@ -1814,7 +1827,7 @@ void fig18()
 void fig24()
 {
     std::vector<std::string> input_filenames = {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
     };
     
@@ -2000,26 +2013,63 @@ void fig24()
             
         }, {"photons_pass_cuts", "truth_photons_from_axions"});
         
-        auto two_reco_photons_matched = reco_photons_matched.Filter(
+        auto two_reco_photons_matched = reco_photons_matched.Define("chosen_two",
+        [](RVec<Photon>& reco_photons_matched)
+        {
+            RVec<Photon> x;
+            if (reco_photons_matched.size() < 2)
+            {
+                return x;
+            }
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X;
+
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+                {
+                    x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                    return x;
+                }
+            }
+            return x;
+        }, {"reco_photons_matched"}).Filter(
         [&](RVec<Photon>& reco_photons_matched)
         {
-            double delta_r = DeltaR(reco_photons_matched[0].Vector(), reco_photons_matched[1].Vector());
-            double m = (reco_photons_matched[0].Vector() + reco_photons_matched[1].Vector()).M();
-            double pt = (reco_photons_matched[0].Vector() + reco_photons_matched[1].Vector()).Pt();
-            double X = delta_r*(pt/(2.0*m));
-            
-            return ((reco_photons_matched.size()==2)
-            && (delta_r < 1.5)
-            && (X > 0.96)
-                    && (X < 1.2));
-            
-        }, {"reco_photons_matched"})
+            return (reco_photons_matched.size()==2);
+        }, {"chosen_two"})
         .Define("reco_photons_from_axions_deltaR",
         [&](RVec<Photon>& reco_photons_matched)
         {
             return DeltaR(reco_photons_matched[0].Vector(), reco_photons_matched[1].Vector());
             
         }, {"reco_photons_matched"});
+        
+//        auto two_reco_photons_matched = reco_photons_matched.Filter(
+//        [&](RVec<Photon>& reco_photons_matched)
+//        {
+//            double delta_r = DeltaR(reco_photons_matched[0].Vector(), reco_photons_matched[1].Vector());
+//            double m = (reco_photons_matched[0].Vector() + reco_photons_matched[1].Vector()).M();
+//            double pt = (reco_photons_matched[0].Vector() + reco_photons_matched[1].Vector()).Pt();
+//            double X = delta_r*(pt/(2.0*m));
+//
+//            return ((reco_photons_matched.size()==2)
+//            && (delta_r < 1.5)
+//            && (X > 0.96)
+//                    && (X < 1.2));
+//
+//        }, {"reco_photons_matched"})
+//        .Define("reco_photons_from_axions_deltaR",
+//        [&](RVec<Photon>& reco_photons_matched)
+//        {
+//            return DeltaR(reco_photons_matched[0].Vector(), reco_photons_matched[1].Vector());
+//
+//        }, {"reco_photons_matched"});
         
 //        std::cout << *stable_truth_dileptons_and_diphotons.Count() << '\n';
 
@@ -2047,7 +2097,9 @@ void fig24()
             h->SetTitle(";#Delta R_{#gamma#gamma} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 500,"Y");
+            h->SetAxisRange(0., 82,"Y");
+//            h->SetAxisRange(0., 500,"Y");
+
             h->Draw("HIST");
         }
         else
@@ -2082,7 +2134,7 @@ void fig24()
             h->SetTitle(";#Delta R_{#gamma#gamma} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
-//            h->SetAxisRange(0., 450,"Y");
+            h->SetAxisRange(0., 36,"Y");
             h->Draw("HIST");
         }
         else
@@ -2091,7 +2143,7 @@ void fig24()
             h->SetTitle(";#Delta R_{#gamma#gamma} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
-//            h->SetAxisRange(0., 450,"Y");
+            h->SetAxisRange(0., 36,"Y");
             h->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
@@ -2108,7 +2160,7 @@ void fig24()
 void fig54()
 {
     std::vector<std::string> input_filenames = {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
     };
     
@@ -2425,7 +2477,8 @@ void fig54()
             h->SetTitle(";m_{ll#gamma} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 1200,"Y");
+            h->SetAxisRange(0., 155,"Y");
+//            h->SetAxisRange(0., 1200,"Y");
             h->Draw("HIST");
         }
         else
@@ -2460,7 +2513,8 @@ void fig54()
             h->SetTitle(";#Delta R (ll,#gamma) ;Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 210,"Y");
+            h->SetAxisRange(0., 29,"Y");
+//            h->SetAxisRange(0., 210,"Y");
             h->Draw("HIST");
         }
         else
@@ -2469,7 +2523,8 @@ void fig54()
             h->SetTitle(";#Delta R (ll,#gamma) ;Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 210,"Y");
+            h->SetAxisRange(0., 29,"Y");
+//            h->SetAxisRange(0., 210,"Y");
             h->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
@@ -2561,13 +2616,13 @@ void fig54()
 void ControlPlotsSignalShapes()
 {
     auto start_time = Clock::now();
-//    fig1A();
-//    fig5();
-//    fig6();
-//    fig8();
-//    fig10();
-//    fig18();
-//    fig24();
+    fig1A();
+    fig5();
+    fig6();
+    fig8();
+    fig10();
+    fig18();
+    fig24();
     fig54();
     
     
