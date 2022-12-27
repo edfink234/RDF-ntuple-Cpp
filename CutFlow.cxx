@@ -309,12 +309,188 @@ void Table8()
     }
 }
 
+void Table11()
+{
+    std::vector<std::string> input_filenames = {
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"
+    };
+    
+    std::vector<std::string> cutFlows;
+    cutFlows.reserve(input_filenames.size());
+    constexpr std::array<const char*,3> Samples = {R"--(Signal $m_{\text{A}}$ = 1 GeV)--", "Data", R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
+    
+    int count = 0;
+    std::ostringstream os;
+    os << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    os << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
+    os << R"--(\hline)--" << '\n';
+    os << R"--(Sample & Total Events & pass preselection (PS) & photon $p_T$ + $\Delta R_{\gamma\gamma}$ cut & $X$ window & SR & SR-ID
+           \\ \hline )--" << '\n';
+    for (auto& file: input_filenames)
+    {
+        SchottDataFrame df(MakeRDF({file}, 8));
+        
+        auto two_leptons = df.Filter(
+        [](RVec<Muon>& muons, RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                          && (ep.electron_id_medium == 1)));
+                
+            }), electrons.end());
+            
+            return (electrons.size()==2 && muons.empty());
+            
+        }, {"muons", "electrons"});
+        
+        auto opp_charge = two_leptons.Define("di_electrons",
+        [](RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                && (ep.electron_id_medium == 1)));
+
+            }), electrons.end());
+            
+            return electrons;
+            
+        },{"electrons"})
+        .Filter([](RVec<Electron> electrons)
+        {
+            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+            
+        }, {"di_electrons"});
+        
+        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+        {
+            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+        }, {"di_electrons"});
+        
+        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+        {
+            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+        }, {"di_electrons"});
+        
+        auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
+        {
+            auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+            return ((mass >= 81) && (mass <= 101));
+        }, {"di_electrons"});
+        
+        auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
+        {
+            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+            return pT > 10;
+        }, {"di_electrons"});
+        
+        auto photonPtDeltaR = ptCut.Define("photonPtDeltaR",
+        [&](RVec<Photon> photons)
+        {
+            photons.erase(std::remove_if(photons.begin(),photons.end(),
+            [](Photon& x)
+            {
+                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+
+            }), photons.end());
+            return photons;
+        }, {"photons"}).Filter(
+       [&](RVec<Photon>& reco_photons_matched)
+       {
+           if (reco_photons_matched.size() < 2)
+           {
+               return false;
+           }
+           auto combs = Combinations(reco_photons_matched, 2);
+           size_t length = combs[0].size();
+           double delta_r;
+
+           for (size_t i=0; i<length; i++)
+           {
+               delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+               if ((delta_r < 1.5))
+               {
+                   return true;
+               }
+           }
+           return false;
+
+       }, {"photonPtDeltaR"});
+                
+        auto X_window = photonPtDeltaR.Define("chosen_two",
+        [](RVec<Photon>& reco_photons_matched)
+        {
+            RVec<Photon> x;
+            if (reco_photons_matched.size() < 2)
+            {
+                return x;
+            }
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X;
+
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if ((X > 0.96) && (X < 1.2))
+                {
+                    x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                    return x;
+                }
+            }
+            return x;
+        }, {"photonPtDeltaR"}).Filter(
+        [&](RVec<Photon>& reco_photons_matched)
+        {
+            return (reco_photons_matched.size()==2);
+        }, {"chosen_two"});
+                
+        auto SR = X_window.Filter(
+        [](RVec<Photon>& photons, RVec<Electron>& electrons)
+        {
+            PtEtaPhiEVector photonVec = photons[0].Vector() + photons[1].Vector();
+            PtEtaPhiEVector electronVec = electrons[0].Vector() + electrons[1].Vector();
+            auto mass = (photonVec+electronVec).M()/1e3;
+            return ((mass >= 110) && (mass <= 140));
+        },{"chosen_two","di_electrons"});
+                
+        auto SR_ID = SR.Filter(
+        [](RVec<Photon>& photons)
+        {
+            return (photons[0].photon_id_loose && photons[1].photon_id_loose);
+        },{"chosen_two"});
+
+        os << Samples[count++] << " & " << *df.Count() << " & " <<
+                *ptCut.Count() << " & " << *photonPtDeltaR.Count() << " & " << *X_window.Count()
+                << " & " << *SR.Count() << " & " << *SR_ID.Count()
+                << R"--( \\ \hline )--" << '\n';
+
+    }
+    os << R"--(\end{tabular}})--" << '\n';
+    cutFlows.push_back(os.str());
+    for (auto& i: cutFlows)
+    {
+        std::cout << i << "\n\n";
+    }
+}
+
 void CutFlow()
 {
     auto start_time = Clock::now();
     
     Table3();
     Table8();
+    Table11();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "
