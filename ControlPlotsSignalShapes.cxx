@@ -395,7 +395,7 @@ void fig5()
     histos[2]->SetAxisRange(0., 1200,"Y");
     
     legend->AddEntry(&(*histos[2]), histos[2]->GetTitle(), "l");
-    histos[2]->SetTitle(";Truth #Delta R_{#gamma#gamma}; Events");
+    histos[2]->SetTitle(";Truth #DeltaR_{#gamma#gamma}; Events");
 
     histos[3]->Scale(factor/histos[3]->Integral());
     histos[3]->SetLineColor(colors[1]);
@@ -949,7 +949,7 @@ void fig8()
             PtEtaPhiEVector four_momentum_photons = truth_photons_from_axions[0].Vector() + truth_photons_from_axions[1].Vector();
             PtEtaPhiEVector four_momentum_leptons = stable_truth_leptons[0].Vector() + stable_truth_leptons[1].Vector();
             
-            return abs((four_momentum_photons - four_momentum_leptons).Phi());
+            return abs((four_momentum_photons - four_momentum_leptons).Eta());
         }, {"truth_photons_from_axions", "stable_truth_leptons"});
         
 //        std::cout << *stable_truth_dileptons_and_diphotons.Count() << '\n';
@@ -1088,7 +1088,7 @@ void fig8()
         {
             factor = h->Integral();
             h->Scale(factor/h->Integral());
-            h->SetTitle(";#Delta R ll#gamma#gamma;Events");
+            h->SetTitle(";#DeltaR ll#gamma#gamma;Events");
             h->GetYaxis()->CenterTitle(true);
             h->SetAxisRange(0., 20,"Y");
 //            h->SetAxisRange(0., 130,"Y");
@@ -1097,7 +1097,7 @@ void fig8()
         else
         {
             h->Scale(factor/h->Integral());
-            h->SetTitle(";#Delta R ll#gamma#gamma;Events");
+            h->SetTitle(";#DeltaR ll#gamma#gamma;Events");
             h->GetYaxis()->CenterTitle(true);
             h->SetAxisRange(0., 20,"Y");
 //            h->SetAxisRange(0., 130,"Y");
@@ -1441,7 +1441,7 @@ void fig10()
         {
             factor = h->Integral();
             h->Scale(factor/h->Integral());
-            h->SetTitle(";#Delta R_{#gamma#gamma};Events");
+            h->SetTitle(";#DeltaR_{#gamma#gamma};Events");
             h->GetYaxis()->CenterTitle(true);
 //            h->SetAxisRange(0., 300,"Y");
             h->Draw("HIST");
@@ -1475,7 +1475,7 @@ void fig10()
         {
             factor = h->Integral();
             h->Scale(factor/h->Integral());
-            h->SetTitle(";#Delta R_{#gamma#gamma};Events");
+            h->SetTitle(";#DeltaR_{#gamma#gamma};Events");
             h->GetYaxis()->CenterTitle(true);
 //            h->SetAxisRange(0., 300,"Y");
             h->Draw("HIST");
@@ -1780,7 +1780,7 @@ void fig18()
     Tl.SetTextSize(0.03);
     Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
     Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-    Tl.DrawLatexNDC(0.6, 0.6,"m_{A} = 5 GeV, #Delta R = 0.1");
+    Tl.DrawLatexNDC(0.6, 0.6,"m_{A} = 5 GeV, #DeltaR = 0.1");
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig18A.png");
@@ -1818,7 +1818,7 @@ void fig18()
     Tl.SetTextSize(0.03);
     Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
     Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-    Tl.DrawLatexNDC(0.6, 0.6,"m_{A} = 1 GeV, #Delta R = 0.1");
+    Tl.DrawLatexNDC(0.6, 0.6,"m_{A} = 1 GeV, #DeltaR = 0.1");
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig18B.png");
@@ -2071,7 +2071,7 @@ void fig24()
         {
             factor = h->Integral();
             h->Scale(factor/h->Integral());
-            h->SetTitle(";#Delta R_{#gamma#gamma} [GeV];Events");
+            h->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
             h->SetAxisRange(0., 82,"Y");
@@ -2108,7 +2108,7 @@ void fig24()
         {
             factor = h->Integral();
 //            h->Scale(factor/h->Integral());
-            h->SetTitle(";#Delta R_{#gamma#gamma} [GeV];Events");
+            h->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
             h->SetAxisRange(0., 36,"Y");
@@ -2117,7 +2117,7 @@ void fig24()
         else
         {
 //            h->Scale(factor/h->Integral());
-            h->SetTitle(";#Delta R_{#gamma#gamma} [GeV];Events");
+            h->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
             h->SetAxisRange(0., 36,"Y");
@@ -2487,7 +2487,7 @@ void fig54()
         {
             factor = h->Integral();
             h->Scale(factor/h->Integral());
-            h->SetTitle(";#Delta R (ll,#gamma) ;Events");
+            h->SetTitle(";#DeltaR (ll,#gamma) ;Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
             h->SetAxisRange(0., 29,"Y");
@@ -2497,7 +2497,7 @@ void fig54()
         else
         {
             h->Scale(factor/h->Integral());
-            h->SetTitle(";#Delta R (ll,#gamma) ;Events");
+            h->SetTitle(";#DeltaR (ll,#gamma) ;Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
             h->SetAxisRange(0., 29,"Y");
