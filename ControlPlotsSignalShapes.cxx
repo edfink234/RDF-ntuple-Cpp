@@ -2048,7 +2048,7 @@ void fig24()
         {
             return DeltaR(reco_photons_matched[0].Vector(), reco_photons_matched[1].Vector());
             
-        }, {"reco_photons_matched"});
+        }, {"chosen_two"});
         
 //        auto two_reco_photons_matched = reco_photons_matched.Filter(
 //        [&](RVec<Photon>& reco_photons_matched)
