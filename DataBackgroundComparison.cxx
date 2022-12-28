@@ -15,6 +15,7 @@
 #include "TCanvas.h"
 #include "TH1.h"
 #include "TH1D.h"
+#include "THStack.h"
 #include "TStyle.h"
 #include "TPaveText.h"
 #include "TLatex.h"
@@ -79,9 +80,17 @@ constexpr std::array<const char*,35> triggers =
 
 void fig27()
 {
+    auto hs = new THStack("hs","");
+    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"
+    }; //"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"};
     
-    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"};
-    int count=0;
+    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "data"};
+//    "pty_17_myy_80"};
+    std::vector<EColor> colors = {kBlue, kRed, kGreen};
+    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos;
+    histos.reserve(3);
+    int count = 0;
     for (auto& i: input_filenames)
     {
         SchottDataFrame df(MakeRDF({i}, 8));
@@ -193,12 +202,48 @@ void fig27()
           return (diph[0].Vector()+diph[1].Vector()).M()/1e3;
         }, {"chosen_two"});
         
-        ROOT::RDF::RResultPtr<TH1D> temp = diphotons.Histo1D<double>({"Background", "Background", 100u, 0, 120}, "mass");
+//        std::cout << *(diphotons.Min<double>("mass")) << '\n';
+//        std::cout << *(diphotons.Count()) << '\n';
         
-        TCanvas* c1 = new TCanvas();
-        temp->Draw();
-        c1->SaveAs(("Fig27_"+std::to_string(count++)+".png").c_str());
+        histos.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 95}, "mass"));
+        
+        auto passed = diphotons.Count();
+        std::cout << *passed << '\n';
     }
+    
+    
+    double factor;
+    TCanvas* c1 = new TCanvas();
+    TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+    count = 0;
+    for (auto& h: histos)
+    {
+        h->SetFillColor(colors[count++]);
+        legend->AddEntry(&(*h), h->GetTitle(), "f");
+    
+//            factor = h->Integral();
+//            h->Scale(factor/h->Integral());
+//            h->SetAxisRange(0., 82,"Y");
+//            h->SetAxisRange(0., 500,"Y");
+        if (&h != &histos.back())
+            hs->Add(&*h);
+//            h->Draw("HIST");
+            
+    }
+
+    hs->Draw("HIST");
+    hs->SetTitle(";m_{#gamma#gamma} [GeV];Events");
+    hs->GetYaxis()->CenterTitle(true);
+    hs->GetXaxis()->SetTitleOffset(1.2);
+    histos[2]->Draw("same");
+    gStyle->SetOptStat(0);
+    TLatex Tl;
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Fig27_stacked.png");
     
     
 }
