@@ -2049,29 +2049,6 @@ void fig24()
             return DeltaR(reco_photons_matched[0].Vector(), reco_photons_matched[1].Vector());
             
         }, {"chosen_two"});
-        
-//        auto two_reco_photons_matched = reco_photons_matched.Filter(
-//        [&](RVec<Photon>& reco_photons_matched)
-//        {
-//            double delta_r = DeltaR(reco_photons_matched[0].Vector(), reco_photons_matched[1].Vector());
-//            double m = (reco_photons_matched[0].Vector() + reco_photons_matched[1].Vector()).M();
-//            double pt = (reco_photons_matched[0].Vector() + reco_photons_matched[1].Vector()).Pt();
-//            double X = delta_r*(pt/(2.0*m));
-//
-//            return ((reco_photons_matched.size()==2)
-//            && (delta_r < 1.5)
-//            && (X > 0.96)
-//                    && (X < 1.2));
-//
-//        }, {"reco_photons_matched"})
-//        .Define("reco_photons_from_axions_deltaR",
-//        [&](RVec<Photon>& reco_photons_matched)
-//        {
-//            return DeltaR(reco_photons_matched[0].Vector(), reco_photons_matched[1].Vector());
-//
-//        }, {"reco_photons_matched"});
-        
-//        std::cout << *stable_truth_dileptons_and_diphotons.Count() << '\n';
 
         histos_unweighted.push_back(two_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 0.8}, "reco_photons_from_axions_deltaR"));
         histos_weighted.push_back(two_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 0.8}, "reco_photons_from_axions_deltaR"));
