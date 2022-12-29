@@ -1,0 +1,342 @@
+#include <iostream>
+#include <vector>
+#include <chrono>
+#include <algorithm>
+#include <unordered_map>
+#include <iomanip>
+
+#include <string>
+#include <array>
+#include <cstdlib>
+
+#include <ROOT/RLogger.hxx>
+#include "Math/VectorUtil.h"
+#include "ROOT/RDataFrame.hxx"
+#include "TFile.h"
+#include "TTree.h"
+#include "TChain.h"
+#include "TCanvas.h"
+#include "TH1.h"
+#include "TH1D.h"
+#include "THStack.h"
+#include "TStyle.h"
+#include "TPaveText.h"
+#include "TLatex.h"
+#include "TLegend.h"
+#include "Rtypes.h"
+
+#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
+#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
+#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFevent.h"
+
+using namespace ROOT::VecOps; // RVec
+using namespace ROOT::Math::VectorUtil; // DeltaR
+using namespace ROOT::Math; // PtEtaPhiEVector
+
+using Clock = std::chrono::high_resolution_clock;
+
+constexpr std::array<const char*,35> triggers =
+{
+    "HLT_e26_lhtight_nod0_ivarloose",
+    "HLT_e60_lhmedium_nod0",
+    "HLT_e140_lhloose_nod0",
+    "HLT_mu26_ivarmedium",
+    "HLT_mu50",
+    
+    "HLT_e26_lhtight_nod0_ivarloose",
+    "HLT_e60_lhmedium_nod0",
+    "HLT_e140_lhloose_nod0",
+    "HLT_mu26_ivarmedium",
+    "HLT_mu50",
+    
+    "HLT_e24_lhtight_nod0_ivarloose",
+    "HLT_e26_lhtight_nod0_ivarloose",
+    "HLT_e60_lhmedium_nod0",
+    "HLT_e60_medium",
+    "HLT_e140_lhloose_nod0",
+    "HLT_mu26_ivarmedium",
+    "HLT_mu50",
+    
+    "HLT_e24_lhmedium_L1EM20VH",
+    "HLT_e60_lhmedium",
+    "HLT_e120_lhloose",
+    "HLT_mu20_iloose_L1MU15",
+    "HLT_mu50",
+    
+    "HLT_2e17_lhvloose_nod0_L12EM15VHI",
+    "HLT_2e17_lhvloose_nod0",
+    "HLT_2e24_lhvloose_nod0",
+    "HLT_mu22_mu8noL1",
+    
+    "HLT_2e17_lhvloose_nod0_L12EM15VHI",
+    "HLT_2e17_lhvloose_nod0",
+    "HLT_2e24_lhvloose_nod0",
+    "HLT_mu22_mu8noL1",
+    
+    "HLT_2e15_lhvloose_nod0_L12EM13VHI",
+    "HLT_2e17_lhvloose_nod0",
+    "HLT_mu22_mu8noL1",
+    
+    "HLT_2e12_lhvloose_L12EM10VH",
+    "HLT_mu18_mu8noL1",
+};
+
+void Table4()
+{
+    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
+    };
+    
+    constexpr std::array<float, 2> prefixes = {5.0, 1.0};
+    
+    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+    {
+        RVec<TruthParticle> truthSelected;
+        bool foundParent;
+        if (truthChain.size() >= 1)
+        {
+            TruthParticle tp;
+            for (auto& tpe: startParticles)
+            {
+                tp = tpe;
+                while (true)
+                {
+                    if (tp.mc_parent_barcode == targetBarcode)
+                    {
+                        truthSelected.push_back(tp);
+                        break;
+                    }
+                    else
+                    {
+                        foundParent = false;
+                        for (auto& tmp: truthChain)
+                        {
+                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+                            {
+                                tp = tmp;
+                                foundParent = true;
+                                break;
+                            }
+                        }
+                        if (foundParent == false)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return truthSelected;
+    };
+    int count = 0;
+    
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    std::cout << R"--($m_A$ \, (GeV) & Both photons matched (\%) & 1 photon matched (\%) & At least 1 photon matched (\%) & 0 photons matched (\%) \\ \hline )--" << '\n';
+    for (auto& i: input_filenames)
+    {
+        SchottDataFrame df(MakeRDF({i}, 8));
+        
+        auto preselection = df.Filter(
+        [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
+        {
+            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+
+            if (!trigger_found)
+            {
+                return false;
+            }
+            
+            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+            [](TruthParticle& x)
+            {
+                return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
+                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
+                        abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+                
+            }), truth_particles.end());
+            
+            if (truth_particles.size() != 2)
+            {
+                return false;
+            }
+            
+            if (DeltaR(truth_particles[0].Vector(), truth_particles[1].Vector()) <= 0.01)
+            {
+                return false;
+            }
+            
+            if (truth_particles[0].mc_charge*truth_particles[1].mc_charge >= 0)
+            {
+                return false;
+            }
+            
+            if (!((truth_particles[0].mc_pt > 27e3 && truth_particles[1].mc_pt > 20e3)
+                                                   ||
+                  (truth_particles[1].mc_pt > 27e3 && truth_particles[0].mc_pt > 20e3)))
+            {
+                return false;
+            }
+            
+            PtEtaPhiEVector dilepton = truth_particles[0].Vector() + truth_particles[1].Vector();
+            
+            if ((dilepton.M() < 81e3) || (dilepton.M() > 101e3))
+            {
+                return false;
+            }
+            
+            if ((truth_particles[0].Vector() + truth_particles[1].Vector()).Pt() <= 10e3)
+            {
+                return false;
+            }
+            
+            return true;
+            
+        }, {"trigger_passed_triggers", "truth_particles"});
+        
+    //    std::cout << *preselection.Count() << '\n';
+        
+        auto truth_photons_from_axions = preselection.Define("truth_photons",[&](RVec<TruthParticle> truth_particles)
+        {
+            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+            [](TruthParticle& x)
+            {
+                return (abs(x.mc_pdg_id) != 22);
+                
+            }), truth_particles.end());
+            
+            return truth_particles;
+            
+        }, {"truth_particles"})
+        .Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
+        {
+            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+            [](TruthParticle& x)
+            {
+                return (abs(x.mc_pdg_id) != 35);
+                
+            }), truth_particles.end());
+            
+            return truth_particles;
+            
+        }, {"truth_particles"}).Define("truth_photons_from_axions",
+        [&](RVec<TruthParticle>& truth_photons, RVec<TruthParticle>& truth_axions)
+        {
+            return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
+            
+        }, {"truth_photons", "truth_axions"})
+        .Filter([&] (RVec<TruthParticle>& truth_photons_from_axions)
+        {
+            return truth_photons_from_axions.size()==2;
+        }, {"truth_photons_from_axions"})
+        .Define("photons_pass_cuts",
+        [&](RVec<Photon> photons)
+        {
+            photons.erase(std::remove_if(photons.begin(),photons.end(),
+            [](Photon& x)
+            {
+                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+            }), photons.end());
+            
+            return photons;
+        }, {"photons"}).Filter([](RVec<Photon>& reco_photons_matched)
+        {
+            if (reco_photons_matched.size() < 2)
+            {
+                return false;
+            }
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X;
+
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }, {"photons_pass_cuts"});
+        
+        auto reco_photons_matched = truth_photons_from_axions.Define("reco_photons_matched",
+        [&](RVec<Photon>& chosen_two, RVec<TruthParticle>& truth_photons_from_axions)
+        {
+            RVec<Photon> matchedPhotons;
+            PtEtaPhiEVector tp1 = truth_photons_from_axions[0].Vector();
+            PtEtaPhiEVector tp2 = truth_photons_from_axions[1].Vector();
+            
+            for (auto& rp: chosen_two)
+            {
+                if ((DeltaR(rp.Vector(), tp1) < 0.2 || DeltaR(rp.Vector(), tp2) < 0.2))
+                {
+                    matchedPhotons.push_back(rp);
+                }
+            }
+            
+            std::sort(matchedPhotons.begin(),matchedPhotons.end(),
+            [](Photon& x, Photon& y)
+            {
+                return x.photon_pt > y.photon_pt;
+            });
+            
+            return matchedPhotons;
+            
+        }, {"photons_pass_cuts", "truth_photons_from_axions"});
+        
+        auto two_reco_photons_matched = reco_photons_matched.Filter(
+        [&](RVec<Photon>& reco_photons_matched)
+        {
+            return reco_photons_matched.size()==2;
+            
+        }, {"reco_photons_matched"});
+        
+        auto one_reco_photons_matched = reco_photons_matched.Filter(
+        [&](RVec<Photon>& reco_photons_matched)
+        {
+            return reco_photons_matched.size()==1;
+            
+        }, {"reco_photons_matched"});
+        
+//        auto zero_reco_photons_matched = reco_photons_matched.Filter(
+//        [&](RVec<Photon>& reco_photons_matched)
+//        {
+//            return reco_photons_matched.empty();
+//
+//        }, {"reco_photons_matched"});
+        
+        double total = *reco_photons_matched.Count();
+        
+        int both = *two_reco_photons_matched.Count();
+        int one = *one_reco_photons_matched.Count();
+        int atleastone = one + both;
+        int zero = total - atleastone;
+       
+        std::cout << prefixes[count++] << " & " << (both/total)*100
+        << " & " << (one/total)*100 << " & " << (atleastone/total)*100
+        << " & " << (zero/total)*100 << R"--(\\ \hline )--" << '\n';
+        
+    }
+    std::cout << R"--(\end{tabular}})--" << '\n';
+    
+    std::cout << "\n\n\n";
+    
+}
+
+void Categorization()
+{
+    auto start_time = Clock::now();
+    Table4();
+    auto end_time = Clock::now();
+    std::cout << "Time difference: "
+       << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
+}
+
+int main()
+{
+    Categorization();
+}
