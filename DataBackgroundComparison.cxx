@@ -1567,21 +1567,6 @@ void Table9()
     std::cout << "\n\n\n";
 }
 
-void DataBackgroundComparison()
-{
-    auto start_time = Clock::now();
-//    fig27();
-//    fig28();
-//    fig41();
-//    fig48();
-//    fig59();
-    Table9();
-    auto end_time = Clock::now();
-    std::cout << "Time difference: "
-       << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
-    
-}
-
 void Table10()
 {
     std::vector<std::string> input_filenames =
@@ -1710,97 +1695,81 @@ void Table10()
         return (reco_photons_matched[0].mc_pt < reco_photons_matched[1].mc_pt)
                 ? reco_photons_matched[0]
                 : reco_photons_matched[1];
-    },{"chosen_two"}).Define("leading_photon_pdg_id_origin",
-    [](TruthParticle& leading_photon, RVec<TruthParticle>& truth_particles)
+    },{"chosen_two"}).Define("photon_pdg_id_origin",
+    [](TruthParticle& leading_photon, TruthParticle& subleading_photon, RVec<TruthParticle>& truth_particles)
     {
-        TruthParticle origin = leading_photon;
-        int origin_id = 0;
-        bool found;
+        TruthParticle leading_origin = leading_photon;
+        TruthParticle subleading_origin = subleading_photon;
+        int leading_origin_id = 0, subleading_origin_id = 0;
+        bool leading_found, subleading_found;
         
         do
         {
-            found = false;
+            leading_found = false;
+            subleading_found = false;
             for (auto& i: truth_particles)
             {
-                if (origin.mc_parent_barcode == i.mc_barcode)
+                if (leading_origin.mc_parent_barcode == i.mc_barcode)
                 {
-                    origin = i;
-                    origin_id = i.mc_pdg_id;
-                    found = true;
+                    leading_origin = i;
+                    leading_origin_id = i.mc_pdg_id;
+                    leading_found = true;
+                }
+                
+                if (subleading_origin.mc_parent_barcode == i.mc_barcode)
+                {
+                    subleading_origin = i;
+                    subleading_origin_id = i.mc_pdg_id;
+                    subleading_found = true;
                 }
             }
-        } while (found);
+        } while (leading_found || subleading_found);
         
-        return origin_id;
-    }, {"leading_photon", "truth_particles"}).Define("subleading_photon_pdg_id_origin",
-    [](TruthParticle& subleading_photon, RVec<TruthParticle>& truth_particles)
-    {
-        TruthParticle origin = subleading_photon;
-        int origin_id = 0;
-        bool found;
-
-        do
-        {
-         found = false;
-         for (auto& i: truth_particles)
-         {
-             if (origin.mc_parent_barcode == i.mc_barcode)
-             {
-                 origin = i;
-                 origin_id = i.mc_pdg_id;
-                 found = true;
-             }
-         }
-        } while (found);
-
-        return origin_id;
-    }, {"subleading_photon", "truth_particles"});
+        return std::to_string(leading_origin_id)+"/"+std::to_string(subleading_origin_id);
+    }, {"leading_photon", "subleading_photon", "truth_particles"});
     
-    auto leading_ids = diphotons.Take<int, RVec<int>>("leading_photon_pdg_id_origin");
-    auto subleading_ids = diphotons.Take<int, RVec<int>>("subleading_photon_pdg_id_origin");
+    auto ids = diphotons.Take<std::string, RVec<std::string>>("photon_pdg_id_origin");
     
-    std::unordered_map<int,int> leading_id_freqs, subleading_id_freqs;
+    std::unordered_map<std::string,int> id_freqs;
     double total = *diphotons.Count();
     
-    for (auto& i: *leading_ids)
+    for (auto& i: *ids)
     {
-        leading_id_freqs[i]++;
-    }
-    
-    for (auto& i: *subleading_ids)
-    {
-        subleading_id_freqs[i]++;
+        id_freqs[i]++;
     }
     
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
     std::cout << R"--(\begin{tabular}{|c|c|})--" << '\n';
     std::cout << R"--(\hline)--" << '\n';
-    std::cout << R"--(\multicolumn{2}{|c|}{$ee\gamma\gamma$ Leading Photon}\\ \hline)--" << '\n';
+    std::cout << R"--(\multicolumn{2}{|c|}{$ee\gamma\gamma$ Leading/Subleading Photon Pairs}\\ \hline)--" << '\n';
     std::cout << R"--(Pdg id & \% \\ \hline )--" << '\n';
-    for (auto& i: leading_id_freqs)
+    for (auto& i: id_freqs)
     {
         std::cout << i.first << " & " << std::setprecision(2) << std::fixed
         << 100*(i.second/total) << R"--( \\ \hline)--" << '\n';
     }
-    std::cout << R"--(\end{tabular}})--" << '\n';
-    
-    std::cout << "\n\n\n";
-    
-    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
-    std::cout << R"--(\begin{tabular}{|c|c|})--" << '\n';
-    std::cout << R"--(\hline)--" << '\n';
-    std::cout << R"--(\multicolumn{2}{|c|}{$ee\gamma\gamma$ Sub-Leading Photon}\\ \hline)--" << '\n';
-    std::cout << R"--(Pdg id & \% \\ \hline )--" << '\n';
-    for (auto& i: subleading_id_freqs)
-    {
-        std::cout << i.first << " & " << std::setprecision(2) << std::fixed
-        << 100*(i.second/total) << R"--( \\ \hline)--" << '\n';
-    }
-    
     std::cout << R"--(\end{tabular}})--" << '\n';
     
     std::cout << "\n\n\n";
 }
+
+void DataBackgroundComparison()
+{
+    auto start_time = Clock::now();
+//    fig27();
+//    fig28();
+//    fig41();
+//    fig48();
+//    fig59();
+//    Table9();
+    Table10();
+    auto end_time = Clock::now();
+    std::cout << "Time difference: "
+       << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
+    
+}
+
+
 
 
 int main()
