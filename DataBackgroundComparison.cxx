@@ -2,6 +2,9 @@
 #include <vector>
 #include <chrono>
 #include <algorithm>
+#include <unordered_map>
+#include <iomanip>
+
 #include <string>
 #include <array>
 #include <cstdlib>
@@ -1014,17 +1017,789 @@ void fig48()
     c1->SaveAs("Fig48B.png");
 }
 
+void fig59()
+{
+    std::vector<std::string> input_filenames =
+//    {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root","/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root","/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"};
+    {
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
+      //  "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"
+    };
+    
+    std::vector<const char*> prefixes = {"Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "data"};//, "pty_17_myy_80"};
+    std::vector<EColor> colors = {kBlack, kMagenta, kBlue, kRed, kGreen};//, kViolet};
+    
+    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_sig;
+    histos_sig.reserve(2);
+    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_back_plus_data;
+    histos_back_plus_data.reserve(3);//4);
+    
+    int count = 0;
+    for (auto& i: input_filenames)
+    {
+        SchottDataFrame df(MakeRDF({i}, 8));
+        
+        auto two_leptons = df.Filter(
+        [](RVec<Muon>& muons, RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                          && (ep.electron_id_medium == 1)));
+                
+            }), electrons.end());
+            
+            return (electrons.size()==2 && muons.empty());
+            
+        }, {"muons", "electrons"});
+        
+        auto opp_charge = two_leptons.Define("di_electrons",
+        [](RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                && (ep.electron_id_medium == 1)));
+
+            }), electrons.end());
+            
+            return electrons;
+            
+        },{"electrons"})
+        .Filter([](RVec<Electron> electrons)
+        {
+            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+            
+        }, {"di_electrons"});
+        
+        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+        {
+            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+        }, {"di_electrons"});
+        
+        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+        {
+            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+        }, {"di_electrons"});
+        
+        auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
+        {
+            auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+            return ((mass >= 81) && (mass <= 101));
+        }, {"di_electrons"});
+        
+        auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
+        {
+            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+            return pT > 10;
+        }, {"di_electrons"});
+        
+        auto photon_passes_cuts = ptCut.Define("photons_pass_cuts",
+        [&](RVec<Photon> photons)
+        {
+            photons.erase(std::remove_if(photons.begin(),photons.end(),
+            [](Photon& x)
+            {
+              return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+
+            }), photons.end());
+
+            return photons;
+        }, {"photons"});
+        
+        auto merged_reco_photons_matched = photon_passes_cuts.Filter(
+        [&](RVec<Photon>& reco_photons_test)
+        {
+            RVec<Photon> reco_photons_matched = reco_photons_test;
+            
+            reco_photons_matched.erase(std::remove_if(reco_photons_matched.begin(),reco_photons_matched.end(),
+            [](Photon& x)
+            {
+                return x.photon_pt <= 10e3;
+
+            }), reco_photons_matched.end());
+            
+            if (reco_photons_matched.size() == 1)
+            {
+                return true ? reco_photons_matched[0].photon_pt > 20e3 : false;
+            }
+            
+            else if (reco_photons_matched.empty())
+            {
+                return false;
+            }
+            
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X;
+
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+                {
+                    return false;
+                }
+            }
+            
+            for (auto& p: reco_photons_matched)
+            {
+                if (p.photon_pt > 20e3)
+                {
+                    return true;
+                }
+            }
+            return false;
+            
+        }, {"photons_pass_cuts"})
+        .Define("merged_photon",
+        [&](RVec<Photon>& reco_photons_matched)
+        {
+            for (auto& p: reco_photons_matched)
+            {
+                if (p.photon_pt > 20e3)
+                {
+                    return p;
+                }
+            }
+            
+            return reco_photons_matched[0]; //jic the compiler complains
+            
+        }, {"photons_pass_cuts"});
+        
+        auto dilepton_and_photon = merged_reco_photons_matched
+        .Define("dilepton_mergedPhoton_deltaR",[&](RVec<Electron>& di_electrons, Photon& merged_photon)
+        {
+            auto dilepton_four_momentum = di_electrons[0].Vector() + di_electrons[1].Vector();
+            return DeltaR(dilepton_four_momentum, merged_photon.Vector());
+            
+        }, {"di_electrons", "merged_photon"});
+        
+//        std::cout << *(diphotons.Min<double>("mass")) << '\n';
+//        std::cout << *(diphotons.Count()) << '\n';
+        
+        if (count < 2) //signal only
+        {
+            histos_sig.push_back(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
+        }
+        else
+        {
+            histos_back_plus_data.push_back(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
+        }
+        auto passed = dilepton_and_photon.Count();
+        std::cout << *passed << '\n';
+    }
+    count = 0;
+    TCanvas* c1 = new TCanvas();
+    TLegend* legend = new TLegend(0.2, 0.4, 0.4, 0.6);
+    double factor;
+    for (auto& h: histos_sig)
+    {
+        h->SetLineColor(colors[count++]);
+        legend->AddEntry(&(*h), h->GetTitle(), "l");
+        
+        if (&h == &histos_sig.front())
+        {
+            factor = h->Integral();
+            h->Scale(factor/h->Integral());
+            h->SetTitle(";#DeltaR (ll#gamma);Events");
+            h->GetYaxis()->CenterTitle(true);
+            h->GetXaxis()->SetTitleOffset(1.2);
+            h->SetAxisRange(0., 68, "Y");
+//            h->SetAxisRange(0., 1200,"Y");
+            h->Draw("HIST");
+        }
+        else
+        {
+            h->Scale(factor/h->Integral());
+            h->Draw("HISTsame");
+            gPad->Modified(); gPad->Update();
+        }
+    }
+    
+    gStyle->SetOptStat(0);
+    TLatex Tl;
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.2, 0.8, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.2, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Fig59D.png");
+    
+    auto hs = new THStack("hs1","");
+    c1 = new TCanvas();
+    legend = new TLegend(0.2, 0.4, 0.4, 0.6);
+    for (auto& h: histos_back_plus_data)
+    {
+        h->SetFillColor(colors[count++]);
+        legend->AddEntry(&(*h), h->GetTitle(), "f");
+        if (strcmp(h->GetTitle(),"data")!=0)
+            hs->Add(&*h);
+    }
+    hs->Draw("HIST");
+    histos_back_plus_data[2]->Draw("HISTsame");
+    hs->SetTitle(";#DeltaR (ll#gamma);Events");
+    hs->GetYaxis()->CenterTitle(true);
+    hs->GetXaxis()->SetTitleOffset(1.2);
+    
+    gStyle->SetOptStat(0);
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.2, 0.8, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.2, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Fig59A.png");
+    count=2;
+    c1 = new TCanvas();
+    legend = new TLegend(0.2, 0.4, 0.4, 0.6);
+    hs = new THStack("hs2","");
+    for (auto& h: histos_back_plus_data)
+    {
+        if (strcmp(h->GetTitle(),"data")!=0)
+        {
+            h->SetFillColor(colors[count++]);
+            legend->AddEntry(&(*h), h->GetTitle(), "f");
+            hs->Add(&*h);
+        }
+    }
+    hs->Draw("HIST");
+    count=0;
+    for (auto& h: histos_sig)
+    {
+        h->SetLineColor(colors[count++]);
+        h->SetLineWidth(2);
+        legend->AddEntry(&(*h), prefixes[count-1], "l");
+        
+        h->SetTitle(";#DeltaR (ll#gamma);Events");
+        h->GetYaxis()->CenterTitle(true);
+        h->GetXaxis()->SetTitleOffset(1.2);
+        h->SetAxisRange(0., 68, "Y");
+//            h->SetAxisRange(0., 1200,"Y");
+        h->Draw("HISTsame");
+        gPad->Modified(); gPad->Update();
+    }
+    hs->SetTitle(";#DeltaR (ll#gamma);Events");
+    hs->GetYaxis()->CenterTitle(true);
+    hs->GetXaxis()->SetTitleOffset(1.2);
+    
+    gStyle->SetOptStat(0);
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.2, 0.8, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.2, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Fig59B.png");
+    
+    count=2;
+    c1 = new TCanvas();
+    legend = new TLegend(0.2, 0.4, 0.4, 0.6);
+    count=2;
+    factor = histos_sig.front()->Integral();
+    hs = new THStack("hs3","");
+    for (auto& h: histos_back_plus_data)
+    {
+        if (strcmp(h->GetTitle(),"data")!=0)
+        {
+            h->Scale(factor/(2*h->Integral()));
+            h->SetFillColor(colors[count++]);
+            legend->AddEntry(&(*h), h->GetTitle(), "f");
+            hs->Add(&*h);
+        }
+    }
+    hs->Draw("HIST");
+    count=0;
+    for (auto& h: histos_sig)
+    {
+        h->SetLineColor(colors[count++]);
+        h->SetLineWidth(2);
+        legend->AddEntry(&(*h), prefixes[count-1], "l");
+        
+        h->Scale(factor/h->Integral());
+        h->SetTitle(";#DeltaR (ll#gamma);Events");
+        h->GetYaxis()->CenterTitle(true);
+        h->GetXaxis()->SetTitleOffset(1.2);
+        h->SetAxisRange(0., 68, "Y");
+//            h->SetAxisRange(0., 1200,"Y");
+        h->Draw("HISTsame");
+        gPad->Modified(); gPad->Update();
+    }
+   
+    
+    hs->SetTitle(";#DeltaR (ll#gamma);Events");
+    hs->GetYaxis()->CenterTitle(true);
+    hs->GetXaxis()->SetTitleOffset(1.2);
+    
+    gStyle->SetOptStat(0);
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.2, 0.8, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.2, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Fig59C.png");
+}
+
+void Table9()
+{
+    std::vector<std::string> input_filenames =
+    {
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"
+    };
+    
+    SchottDataFrame df(MakeRDF(input_filenames, 8));
+    
+    auto two_leptons = df.Filter(
+    [](RVec<Muon>& muons, RVec<Electron> electrons)
+    {
+        electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+        [](Electron& ep)
+        {
+            return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                      (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                      && (ep.electron_id_medium == 1)));
+            
+        }), electrons.end());
+        
+        return (electrons.size()==2 && muons.empty());
+        
+    }, {"muons", "electrons"});
+    
+    auto opp_charge = two_leptons.Define("di_electrons",
+    [](RVec<Electron> electrons)
+    {
+        electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+        [](Electron& ep)
+        {
+            return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+            (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+            && (ep.electron_id_medium == 1)));
+
+        }), electrons.end());
+        
+        return electrons;
+        
+    },{"electrons"})
+    .Filter([](RVec<Electron> electrons)
+    {
+        return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+        
+    }, {"di_electrons"});
+    
+    auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+    {
+        return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+    }, {"di_electrons"});
+    
+    auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+    {
+        return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+    }, {"di_electrons"});
+    
+    auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
+    {
+        auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+        return ((mass >= 81) && (mass <= 101));
+    }, {"di_electrons"});
+    
+    auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
+    {
+        auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+        return pT > 10;
+    }, {"di_electrons"});
+    
+    auto photon_passes_cuts = ptCut.Define("photons_pass_cuts",
+    [&](RVec<TruthParticle> truth_particles)
+    {
+        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+        [](TruthParticle& x)
+        {
+            return ((abs(x.mc_pdg_id) != 22) || (abs(x.mc_eta) >= 2.37) || (x.mc_pt <= 10e3));
+
+        }), truth_particles.end());
+        
+        return truth_particles;
+        
+    }, {"truth_particles"});
+    
+    auto diphotons = photon_passes_cuts.Define("chosen_two",
+    [](RVec<TruthParticle>& reco_photons_matched)
+    {
+        RVec<TruthParticle> x;
+        if (reco_photons_matched.size() < 2)
+        {
+            return x;
+        }
+        auto combs = Combinations(reco_photons_matched, 2);
+        size_t length = combs[0].size();
+        double delta_r, m, pt, X;
+
+        for (size_t i=0; i<length; i++)
+        {
+            delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+            m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+            pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+            X = delta_r*(pt/(2.0*m));
+            if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+            {
+                x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                return x;
+            }
+        }
+        return x;
+    }, {"photons_pass_cuts"}).Filter(
+    [&](RVec<TruthParticle>& reco_photons_matched)
+    {
+        if (reco_photons_matched.size()!=2)
+        {
+            return false;
+        }
+        return true;
+    }, {"chosen_two"}).Define("leading_photon",
+    [&](RVec<TruthParticle>& reco_photons_matched)
+    {
+        return (reco_photons_matched[0].mc_pt > reco_photons_matched[1].mc_pt)
+                ? reco_photons_matched[0]
+                : reco_photons_matched[1];
+    },{"chosen_two"}).Define("subleading_photon",
+    [&](RVec<TruthParticle>& reco_photons_matched)
+    {
+        return (reco_photons_matched[0].mc_pt < reco_photons_matched[1].mc_pt)
+                ? reco_photons_matched[0]
+                : reco_photons_matched[1];
+    },{"chosen_two"}).Define("leading_photon_pdg_id_origin",
+    [](TruthParticle& leading_photon, RVec<TruthParticle>& truth_particles)
+    {
+        TruthParticle origin = leading_photon;
+        int origin_id = 0;
+        bool found;
+        
+        do
+        {
+            found = false;
+            for (auto& i: truth_particles)
+            {
+                if (origin.mc_parent_barcode == i.mc_barcode)
+                {
+                    origin = i;
+                    origin_id = i.mc_pdg_id;
+                    found = true;
+                }
+            }
+        } while (found);
+        
+        return origin_id;
+    }, {"leading_photon", "truth_particles"}).Define("subleading_photon_pdg_id_origin",
+    [](TruthParticle& subleading_photon, RVec<TruthParticle>& truth_particles)
+    {
+        TruthParticle origin = subleading_photon;
+        int origin_id = 0;
+        bool found;
+
+        do
+        {
+         found = false;
+         for (auto& i: truth_particles)
+         {
+             if (origin.mc_parent_barcode == i.mc_barcode)
+             {
+                 origin = i;
+                 origin_id = i.mc_pdg_id;
+                 found = true;
+             }
+         }
+        } while (found);
+
+        return origin_id;
+    }, {"subleading_photon", "truth_particles"});
+    
+    auto leading_ids = diphotons.Take<int, RVec<int>>("leading_photon_pdg_id_origin");
+    auto subleading_ids = diphotons.Take<int, RVec<int>>("subleading_photon_pdg_id_origin");
+    
+    std::unordered_map<int,int> leading_id_freqs, subleading_id_freqs;
+    double total = *diphotons.Count();
+    
+    for (auto& i: *leading_ids)
+    {
+        leading_id_freqs[i]++;
+    }
+    
+    for (auto& i: *subleading_ids)
+    {
+        subleading_id_freqs[i]++;
+    }
+    
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    std::cout << R"--(\multicolumn{2}{|c|}{$ee\gamma\gamma$ Leading Photon}\\ \hline)--" << '\n';
+    std::cout << R"--(Pdg id & \% \\ \hline )--" << '\n';
+    for (auto& i: leading_id_freqs)
+    {
+        std::cout << i.first << " & " << std::setprecision(2) << std::fixed
+        << 100*(i.second/total) << R"--( \\ \hline)--" << '\n';
+    }
+    std::cout << R"--(\end{tabular}})--" << '\n';
+    
+    std::cout << "\n\n\n";
+    
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    std::cout << R"--(\multicolumn{2}{|c|}{$ee\gamma\gamma$ Sub-Leading Photon}\\ \hline)--" << '\n';
+    std::cout << R"--(Pdg id & \% \\ \hline )--" << '\n';
+    for (auto& i: subleading_id_freqs)
+    {
+        std::cout << i.first << " & " << std::setprecision(2) << std::fixed
+        << 100*(i.second/total) << R"--( \\ \hline)--" << '\n';
+    }
+    
+    std::cout << R"--(\end{tabular}})--" << '\n';
+    
+    std::cout << "\n\n\n";
+}
+
 void DataBackgroundComparison()
 {
     auto start_time = Clock::now();
 //    fig27();
 //    fig28();
-    fig41();
-    fig48();
+//    fig41();
+//    fig48();
+//    fig59();
+    Table9();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
     
+}
+
+void Table10()
+{
+    std::vector<std::string> input_filenames =
+    {
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"
+    };
+    
+    SchottDataFrame df(MakeRDF(input_filenames, 8));
+    
+    auto two_leptons = df.Filter(
+    [](RVec<Muon>& muons, RVec<Electron> electrons)
+    {
+        electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+        [](Electron& ep)
+        {
+            return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                      (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                      && (ep.electron_id_medium == 1)));
+            
+        }), electrons.end());
+        
+        return (electrons.size()==2 && muons.empty());
+        
+    }, {"muons", "electrons"});
+    
+    auto opp_charge = two_leptons.Define("di_electrons",
+    [](RVec<Electron> electrons)
+    {
+        electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+        [](Electron& ep)
+        {
+            return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+            (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+            && (ep.electron_id_medium == 1)));
+
+        }), electrons.end());
+        
+        return electrons;
+        
+    },{"electrons"})
+    .Filter([](RVec<Electron> electrons)
+    {
+        return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+        
+    }, {"di_electrons"});
+    
+    auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+    {
+        return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+    }, {"di_electrons"});
+    
+    auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+    {
+        return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+    }, {"di_electrons"});
+    
+    auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
+    {
+        auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+        return ((mass >= 81) && (mass <= 101));
+    }, {"di_electrons"});
+    
+    auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
+    {
+        auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+        return pT > 10;
+    }, {"di_electrons"});
+    
+    auto photon_passes_cuts = ptCut.Define("photons_pass_cuts",
+    [&](RVec<TruthParticle> truth_particles)
+    {
+        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+        [](TruthParticle& x)
+        {
+            return ((abs(x.mc_pdg_id) != 22) || (abs(x.mc_eta) >= 2.37) || (x.mc_pt <= 10e3));
+
+        }), truth_particles.end());
+        
+        return truth_particles;
+        
+    }, {"truth_particles"});
+    
+    auto diphotons = photon_passes_cuts.Define("chosen_two",
+    [](RVec<TruthParticle>& reco_photons_matched)
+    {
+        RVec<TruthParticle> x;
+        if (reco_photons_matched.size() < 2)
+        {
+            return x;
+        }
+        auto combs = Combinations(reco_photons_matched, 2);
+        size_t length = combs[0].size();
+        double delta_r, m, pt, X;
+
+        for (size_t i=0; i<length; i++)
+        {
+            delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+            m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+            pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+            X = delta_r*(pt/(2.0*m));
+            if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+            {
+                x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                return x;
+            }
+        }
+        return x;
+    }, {"photons_pass_cuts"}).Filter(
+    [&](RVec<TruthParticle>& reco_photons_matched)
+    {
+        if (reco_photons_matched.size()!=2)
+        {
+            return false;
+        }
+        return true;
+    }, {"chosen_two"}).Define("leading_photon",
+    [&](RVec<TruthParticle>& reco_photons_matched)
+    {
+        return (reco_photons_matched[0].mc_pt > reco_photons_matched[1].mc_pt)
+                ? reco_photons_matched[0]
+                : reco_photons_matched[1];
+    },{"chosen_two"}).Define("subleading_photon",
+    [&](RVec<TruthParticle>& reco_photons_matched)
+    {
+        return (reco_photons_matched[0].mc_pt < reco_photons_matched[1].mc_pt)
+                ? reco_photons_matched[0]
+                : reco_photons_matched[1];
+    },{"chosen_two"}).Define("leading_photon_pdg_id_origin",
+    [](TruthParticle& leading_photon, RVec<TruthParticle>& truth_particles)
+    {
+        TruthParticle origin = leading_photon;
+        int origin_id = 0;
+        bool found;
+        
+        do
+        {
+            found = false;
+            for (auto& i: truth_particles)
+            {
+                if (origin.mc_parent_barcode == i.mc_barcode)
+                {
+                    origin = i;
+                    origin_id = i.mc_pdg_id;
+                    found = true;
+                }
+            }
+        } while (found);
+        
+        return origin_id;
+    }, {"leading_photon", "truth_particles"}).Define("subleading_photon_pdg_id_origin",
+    [](TruthParticle& subleading_photon, RVec<TruthParticle>& truth_particles)
+    {
+        TruthParticle origin = subleading_photon;
+        int origin_id = 0;
+        bool found;
+
+        do
+        {
+         found = false;
+         for (auto& i: truth_particles)
+         {
+             if (origin.mc_parent_barcode == i.mc_barcode)
+             {
+                 origin = i;
+                 origin_id = i.mc_pdg_id;
+                 found = true;
+             }
+         }
+        } while (found);
+
+        return origin_id;
+    }, {"subleading_photon", "truth_particles"});
+    
+    auto leading_ids = diphotons.Take<int, RVec<int>>("leading_photon_pdg_id_origin");
+    auto subleading_ids = diphotons.Take<int, RVec<int>>("subleading_photon_pdg_id_origin");
+    
+    std::unordered_map<int,int> leading_id_freqs, subleading_id_freqs;
+    double total = *diphotons.Count();
+    
+    for (auto& i: *leading_ids)
+    {
+        leading_id_freqs[i]++;
+    }
+    
+    for (auto& i: *subleading_ids)
+    {
+        subleading_id_freqs[i]++;
+    }
+    
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    std::cout << R"--(\multicolumn{2}{|c|}{$ee\gamma\gamma$ Leading Photon}\\ \hline)--" << '\n';
+    std::cout << R"--(Pdg id & \% \\ \hline )--" << '\n';
+    for (auto& i: leading_id_freqs)
+    {
+        std::cout << i.first << " & " << std::setprecision(2) << std::fixed
+        << 100*(i.second/total) << R"--( \\ \hline)--" << '\n';
+    }
+    std::cout << R"--(\end{tabular}})--" << '\n';
+    
+    std::cout << "\n\n\n";
+    
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    std::cout << R"--(\multicolumn{2}{|c|}{$ee\gamma\gamma$ Sub-Leading Photon}\\ \hline)--" << '\n';
+    std::cout << R"--(Pdg id & \% \\ \hline )--" << '\n';
+    for (auto& i: subleading_id_freqs)
+    {
+        std::cout << i.first << " & " << std::setprecision(2) << std::fixed
+        << 100*(i.second/total) << R"--( \\ \hline)--" << '\n';
+    }
+    
+    std::cout << R"--(\end{tabular}})--" << '\n';
+    
+    std::cout << "\n\n\n";
 }
 
 
