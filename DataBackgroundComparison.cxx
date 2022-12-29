@@ -1769,9 +1769,6 @@ void DataBackgroundComparison()
     
 }
 
-
-
-
 int main()
 {
     DataBackgroundComparison();
