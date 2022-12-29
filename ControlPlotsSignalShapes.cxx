@@ -2602,8 +2602,6 @@ void ControlPlotsSignalShapes()
     fig24();
     fig54();
     
-    
-    
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
