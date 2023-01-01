@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <iomanip>
+#include <fstream>
 
 #include <string>
 #include <array>
@@ -952,13 +953,278 @@ void Table15()
     std::cout << R"--(\end{tabular}})--" << '\n';
 }
 
+void Fig19()
+{
+    std::vector<std::string> input_filenames = {
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
+    };
+    
+    
+    std::vector<float> massPoints = {5, 1};
+    std::ofstream out("Fig19.txt");
+    
+    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+    {
+        RVec<TruthParticle> truthSelected;
+        bool foundParent;
+        if (truthChain.size() >= 1)
+        {
+            TruthParticle tp;
+            for (auto& tpe: startParticles)
+            {
+                tp = tpe;
+                while (true)
+                {
+                    if (tp.mc_parent_barcode == targetBarcode)
+                    {
+                        truthSelected.push_back(tp);
+                        break;
+                    }
+                    else
+                    {
+                        foundParent = false;
+                        for (auto& tmp: truthChain)
+                        {
+                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+                            {
+                                tp = tmp;
+                                foundParent = true;
+                                break;
+                            }
+                        }
+                        if (foundParent == false)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return truthSelected;
+    };
+    
+    std::vector<const char*> prefixes = {"no cat", "merged", "resolved"};
+    std::vector<EColor> colors = {kCyan, kOrange, kBlue};
+    int count = 0;
+    
+    for (auto& file: input_filenames)
+    {
+        SchottDataFrame df(MakeRDF({file}, 8));
+        auto two_leptons = df.Filter(
+        [](RVec<Muon>& muons, RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                          && (ep.electron_id_medium == 1)));
+                
+            }), electrons.end());
+            
+            return (electrons.size()==2 && muons.empty());
+            
+        }, {"muons", "electrons"});
+        
+        auto opp_charge = two_leptons.Define("di_electrons",
+        [](RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                && (ep.electron_id_medium == 1)));
+
+            }), electrons.end());
+            
+            return electrons;
+            
+        },{"electrons"})
+        .Filter([](RVec<Electron> electrons)
+        {
+            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+            
+        }, {"di_electrons"});
+        
+        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+        {
+            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+        }, {"di_electrons"});
+        
+        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+        {
+            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+        }, {"di_electrons"});
+        
+        auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
+        {
+            auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+            return ((mass >= 81) && (mass <= 101));
+        }, {"di_electrons"});
+        
+        auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
+        {
+            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+            return pT > 10;
+        }, {"di_electrons"});
+        
+        auto photon_passes_cuts = ptCut.Define("photons_pass_cuts",
+        [&](RVec<Photon> photons)
+        {
+            photons.erase(std::remove_if(photons.begin(),photons.end(),
+            [](Photon& x)
+            {
+                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+
+            }), photons.end());
+
+            return photons;
+        }, {"photons"});
+        
+        auto resolved = photon_passes_cuts.Define("chosen_two",
+        [](RVec<Photon>& reco_photons_matched)
+        {
+            RVec<Photon> x;
+            if (reco_photons_matched.size() < 2)
+            {
+                return x;
+            }
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X;
+
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+                {
+                    x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                    return x;
+                }
+            }
+            return x;
+        }, {"photons_pass_cuts"}).Filter(
+        [&](RVec<Photon>& reco_photons_matched)
+        {
+            return (reco_photons_matched.size()==2);
+        }, {"chosen_two"});
+        
+        auto merged = photon_passes_cuts.Filter(
+        [&](RVec<Photon>& reco_photons_test)
+        {
+            RVec<Photon> reco_photons_matched = reco_photons_test;
+            
+            reco_photons_matched.erase(std::remove_if(reco_photons_matched.begin(),reco_photons_matched.end(),
+            [](Photon& x)
+            {
+                return x.photon_pt <= 10e3;
+
+            }), reco_photons_matched.end());
+            
+            if (reco_photons_matched.size() == 1)
+            {
+                return true ? reco_photons_matched[0].photon_pt > 20e3 : false;
+            }
+            
+            else if (reco_photons_matched.empty())
+            {
+                return false;
+            }
+            
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X;
+
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+                {
+                    return false;
+                }
+            }
+            
+            for (auto& p: reco_photons_matched)
+            {
+                if (p.photon_pt > 20e3)
+                {
+                    return true;
+                }
+            }
+            return false;
+            
+        }, {"photons_pass_cuts"});
+        
+        auto total = photon_passes_cuts.Count();
+        auto numMerged = merged.Count();
+        auto numResolved = resolved.Count();
+        
+        double noCat = *total - (*numMerged+*numResolved);
+        
+        out << noCat / static_cast<double>(*total) << '\n' << *numMerged / static_cast<double>(*total)  << '\n'
+            << *numResolved / static_cast<double>(*total) << '\n';
+    }
+    out.close();
+    
+    std::ifstream in("Fig19.txt");
+    RVec<TH1D*> hists = {new TH1D("no cat", "no cat", 10, 0, 10), new TH1D("merged", "merged", 10, 0, 10), new TH1D("resolved", "resolved", 10, 0, 10)};
+    auto hs = new THStack("hs1","");
+    TCanvas* c1 = new TCanvas();
+    TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+    double val;
+    for (int i = 0; in >> val; i++)
+    {
+        hists[i%3]->SetBinContent(hists[i%3]->FindFixBin(massPoints[i/3]), val);
+        hists[i%3]->SetFillColor(colors[i%3]);
+    }
+    for (auto& hist: hists)
+    {
+        hist->GetXaxis()->SetRangeUser(0,10);
+        legend->AddEntry(hist, hist->GetTitle(), "f");
+        hs->Add(hist);
+    }
+    hs->Draw("nostackb");
+    hs->SetTitle(";m_{A} [GeV];Fraction of Events");
+    hs->GetYaxis()->CenterTitle(true);
+    hs->GetXaxis()->SetTitleOffset(0.85);
+    hs->GetYaxis()->SetTitleFont(42);
+    hs->GetXaxis()->SetTitleFont(42);
+    hs->GetXaxis()->SetTitleSize(0.04);
+    hs->GetYaxis()->SetTitleSize(0.04);
+    hs->GetYaxis()->SetTitleOffset(1.1);
+    hs->GetXaxis()->SetRangeUser(0,10);
+    hs->GetXaxis()->SetTickLength(0);
+    hs->GetXaxis()->SetLabelOffset(999);
+    
+    gStyle->SetOptStat(0);
+    TLatex Tl;
+    Tl.SetTextSize(0.04);
+    Tl.DrawLatexNDC(0.5, 0.83, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.525, 0.05, "5.0");
+    Tl.DrawLatexNDC(0.2, 0.05, "1.0");
+    Tl.DrawLatexNDC(0.5, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Fig19.png");
+//    system("rm Fig19.txt");
+}
+
 void Categorization()
 {
     auto start_time = Clock::now();
 //    Table4();
 //    Table5();
 //    Table14();
-    Table15();
+//    Table15();
+    Fig19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
