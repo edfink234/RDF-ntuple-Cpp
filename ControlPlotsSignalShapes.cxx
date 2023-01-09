@@ -80,12 +80,15 @@ constexpr std::array<const char*,35> triggers =
 void fig1A()
 {
     std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"
     };
     
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos;
+    std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCounts;
+    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos, back_histos;
     histos.reserve(input_filenames.size());
-    std::vector<const char*> prefixes = {"sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV"};
-    std::vector<EColor> colors = {kBlue, kRed};
+    std::vector<const char*> prefixes = {"sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80"};
+    std::vector<EColor> colors = {kBlack, kMagenta, kBlue, kRed, kViolet};
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.6);
     int count = 0;
@@ -93,7 +96,7 @@ void fig1A()
     for (auto& file: input_filenames)
     {
         SchottDataFrame df(MakeRDF({file}, 8));
-        
+                
         auto preselection = df.Filter(
         [](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
         {
@@ -168,9 +171,22 @@ void fig1A()
             
         }, {"truth_particles"});
            
-        histos.push_back(preselection.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
-        auto passed = preselection.Count();
-        std::cout << *passed << '\n';
+        
+        
+        if (count >= 2)
+        {
+            break;
+//            back_histos.push_back(preselection.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
+//            backCounts.push_back(preselection.Count());
+//            auto passed = preselection.Count();
+//            std::cout << *passed << '\n';
+        }
+        else
+        {
+            histos.push_back(preselection.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
+            auto passed = preselection.Count();
+            std::cout << *passed << '\n';
+        }
     }
     count = 0;
     double factor;
@@ -196,6 +212,29 @@ void fig1A()
             gPad->Modified(); gPad->Update();
         }
     }
+//    double total_back = 0;
+//    for (auto& i: backCounts)
+//    {
+//        total_back += *i;
+//    }
+//    int back_count = 0;
+//    for (auto& h: back_histos)
+//    {
+//        h->SetLineColor(colors[count++]);
+//        legend->AddEntry(&(*h), h->GetTitle(), "l");
+//
+//        h->Scale((factor/h->Integral())*((*backCounts[back_count++])/total_back));
+//        h->SetTitle(";m_{ll}  [GeV];Events");
+//        h->GetYaxis()->CenterTitle(true);
+//        h->SetAxisRange(0., 350,"Y");
+////            h->SetAxisRange(0., 3300,"Y");
+//        h->Draw("HIST");
+//
+//        h->Scale(factor/h->Integral());
+//        h->Draw("HISTsame");
+//        gPad->Modified(); gPad->Update();
+//    }
+    
     gStyle->SetOptStat(0);
     TLatex Tl;
     Tl.SetTextSize(0.03);
@@ -402,13 +441,10 @@ void fig5()
     histos[3]->Draw("HISTsame");
     legend->AddEntry(&(*histos[3]), histos[3]->GetTitle(), "l");
     
-    
     histos[4]->Scale(factor/histos[4]->Integral());
     histos[4]->SetLineColor(colors[2]);
     histos[4]->Draw("HISTsame");
     legend->AddEntry(&(*histos[4]), histos[4]->GetTitle(), "l");
-    
-    
     
     gStyle->SetOptStat(0);
     Tl.SetTextSize(0.03);

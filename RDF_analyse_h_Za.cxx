@@ -32,11 +32,11 @@ void RDF_analyse_h_Za()
     
     std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"};
     
-    SchottDataFrame df(MakeRDF(input_filenames, 8));
+    SchottDataFrame df(MakeRDF(input_filenames,8));
     
-    df.Describe().Print();
-    exit(1);
-//    auto verbosity = ROOT::Experimental::RLogScopedVerbosity(ROOT::Detail::RDF::RDFLogChannel(), ROOT::Experimental::ELogLevel::kInfo);
+   // df.Describe().Print();
+   // exit(1);
+    auto verbosity = ROOT::Experimental::RLogScopedVerbosity(ROOT::Detail::RDF::RDFLogChannel(), ROOT::Experimental::ELogLevel::kInfo);
     
     auto stable_truth_photons = df.Define("stable_truth_photons", [&](RVec<TruthParticle> truth_particles)
     {
