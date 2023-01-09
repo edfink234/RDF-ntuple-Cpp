@@ -14,8 +14,8 @@ SchottDataFrame MakeRDF(const std::vector<std::string>&, short numThreads = -1);
 class RDFTree
 {
 private:
-    static TChain __chain;
-    static TChain __event_info_chain;
+    static TChain* __chain;
+    static TChain* __event_info_chain;
     friend SchottDataFrame MakeRDF(const std::vector<std::string>&, short numThreads);
 };
 

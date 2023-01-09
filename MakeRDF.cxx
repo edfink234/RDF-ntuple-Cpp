@@ -11,8 +11,8 @@
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFevent.h"
 
-TChain RDFTree::__chain{"physics"};
-TChain RDFTree::__event_info_chain{"full_event_info"};
+TChain* RDFTree::__chain;
+TChain* RDFTree::__event_info_chain;
 
 using namespace ROOT::VecOps;
 
@@ -42,17 +42,19 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         gInterpreter->Declare("std::string cling::printValue(Track *);");
         loaded = true;
     }
+    RDFTree::__chain = new TChain("physics");
+    RDFTree::__event_info_chain = new TChain("full_event_info");
     
-    RDFTree::__chain.Reset();
-    RDFTree::__event_info_chain.Reset();
+    RDFTree::__chain->Reset();
+    RDFTree::__event_info_chain->Reset();
     for (const auto& f: files)
     {
-        RDFTree::__chain.Add(f.c_str());
-        RDFTree::__event_info_chain.Add(f.c_str());
+        RDFTree::__chain->Add(f.c_str());
+        RDFTree::__event_info_chain->Add(f.c_str());
     }
-    RDFTree::__chain.AddFriend(&RDFTree::__event_info_chain);
+    RDFTree::__chain->AddFriend(RDFTree::__event_info_chain);
 
-    ROOT::RDataFrame df(RDFTree::__chain);
+    ROOT::RDataFrame df(*RDFTree::__chain);
     
     auto NewDf = df.Define("truth_particles",[&](RVec<int>& mc_pdg_id, RVec<int>& mc_barcode, RVec<int>& mc_parent_barcode, RVec<int>& mc_status, RVec<float>& mc_pt, RVec<float>& mc_charge, RVec<float>& mc_eta, RVec<float>& mc_phi, RVec<float>& mc_e, RVec<float>& mc_mass)
     {

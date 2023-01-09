@@ -26,6 +26,7 @@
 #include "TLatex.h"
 #include "TLegend.h"
 #include "Rtypes.h"
+#include "ROOT/RDFHelpers.hxx"
 
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
@@ -1765,19 +1766,13 @@ void Table16()
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"}
     };
     
-    std::vector<std::string> prefixes = { "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data", "Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV"};
+    std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", "data", R"--($\text{Sig } m_{A}$ = 5 GeV)--", R"--($\text{Sig } m_{A}$ = 1 GeV)--", R"--(Total Bkg)--"};
     
     std::ofstream out("Table16.txt");
     
     std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
        
-    int count = 0;
-    
-    RVec<ROOT::RDF::RResultPtr<ULong64_t>> Reg_Totals;
-//
-//    RVec<ULong64_t> Reg_Totals;
-//    RVec<ULong64_t> pSB_Totals;
-//    RVec<ULong64_t> pSR_Totals;
+    std::vector<ROOT::RDF::RResultHandle> Totals;
     
     for (auto& i: input_filenames)
     {
@@ -1928,7 +1923,23 @@ void Table16()
             
         }, {"di_electrons", "merged_photon"});
         
-        Reg_Totals.push_back(merged_reco_photons_matched.Count());
+        auto pSB = dilepton_and_photon.Filter(
+        [](double reconstructed_mass)
+        {
+            return (reconstructed_mass < 110) || (reconstructed_mass > 130);
+        }, {"reconstructed_mass"});
+        
+        auto pSR = dilepton_and_photon.Filter(
+        [](double reconstructed_mass)
+        {
+            return (reconstructed_mass >= 110) && (reconstructed_mass <= 130);
+        }, {"reconstructed_mass"});
+        
+        
+        Totals.push_back(merged_reco_photons_matched.Count());
+        Totals.push_back(pSB.Count());
+        Totals.push_back(pSR.Count());
+        
 //        if (count <= 2)
 //        {
 //            out << *merged_reco_photons_matched.Count()*SFs[count++] << '\n';
@@ -1940,10 +1951,74 @@ void Table16()
 //        }
     }
     
-    for (auto& i: Reg_Totals)
+    ROOT::RDF::RunGraphs(Totals);
+    int count = 1, globCount = 0, otherCount = 0;
+    std::vector<std::vector<double>> Vals(3);
+    
+    for (auto& i: Totals)
     {
-        std::cout << *i << '\n';
+        if (globCount < 2)
+        {
+//            std::cout << (*i.GetResultPtr<ULong64_t>())*(SFs[globCount]) << '\n';
+            Vals[otherCount++].push_back((*i.GetResultPtr<ULong64_t>())*(SFs[globCount]));
+        }
+        else
+        {
+//            std::cout << *i.GetResultPtr<ULong64_t>() << '\n';
+            Vals[otherCount++].push_back(*i.GetResultPtr<ULong64_t>());
+        }
+        if (count++%3==0)
+        {
+            otherCount = 0;
+            globCount++;
+        }
     }
+    
+    Vals[0].push_back(Vals[0][0]+Vals[0][1]+Vals[0][2]);
+    Vals[1].push_back(Vals[1][0]+Vals[1][1]+Vals[1][2]);
+    Vals[2].push_back(Vals[2][0]+Vals[2][1]+Vals[2][2]);
+    
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+//    std::vector<std::string> prefixes = { "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data", "Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV"};
+    std::cout << "{} & ";
+    for (auto& i: prefixes)
+    {
+        if (i==prefixes.back())
+        {
+            std::cout << i << R"--(\\ \hline)--" << '\n';
+        }
+        else
+        {
+            std::cout << i << " & ";
+        }
+    }
+    std::cout << '\n';
+    count = 0;
+    std::vector<std::string> rows = {"Full Reg", "pSB", "pSR"};
+    for (auto& i: Vals)
+    {
+        std::cout << rows[count++] << " & ";
+        for (auto& j: i)
+        {
+            if (j==i.back())
+            {
+                std::cout << j << R"--( \\ \hline)--" << '\n';
+            }
+            else
+            {
+                std::cout << j << " & ";
+            }
+            
+//            std::cout << j << '\n';
+        }
+//        std::cout << R"--(\\ \hline)--" << '\n';
+    }
+    
+    std::cout << R"--(\end{tabular}})--" << '\n';
+    
+    std::cout << "\n\n\n";
 }
 
 void DataBackgroundComparison()
