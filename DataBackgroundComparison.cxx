@@ -2307,3 +2307,20 @@ int main()
 {
     DataBackgroundComparison();
 }
+
+ROOT.gInterpreter.Declare("""
+using namespace ROOT::VecOps;
+RVec<double> someFunc(RVec<double> l_tlv_pt, RVec<int>& l_pdg_id)
+{
+    RVec<double> new_pt;
+    
+    for (size_t i = 0; i < l_tlv_pt.size(); i++)
+    {
+        if (abs(l_pdg_id[i])==11)
+        {
+            new_pt.push_back(l_tlv_pt[i]);
+        }
+    }
+    return new_pt;
+}
+""")
