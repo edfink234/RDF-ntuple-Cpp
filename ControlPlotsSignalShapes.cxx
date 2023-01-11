@@ -175,17 +175,17 @@ void fig1A()
         
         if (count >= 2)
         {
-            break;
+//            break;
 //            back_histos.push_back(preselection.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
 //            backCounts.push_back(preselection.Count());
-//            auto passed = preselection.Count();
-//            std::cout << *passed << '\n';
+            auto passed = preselection.Count();
+            std::cout << *passed << '\n';
         }
         else
         {
             histos.push_back(preselection.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
-            auto passed = preselection.Count();
-            std::cout << *passed << '\n';
+//            auto passed = preselection.Count();
+//            std::cout << *passed << '\n';
         }
     }
     count = 0;
@@ -2630,13 +2630,13 @@ void ControlPlotsSignalShapes()
 {
     auto start_time = Clock::now();
     fig1A();
-    fig5();
-    fig6();
-    fig8();
-    fig10();
-    fig18();
-    fig24();
-    fig54();
+//    fig5();
+//    fig6();
+//    fig8();
+//    fig10();
+//    fig18();
+//    fig24();
+//    fig54();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "

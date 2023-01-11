@@ -136,9 +136,12 @@ void RDF_analyse()
     auto verbosity = ROOT::Experimental::RLogScopedVerbosity(ROOT::Detail::RDF::RDFLogChannel(), ROOT::Experimental::ELogLevel::kInfo);
     
     Event::systematics = {"EG_RESOLUTION_ALL__1down"};
-    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/user.kschmied.28655874._000025.LGNTuple.root"};
-    
+    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"};
+
     SchottDataFrame df(MakeRDF(input_filenames));
+    
+//    df.Describe().Print();
+//    exit(1);
     
 //    printNominalAndVariedObjects<Electron>(df, "electrons", 10);
 //    printNominalAndVariedObjects<Photon>(df, "photons", 10);

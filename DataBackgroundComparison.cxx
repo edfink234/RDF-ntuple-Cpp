@@ -2021,6 +2021,270 @@ void Table16()
     std::cout << "\n\n\n";
 }
 
+void Table19()
+{
+    std::vector<std::vector<std::string>> input_filenames =
+    {
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"}, {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"}
+    };
+    
+    std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", "data", R"--($\text{Sig } m_{A}$ = 5 GeV)--", R"--($\text{Sig } m_{A}$ = 1 GeV)--", R"--(Total Bkg)--"};
+    
+    std::ofstream out("Table16.txt");
+    
+    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
+       
+    std::vector<ROOT::RDF::RResultHandle> Totals;
+    
+    for (auto& i: input_filenames)
+    {
+        SchottDataFrame df(MakeRDF(i,8));
+//        std::cout << *df.Count() << '\n';
+        
+        auto two_leptons = df.Filter(
+        [](RVec<Muon>& muons, RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                          && (ep.electron_id_medium == 1)));
+                
+            }), electrons.end());
+            
+            return (electrons.size()==2 && muons.empty());
+            
+        }, {"muons", "electrons"});
+        
+        auto opp_charge = two_leptons.Define("di_electrons",
+        [](RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                && (ep.electron_id_medium == 1)));
+
+            }), electrons.end());
+            
+            return electrons;
+            
+        },{"electrons"})
+        .Filter([](RVec<Electron> electrons)
+        {
+            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+            
+        }, {"di_electrons"});
+        
+        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+        {
+            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+        }, {"di_electrons"});
+        
+        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+        {
+            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+        }, {"di_electrons"});
+        
+        auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
+        {
+            auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+            return ((mass >= 81) && (mass <= 101));
+        }, {"di_electrons"});
+        
+        auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
+        {
+            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+            return pT > 10;
+        }, {"di_electrons"});
+        
+        auto photon_passes_cuts = ptCut.Define("photons_pass_cuts",
+        [&](RVec<Photon> photons)
+        {
+            photons.erase(std::remove_if(photons.begin(),photons.end(),
+            [](Photon& x)
+            {
+                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+
+            }), photons.end());
+
+            return photons;
+        }, {"photons"});
+        
+        auto failed_resolved = photon_passes_cuts.Filter(
+        [&](RVec<Photon>& reco_photons_test)
+        {
+            RVec<Photon> reco_photons_matched = reco_photons_test;
+            
+            reco_photons_matched.erase(std::remove_if(reco_photons_matched.begin(),reco_photons_matched.end(),
+            [](Photon& x)
+            {
+                return x.photon_pt <= 10e3;
+
+            }), reco_photons_matched.end());
+            
+            if (reco_photons_matched.size() == 1 || reco_photons_matched.empty())
+            {
+                return true;
+            }
+            
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X;
+
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+                {
+                    return false;
+                }
+            }
+            
+            return true;
+            
+        }, {"photons_pass_cuts"});
+        
+        auto photon_pt_cut = failed_resolved.Filter(
+        [&](RVec<Photon>& photon_passes_cuts)
+        {
+            for (auto& p: photon_passes_cuts)
+            {
+                if (p.photon_pt > 20e3)
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+            
+        }, {"photons_pass_cuts"}).Define("merged_photon",
+        [&](RVec<Photon>& photon_passes_cuts)
+        {
+            return photon_passes_cuts[0];
+        }, {"photons_pass_cuts"});
+        
+        auto dilepton_and_photon = photon_pt_cut
+        .Define("reconstructed_mass",[&](RVec<Electron>& di_electrons, Photon& merged_photon)
+        {
+            auto four_momentum = di_electrons[0].Vector() + di_electrons[1].Vector();
+            
+            return (four_momentum + merged_photon.Vector()).M()/1e3;
+            
+        }, {"di_electrons", "merged_photon"});
+        
+        auto pSR = dilepton_and_photon.Filter(
+        [](double reconstructed_mass)
+        {
+            return (reconstructed_mass >= 110) && (reconstructed_mass <= 130);
+        }, {"reconstructed_mass"});
+        
+        auto pSR_ID = pSR.Filter(
+        [&](Photon& merged_photon)
+        {
+            return merged_photon.photon_id;
+        }, {"merged_photon"});
+        
+        
+        
+        Totals.push_back(ptCut.Count()); //preselection
+        Totals.push_back(failed_resolved.Count()); //failed_resolved
+        Totals.push_back(photon_pt_cut.Count()); //photon_pt_cut
+        Totals.push_back(pSR.Count()); //pSR
+        Totals.push_back(pSR_ID.Count()); //pSR_ID
+        
+//        if (count <= 2)
+//        {
+//            out << *merged_reco_photons_matched.Count()*SFs[count++] << '\n';
+//        }
+//        else
+//        {
+//            out << *merged_reco_photons_matched.Count() << '\n';
+//            count++;
+//        }
+    }
+    
+    ROOT::RDF::RunGraphs(Totals);
+    int count = 1, globCount = 0, otherCount = 0;
+    std::vector<std::vector<double>> Vals(5);
+    
+    for (auto& i: Totals)
+    {
+        if (globCount < 2)
+        {
+//            std::cout << (*i.GetResultPtr<ULong64_t>())*(SFs[globCount]) << '\n';
+            Vals[otherCount++].push_back((*i.GetResultPtr<ULong64_t>())*(SFs[globCount]));
+        }
+        else
+        {
+//            std::cout << *i.GetResultPtr<ULong64_t>() << '\n';
+            Vals[otherCount++].push_back(*i.GetResultPtr<ULong64_t>());
+        }
+        if (count++%5==0)
+        {
+            otherCount = 0;
+            globCount++;
+        }
+    }
+    
+    Vals[0].push_back(Vals[0][0]+Vals[0][1]+Vals[0][2]);
+    Vals[1].push_back(Vals[1][0]+Vals[1][1]+Vals[1][2]);
+    Vals[2].push_back(Vals[2][0]+Vals[2][1]+Vals[2][2]);
+    Vals[3].push_back(Vals[3][0]+Vals[3][1]+Vals[3][2]);
+    Vals[4].push_back(Vals[4][0]+Vals[4][1]+Vals[4][2]);
+    
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+//    std::vector<std::string> prefixes = { "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data", "Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV"};
+    std::cout << "{} & ";
+    for (auto& i: prefixes)
+    {
+        if (i==prefixes.back())
+        {
+            std::cout << i << R"--(\\ \hline)--" << '\n';
+        }
+        else
+        {
+            std::cout << i << " & ";
+        }
+    }
+    std::cout << '\n';
+    count = 0;
+    std::vector<std::string> rows = {"pass preselection", "failed resolved category", R"--(photon $p_T$ cut)--", "pSR", "pSR-ID"};
+    for (auto& i: Vals)
+    {
+        std::cout << rows[count++] << " & ";
+        for (auto& j: i)
+        {
+            if (j==i.back())
+            {
+                std::cout << j << R"--( \\ \hline)--" << '\n';
+            }
+            else
+            {
+                std::cout << j << " & ";
+            }
+            
+//            std::cout << j << '\n';
+        }
+//        std::cout << R"--(\\ \hline)--" << '\n';
+    }
+    
+    std::cout << R"--(\end{tabular}})--" << '\n';
+    
+    std::cout << "\n\n\n";
+}
+
 void DataBackgroundComparison()
 {
     auto start_time = Clock::now();
@@ -2031,7 +2295,8 @@ void DataBackgroundComparison()
 //    fig59();
 //    Table9();
 //    Table10();
-    Table16();
+//    Table16();
+    Table19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
