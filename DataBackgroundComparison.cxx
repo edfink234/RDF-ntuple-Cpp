@@ -87,15 +87,21 @@ constexpr std::array<const char*,35> triggers =
 void fig27()
 {
     auto hs = new THStack("hs","");
-    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+    std::vector<std::string> input_filenames =
+    {
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"
-    }; //"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"};
+    };
     
-    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "data"};
-//    "pty_17_myy_80"};
-    std::vector<EColor> colors = {kBlue, kRed, kGreen};
+    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
+    
+    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data"};
+    std::vector<EColor> colors = {kBlue, kRed, kViolet, kGreen};
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos;
-    histos.reserve(3);
+    std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCounts;
+    histos.reserve(4);
+    backCounts.reserve(4);
     int count = 0;
     for (auto& i: input_filenames)
     {
@@ -206,42 +212,60 @@ void fig27()
         [&](RVec<Photon>& diph)
         {
           return (diph[0].Vector()+diph[1].Vector()).M()/1e3;
-        }, {"chosen_two"});
+        }, {"chosen_two"}).Filter([](double massVal)
+        {
+            return (!((massVal > 110) && (massVal < 140)));
+        }, {"mass"});
+        
+        auto check = diphotons.Filter([](double massVal)
+        {
+            return (((massVal > 0) && (massVal < 95)));
+        }, {"mass"});
         
 //        std::cout << *(diphotons.Min<double>("mass")) << '\n';
+//        std::cout << *(diphotons.Max<double>("mass")) << '\n';
 //        std::cout << *(diphotons.Count()) << '\n';
+        if (count <= 2)
+        {
+            backCounts.push_back(diphotons.Count());
+        }
+        
+//        std::cout << *check.Count() << '\n';
         
         histos.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 95}, "mass"));
-        
-        auto passed = diphotons.Count();
-        std::cout << *passed << '\n';
     }
     
-    
     double factor;
+    for (auto& i: backCounts)
+    {
+        factor += *i;
+    }
+    
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
     count = 0;
     for (auto& h: histos)
     {
+        if (h->Integral() != 0 && &h != &histos.back())
+        {
+            h->Scale((factor/h->Integral())*SFs[count]);
+        }
         h->SetFillColor(colors[count++]);
         legend->AddEntry(&(*h), h->GetTitle(), "f");
     
-//            factor = h->Integral();
-//            h->Scale(factor/h->Integral());
-//            h->SetAxisRange(0., 82,"Y");
-//            h->SetAxisRange(0., 500,"Y");
         if (&h != &histos.back())
+        {
             hs->Add(&*h);
-//            h->Draw("HIST");
-            
+        }
     }
-
     hs->Draw("HIST");
+    histos[3]->Draw("HISTsame");
+    hs->SetMinimum(0);
+    hs->SetMaximum(20.);
+    histos[3]->Draw("same");
     hs->SetTitle(";m_{#gamma#gamma} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
-    histos[2]->Draw("same");
     gStyle->SetOptStat(0);
     TLatex Tl;
     Tl.SetTextSize(0.03);
@@ -252,7 +276,7 @@ void fig27()
     c1->SaveAs("Fig27.png");
 
 }
-
+/*
 void fig28()
 {
     std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
@@ -2284,11 +2308,11 @@ void Table19()
     
     std::cout << "\n\n\n";
 }
-
+*/
 void DataBackgroundComparison()
 {
     auto start_time = Clock::now();
-//    fig27();
+    fig27();
 //    fig28();
 //    fig41();
 //    fig48();
@@ -2296,7 +2320,7 @@ void DataBackgroundComparison()
 //    Table9();
 //    Table10();
 //    Table16();
-    Table19();
+//    Table19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
@@ -2308,19 +2332,19 @@ int main()
     DataBackgroundComparison();
 }
 
-ROOT.gInterpreter.Declare("""
-using namespace ROOT::VecOps;
-RVec<double> someFunc(RVec<double> l_tlv_pt, RVec<int>& l_pdg_id)
-{
-    RVec<double> new_pt;
-    
-    for (size_t i = 0; i < l_tlv_pt.size(); i++)
-    {
-        if (abs(l_pdg_id[i])==11)
-        {
-            new_pt.push_back(l_tlv_pt[i]);
-        }
-    }
-    return new_pt;
-}
-""")
+//ROOT.gInterpreter.Declare("""
+//using namespace ROOT::VecOps;
+//RVec<double> someFunc(RVec<double> l_tlv_pt, RVec<int>& l_pdg_id)
+//{
+//    RVec<double> new_pt;
+//
+//    for (size_t i = 0; i < l_tlv_pt.size(); i++)
+//    {
+//        if (abs(l_pdg_id[i])==11)
+//        {
+//            new_pt.push_back(l_tlv_pt[i]);
+//        }
+//    }
+//    return new_pt;
+//}
+//""")

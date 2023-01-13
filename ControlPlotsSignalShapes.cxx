@@ -184,8 +184,6 @@ void fig1A()
             
         }, {"electrons"});
            
-        
-        
         if (count <= 2)
         {
 //            break;
