@@ -262,7 +262,6 @@ void fig27()
     histos[3]->Draw("HISTsame");
     hs->SetMinimum(0);
     hs->SetMaximum(20.);
-    histos[3]->Draw("same");
     hs->SetTitle(";m_{#gamma#gamma} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -276,24 +275,26 @@ void fig27()
     c1->SaveAs("Fig27.png");
 
 }
-/*
+
 void fig28()
 {
     std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"
-    }; //"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"};
-    
-    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "data"};
-//    "pty_17_myy_80"};
-    std::vector<EColor> colors = {kBlue, kRed, kGreen};
+    };
+    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
+    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data"};
+    std::vector<EColor> colors = {kBlue, kRed, kViolet, kGreen};
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_mass;
-    histos_mass.reserve(3);
+    histos_mass.reserve(4);
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_deltaR;
-    histos_deltaR.reserve(3);
+    histos_deltaR.reserve(4);
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_deltaPhi;
-    histos_deltaPhi.reserve(3);
+    histos_deltaPhi.reserve(4);
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_deltaEta;
-    histos_deltaEta.reserve(3);
+    histos_deltaEta.reserve(4);
+    std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCounts;
+    backCounts.reserve(4);
     int count = 0;
     for (auto& i: input_filenames)
     {
@@ -412,7 +413,10 @@ void fig28()
         [&](RVec<Photon>& diph)
         {
             return (diph[0].Vector()+diph[1].Vector()).M()/1e3;
-        }, {"chosen_two"}).Define("deltaR",
+        }, {"chosen_two"}).Filter([](double massVal)
+        {
+           return (!((massVal > 110) && (massVal < 140)));
+        }, {"mass"}).Define("deltaR",
         [&](RVec<Photon>& diph)
         {
             return DeltaR(diph[0].Vector(),diph[1].Vector());
@@ -426,6 +430,10 @@ void fig28()
             return abs((diph[0].Vector() - diph[1].Vector()).Eta());
         }, {"chosen_two"});
         
+        if (count <= 2)
+        {
+            backCounts.push_back(diphotons.Count());
+        }
 //        std::cout << *(diphotons.Min<double>("mass")) << '\n';
 //        std::cout << *(diphotons.Count()) << '\n';
         histos_mass.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 95}, "mass"));
@@ -433,28 +441,39 @@ void fig28()
         histos_deltaPhi.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 2}, "deltaPhi"));
         histos_deltaEta.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 4}, "deltaEta"));
         
-        auto passed = diphotons.Count();
-        std::cout << *passed << '\n';
+//        auto passed = diphotons.Count();
+//        std::cout << *passed << '\n';
     }
     
     double factor;
+    for (auto& i: backCounts)
+    {
+        factor += *i;
+    }
     auto hs = new THStack("hs1","");
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
     count = 0;
     for (auto& h: histos_mass)
     {
+        if (h->Integral() != 0 && &h != &histos_mass.back())
+        {
+            h->Scale((factor/h->Integral())*SFs[count]);
+        }
         h->SetFillColor(colors[count++]);
         legend->AddEntry(&(*h), h->GetTitle(), "f");
+    
         if (&h != &histos_mass.back())
+        {
             hs->Add(&*h);
+        }
     }
 
     hs->Draw("HIST");
+    histos_mass[3]->Draw("HISTsame");
     hs->SetTitle(";m_{#gamma#gamma} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
-    histos_mass[2]->Draw("same");
     gStyle->SetOptStat(0);
     TLatex Tl;
     Tl.SetTextSize(0.03);
@@ -470,17 +489,24 @@ void fig28()
     count = 0;
     for (auto& h: histos_deltaR)
     {
+        if (h->Integral() != 0 && &h != &histos_deltaR.back())
+        {
+            h->Scale((factor/h->Integral())*SFs[count]);
+        }
         h->SetFillColor(colors[count++]);
         legend->AddEntry(&(*h), h->GetTitle(), "f");
+    
         if (&h != &histos_deltaR.back())
+        {
             hs->Add(&*h);
+        }
     }
 
     hs->Draw("HIST");
+    histos_deltaR[3]->Draw("HISTsame");
     hs->SetTitle(";#DeltaR_{#gamma#gamma};Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
-    histos_deltaR[2]->Draw("same");
     gStyle->SetOptStat(0);
     Tl.SetTextSize(0.03);
     Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
@@ -495,17 +521,24 @@ void fig28()
     count = 0;
     for (auto& h: histos_deltaPhi)
     {
+        if (h->Integral() != 0 && &h != &histos_deltaPhi.back())
+        {
+            h->Scale((factor/h->Integral())*SFs[count]);
+        }
         h->SetFillColor(colors[count++]);
         legend->AddEntry(&(*h), h->GetTitle(), "f");
+    
         if (&h != &histos_deltaPhi.back())
+        {
             hs->Add(&*h);
+        }
     }
 
     hs->Draw("HIST");
+    histos_deltaPhi[3]->Draw("HISTsame");
     hs->SetTitle(";#Delta#phi_{#gamma#gamma};Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
-    histos_deltaPhi[2]->Draw("same");
     gStyle->SetOptStat(0);
     Tl.SetTextSize(0.03);
     Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
@@ -520,17 +553,24 @@ void fig28()
     count = 0;
     for (auto& h: histos_deltaEta)
     {
+        if (h->Integral() != 0 && &h != &histos_deltaEta.back())
+        {
+            h->Scale((factor/h->Integral())*SFs[count]);
+        }
         h->SetFillColor(colors[count++]);
         legend->AddEntry(&(*h), h->GetTitle(), "f");
+    
         if (&h != &histos_deltaEta.back())
+        {
             hs->Add(&*h);
+        }
     }
 
     hs->Draw("HIST");
+    histos_deltaEta[3]->Draw("HISTsame");
     hs->SetTitle(";#Delta#eta_{#gamma#gamma};Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
-    histos_deltaEta[2]->Draw("same");
     gStyle->SetOptStat(0);
     Tl.SetTextSize(0.03);
     Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
@@ -808,7 +848,7 @@ void fig41()
     legend->Draw("same");
     c1->SaveAs("Fig41A.png");
 }
-
+/*
 void fig48()
 {
     std::vector<std::string> input_filenames =
@@ -2313,7 +2353,7 @@ void DataBackgroundComparison()
 {
     auto start_time = Clock::now();
     fig27();
-//    fig28();
+    fig28();
 //    fig41();
 //    fig48();
 //    fig59();
