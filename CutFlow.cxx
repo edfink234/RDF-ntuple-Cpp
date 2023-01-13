@@ -84,7 +84,10 @@ void Table3()
      Doesn't work for 5 GeV Sample because
      electron_id_medium doesn't exist apparently...
      */
+//    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
     std::vector<std::string> input_filenames = {
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"
@@ -92,16 +95,19 @@ void Table3()
     
     std::vector<std::string> cutFlows;
     cutFlows.reserve(input_filenames.size());
-    constexpr std::array<const char*,3> Samples = {R"--(Signal $m_{\text{A}}$ = 1 GeV)--", "Data", R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
+    constexpr std::array<const char*,6> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", "Data", R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
     
     int count = 0;
     std::ostringstream os;
-    
+    os << R"--(\section*{Table 3})--" << '\n';
     os << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
     os << R"--(\begin{tabular}{|c|c|c|c|c|c|c|c|})--" << '\n';
     os << R"--(\hline)--" << '\n';
     os << R"--(Sample & Before Preselection & 2 leptons
           & Opposite Charge & $p_{T}^{\text{leading}} > 27$ GeV, \; $p_{T}^{\text{sub-leading}} > 20$ GeV & $\Delta R > 0.01$ & dilep mass cut & dilep $p_{T}$ cut \\ \hline )--" << '\n';
+    
+    double beforePreselecZGamma = 0, twoLeptonsZGamma = 0, oppChargeZGamma = 0, leadingPtZGamma = 0, deltaRZGamma = 0, MassZGamma = 0, ptCutZGamma = 0;
+
     for (auto& file: input_filenames)
     {
         SchottDataFrame df(MakeRDF({file}, 8));
@@ -143,34 +149,57 @@ void Table3()
             
         }, {"di_electrons"});
         
-        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+        auto leading_pt = opp_charge.Filter([](RVec<Electron>& electrons)
         {
             return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
         }, {"di_electrons"});
         
-        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+        auto delta_R = leading_pt.Filter([] (RVec<Electron>& electrons)
         {
             return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
         }, {"di_electrons"});
         
-        auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
+        auto mass = delta_R.Filter([] (RVec<Electron>& electrons)
         {
             auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
             return ((mass >= 81) && (mass <= 101));
         }, {"di_electrons"});
         
-        auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
+        auto pt_cut = mass.Filter([] (RVec<Electron>& electrons)
         {
             auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
             return pT > 10;
         }, {"di_electrons"});
         
-        os << Samples[count++] << " & " << *df.Count() << " & " << *two_leptons.Count()
-        << " & " << *opp_charge.Count() << " & " << *leadingPt.Count() << " & "
-        << *deltaR.Count() << " & " << *mass.Count() << " & " << *ptCut.Count()
-        << R"--( \\ \hline )--" << '\n';
-
+        if (count < 3)
+        {
+            beforePreselecZGamma += *df.Count();
+            twoLeptonsZGamma += *two_leptons.Count();
+            oppChargeZGamma += *opp_charge.Count();
+            leadingPtZGamma += *leading_pt.Count();
+            deltaRZGamma += *delta_R.Count();
+            MassZGamma += *mass.Count();
+            ptCutZGamma += *pt_cut.Count();
+            
+            os << Samples[count++] << " & " << *df.Count() << " & " << *two_leptons.Count()
+            << " & " << *opp_charge.Count() << " & " << *leading_pt.Count() << " & "
+            << *delta_R.Count() << " & " << *mass.Count() << " & " << *pt_cut.Count()
+            << R"--( \\ \hline )--" << '\n';
+        }
+        else
+        {
+            os << Samples[count++] << " & " << *df.Count() << " & " << *two_leptons.Count()
+            << " & " << *opp_charge.Count() << " & " << *leading_pt.Count() << " & "
+            << *delta_R.Count() << " & " << *mass.Count() << " & " << *pt_cut.Count()
+            << R"--( \\ \hline )--" << '\n';
+        }
     }
+    
+    os << R"--(Total $Z\gamma$ & )--" << beforePreselecZGamma << " & " << twoLeptonsZGamma
+    << " & " << oppChargeZGamma << " & " << leadingPtZGamma << " & "
+    << deltaRZGamma << " & " << MassZGamma << " & " << ptCutZGamma
+    << R"--( \\ \hline )--" << '\n';
+    
     os << R"--(\end{tabular}})--" << '\n';
     cutFlows.push_back(os.str());
     for (auto& i: cutFlows)
@@ -182,21 +211,26 @@ void Table3()
 void Table8()
 {
     std::vector<std::string> input_filenames = {
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"
     };
     
+    constexpr std::array<const char*,6> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", "Data", R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
+    
+    double totalEvents = 0, resolvedEvents = 0, SREvents = 0, SBEvents = 0;
     std::vector<std::string> cutFlows;
     cutFlows.reserve(input_filenames.size());
-    constexpr std::array<const char*,3> Samples = {R"--(Signal $m_{\text{A}}$ = 1 GeV)--", "Data", R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
     
     int count = 0;
     std::ostringstream os;
+    os << R"--(\section*{Table 8})--" << '\n';
     os << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
-    os << R"--(\begin{tabular}{|c|c|c|})--" << '\n';
+    os << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
     os << R"--(\hline)--" << '\n';
-    os << R"--(Sample & Total Events & PS: Resolved
+    os << R"--(Sample & Total Events & PS: Resolved & SB & SR
            \\ \hline )--" << '\n';
     for (auto& file: input_filenames)
     {
@@ -272,8 +306,8 @@ void Table8()
             }), photons.end());
             return photons;
         }, {"photons"}).Filter(
-       [&](RVec<Photon>& reco_photons_matched)
-       {
+        [&](RVec<Photon>& reco_photons_matched)
+        {
            if (reco_photons_matched.size() < 2)
            {
                return false;
@@ -295,12 +329,46 @@ void Table8()
            }
            return false;
 
-       }, {"photons_pass_cuts"});
+        }, {"photons_pass_cuts"});
 
-        os << Samples[count++] << " & " << *df.Count() << " & " << *resolved.Count()
-        << R"--( \\ \hline )--" << '\n';
-
+        auto SR = resolved.Filter(
+        [&](RVec<Electron>& electrons, RVec<Photon>& reco_photons_matched)
+        {
+            auto mass = ((electrons[0].Vector()+electrons[1].Vector()).M() + (reco_photons_matched[0].Vector()+reco_photons_matched[1].Vector()).M())/1e3;
+            return ((mass > 110) && (mass < 140));
+        }, {"di_electrons", "photons_pass_cuts"});
+        
+        auto SB = resolved.Filter(
+        [&](RVec<Electron>& electrons, RVec<Photon>& reco_photons_matched)
+        {
+            auto mass = ((electrons[0].Vector()+electrons[1].Vector()).M() + (reco_photons_matched[0].Vector()+reco_photons_matched[1].Vector()).M())/1e3;
+            return (!((mass > 110) && (mass < 140)));
+        }, {"di_electrons", "photons_pass_cuts"});
+        
+        if (count < 3)
+        {
+            totalEvents += *df.Count();
+            resolvedEvents += *resolved.Count();
+            SREvents += *SR.Count();
+            SBEvents += *SB.Count();
+            
+            os << Samples[count++] << " & " << *df.Count() << " & " << *resolved.Count()
+            << " & " << *SB.Count() << " & " << *SR.Count()
+            << R"--( \\ \hline )--" << '\n';
+        }
+        else
+        {
+            os << Samples[count++] << " & " << *df.Count() << " & " << *resolved.Count()
+            << " & " << *SB.Count() << " & " << *SR.Count()
+            << R"--( \\ \hline )--" << '\n';
+        }
+        
     }
+    
+    os << R"--(Total $Z\gamma$ & )--" << totalEvents << " & " << resolvedEvents
+    << " & " << SBEvents << " & " << SREvents
+    << R"--( \\ \hline )--" << '\n';
+    
     os << R"--(\end{tabular}})--" << '\n';
     cutFlows.push_back(os.str());
     for (auto& i: cutFlows)
@@ -312,17 +380,22 @@ void Table8()
 void Table11()
 {
     std::vector<std::string> input_filenames = {
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"
     };
     
+    constexpr std::array<const char*,6> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", "Data", R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
+    
     std::vector<std::string> cutFlows;
     cutFlows.reserve(input_filenames.size());
-    constexpr std::array<const char*,3> Samples = {R"--(Signal $m_{\text{A}}$ = 1 GeV)--", "Data", R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
-    
+    double totalEvents = 0, passPreselection = 0, photonPtDeltaRCount = 0, xWindow = 0,
+    srCount = 0, srIDCount=0;
     int count = 0;
     std::ostringstream os;
+    os << R"--(\section*{Table 11})--" << '\n';
     os << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
     os << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
     os << R"--(\hline)--" << '\n';
@@ -469,13 +542,34 @@ void Table11()
         {
             return (photons[0].photon_id_loose && photons[1].photon_id_loose);
         },{"chosen_two"});
-
-        os << Samples[count++] << " & " << *df.Count() << " & " <<
-                *ptCut.Count() << " & " << *photonPtDeltaR.Count() << " & " << *X_window.Count()
-                << " & " << *SR.Count() << " & " << *SR_ID.Count()
-                << R"--( \\ \hline )--" << '\n';
-
+        
+        if (count < 3)
+        {
+            totalEvents += *df.Count();
+            passPreselection += *ptCut.Count();
+            photonPtDeltaRCount += *photonPtDeltaR.Count();
+            xWindow += *X_window.Count();
+            srCount += *SR.Count();
+            srIDCount += *SR_ID.Count();
+            
+            os << Samples[count++] << " & " << *df.Count() << " & " <<
+                    *ptCut.Count() << " & " << *photonPtDeltaR.Count() << " & " << *X_window.Count()
+                    << " & " << *SR.Count() << " & " << *SR_ID.Count()
+                    << R"--( \\ \hline )--" << '\n';
+        }
+        else
+        {
+            os << Samples[count++] << " & " << *df.Count() << " & " <<
+                    *ptCut.Count() << " & " << *photonPtDeltaR.Count() << " & " << *X_window.Count()
+                    << " & " << *SR.Count() << " & " << *SR_ID.Count()
+                    << R"--( \\ \hline )--" << '\n';
+        }
     }
+    os << R"--(Total $Z\gamma$ & )--" << totalEvents << " & " << passPreselection
+    << " & " << photonPtDeltaRCount << " & " << xWindow << " & " << srCount
+    << " & " << srIDCount
+    << R"--( \\ \hline )--" << '\n';
+    
     os << R"--(\end{tabular}})--" << '\n';
     cutFlows.push_back(os.str());
     for (auto& i: cutFlows)

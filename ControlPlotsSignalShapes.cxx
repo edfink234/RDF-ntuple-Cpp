@@ -83,16 +83,16 @@ void fig1A()
     std::vector<std::string> input_filenames =
     {
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-        //"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
     };
     
     std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCounts;
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos, back_histos;
     histos.reserve(input_filenames.size());
-    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", /*"pty_17_myy_80",*/ "sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV"};
+    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV"};
     std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
-    std::vector<EColor> colors = {kBlue, kRed, /*kViolet,*/ kBlack, kMagenta};
+    std::vector<EColor> colors = {kBlue, kRed, kViolet, kBlack, kMagenta};
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.6);
     int count = 0;
@@ -186,7 +186,7 @@ void fig1A()
            
         
         
-        if (count < 2)
+        if (count <= 2)
         {
 //            break;
             back_histos.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
@@ -1877,8 +1877,15 @@ void fig24()
 {
     std::vector<std::string> input_filenames = {
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
     };
+    
+    std::vector<std::string> back_input_filenames = {
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
+    };
+    
+    TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.6);
     
     auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
     {
@@ -1924,10 +1931,23 @@ void fig24()
     histos_unweighted.reserve(input_filenames.size());
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_weighted;
     histos_weighted.reserve(input_filenames.size());
-
-    std::vector<const char*> prefixes = {"Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV"};
-    std::vector<EColor> colors = {kBlue, kRed};
+    
+    std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCounts;
+    std::vector<ROOT::RDF::RResultPtr<TH1D>> back_histos_unweighted;
+    back_histos_unweighted.reserve(back_input_filenames.size());
+    std::vector<ROOT::RDF::RResultPtr<TH1D>> back_histos_weighted;
+    back_histos_weighted.reserve(back_input_filenames.size());
+    
+    std::vector<const char*> prefixes = {"sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV"};
+    std::vector<const char*> back_prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80"};
+    
+    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
+    
+    std::vector<EColor> sig_colors = {kBlack, kMagenta};
     int count = 0;
+    
+    TCanvas* c1 = new TCanvas();
+    legend = new TLegend(0.65, 0.4, 0.85, 0.6);
     
     for (auto& file: input_filenames)
     {
@@ -2102,39 +2122,204 @@ void fig24()
         histos_unweighted.push_back(two_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 0.8}, "reco_photons_from_axions_deltaR"));
         histos_weighted.push_back(two_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 0.8}, "reco_photons_from_axions_deltaR"));
         
-        auto passed = preselection.Count();
-        std::cout << *passed << '\n';
+//        auto passed = preselection.Count();
+//        std::cout << *passed << '\n';
     }
     
-    TCanvas* c1 = new TCanvas();
-    TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+    count = 0;
+    std::vector<EColor> back_colors = {kBlue, kRed, kViolet,};
+    
+    for (auto& file: back_input_filenames)
+    {
+        SchottDataFrame df(MakeRDF({file}, 8));
+        
+        auto trigger_selection = df.Filter(
+        [](const RVec<std::string>& trigger_passed_triggers)
+        {
+            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+           
+            if (!trigger_found)
+            {
+                return false;
+            }
+            return true;
+            
+        }, {"trigger_passed_triggers"});
+            
+        auto two_leptons = trigger_selection.Filter(
+        [](RVec<Muon>& muons, RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                          && (ep.electron_id_medium == 1)));
+                
+            }), electrons.end());
+            
+            return (electrons.size()==2 && muons.empty());
+            
+        }, {"muons", "electrons"});
+
+        auto opp_charge = two_leptons.Define("di_electrons",
+        [](RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                && (ep.electron_id_medium == 1)));
+
+            }), electrons.end());
+            
+            return electrons;
+            
+        },{"electrons"})
+        .Filter([](RVec<Electron> electrons)
+        {
+            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+            
+        }, {"di_electrons"});
+
+        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+        {
+            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+        }, {"di_electrons"});
+
+        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+        {
+            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+        }, {"di_electrons"});
+
+        auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
+        {
+            auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+            return ((mass >= 81) && (mass <= 101));
+        }, {"di_electrons"});
+
+        auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
+        {
+            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+            return pT > 10;
+        }, {"di_electrons"});
+        
+        auto photons_pass_cuts = ptCut.Define("photons_pass_cuts",
+        [&](RVec<Photon> photons)
+        {
+            photons.erase(std::remove_if(photons.begin(),photons.end(),
+            [](Photon& x)
+            {
+                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+
+            }), photons.end());
+            
+            return photons;
+        }, {"photons"});
+        
+        
+        auto two_reco_photons_matched = photons_pass_cuts.Define("chosen_two",
+        [](RVec<Photon>& photons_pass_cuts)
+        {
+            RVec<Photon> x;
+            if (photons_pass_cuts.size() < 2)
+            {
+                return x;
+            }
+            auto combs = Combinations(photons_pass_cuts, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X;
+
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(photons_pass_cuts[combs[0][i]].Vector(), photons_pass_cuts[combs[1][i]].Vector());
+                m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
+                pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+                {
+                    x = {photons_pass_cuts[combs[0][i]], photons_pass_cuts[combs[1][i]]};
+                    return x;
+                }
+            }
+            return x;
+        }, {"photons_pass_cuts"}).Filter(
+        [&](RVec<Photon>& two_reco_photons_matched)
+        {
+            return (two_reco_photons_matched.size()==2);
+        }, {"chosen_two"})
+        .Define("reco_photons_from_axions_deltaR",
+        [&](RVec<Photon>& reco_photons_matched)
+        {
+            return DeltaR(reco_photons_matched[0].Vector(), reco_photons_matched[1].Vector());
+            
+        }, {"chosen_two"});
+
+        back_histos_unweighted.push_back(two_reco_photons_matched.Histo1D<double>({back_prefixes[count], back_prefixes[count], 100u, 0, 0.8}, "reco_photons_from_axions_deltaR"));
+        back_histos_weighted.push_back(two_reco_photons_matched.Histo1D<double>({back_prefixes[count], back_prefixes[count++], 100u, 0, 0.8}, "reco_photons_from_axions_deltaR"));
+        
+        backCounts.push_back(two_reco_photons_matched.Count());
+    }
+    
     double factor;
+    double total_back = 0;
+    for (size_t i = 0; i < backCounts.size(); i++)
+    {
+        total_back += *backCounts[i]*SFs[i];
+    }
+    int back_count = 0;
+    factor = total_back;
+    auto hs = new THStack("hs3","");
+    for (auto& h: back_histos_weighted)
+    {
+        h->SetFillColor(back_colors[back_count]);
+        legend->AddEntry(&(*h), h->GetTitle(), "f");
+        if (h->Integral() != 0)
+            h->Scale((factor/h->Integral())*SFs[back_count++]);
+        h->SetTitle(";m_{ll}  [GeV];Events");
+        h->GetYaxis()->CenterTitle(true);
+        h->SetAxisRange(0., 1000,"Y");
+//        gPad->Modified(); gPad->Update();
+        
+        hs->Add(&*h);
+        h->SetAxisRange(0., 1000,"Y");
+        count++;
+    }
+    hs->Draw("HIST");
     
     count = 0;
     for (auto& h: histos_weighted)
     {
-        h->SetLineColor(colors[count++]);
+        h->SetLineColor(sig_colors[count++]);
         legend->AddEntry(&(*h), h->GetTitle(), "l");
         
         if (&h == &histos_weighted.front())
         {
-            factor = h->Integral();
-            h->Scale(factor/h->Integral());
+            if (h->Integral() != 0)
+            {h->Scale(factor/h->Integral());}
             h->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
             h->SetAxisRange(0., 82,"Y");
 //            h->SetAxisRange(0., 500,"Y");
 
-            h->Draw("HIST");
+            h->Draw("HISTsame");
         }
         else
         {
-            h->Scale(factor/h->Integral());
+            if (h->Integral() != 0)
+            {h->Scale(factor/h->Integral());}
             h->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
     }
+    
+    hs->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
+    hs->GetYaxis()->CenterTitle(true);
+    hs->GetXaxis()->SetTitleOffset(1.2);
+    hs->SetMinimum(0.);
+    hs->SetMaximum(29.);
     
     gStyle->SetOptStat(0);
     TLatex Tl;
@@ -2147,25 +2332,41 @@ void fig24()
     
     c1 = new TCanvas();
     legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+    
+    back_count=0;
+    hs = new THStack("hs3","");
+    for (auto& h: back_histos_unweighted)
+    {
+        h->SetFillColor(back_colors[back_count]);
+        legend->AddEntry(&(*h), h->GetTitle(), "f");
+        if (h->Integral() != 0)
+            h->Scale((factor/h->Integral())*SFs[back_count++]);
+        h->SetTitle(";m_{ll}  [GeV];Events");
+        h->GetYaxis()->CenterTitle(true);
+        h->SetAxisRange(0., 1000,"Y");
+//        gPad->Modified(); gPad->Update();
+        
+        hs->Add(&*h);
+        h->SetAxisRange(0., 1000,"Y");
+        count++;
+    }
+    hs->Draw("HIST");
     count = 0;
     for (auto& h: histos_unweighted)
     {
-        h->SetLineColor(colors[count++]);
+        h->SetLineColor(sig_colors[count++]);
         legend->AddEntry(&(*h), h->GetTitle(), "l");
         
         if (&h == &histos_unweighted.front())
         {
-            factor = h->Integral();
-//            h->Scale(factor/h->Integral());
             h->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
             h->SetAxisRange(0., 36,"Y");
-            h->Draw("HIST");
+            h->Draw("HISTsame");
         }
         else
         {
-//            h->Scale(factor/h->Integral());
             h->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
@@ -2174,6 +2375,12 @@ void fig24()
             gPad->Modified(); gPad->Update();
         }
     }
+    hs->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
+    hs->GetYaxis()->CenterTitle(true);
+    hs->GetXaxis()->SetTitleOffset(1.2);
+    hs->SetMinimum(0.);
+    hs->SetMaximum(36.);
+    
     gStyle->SetOptStat(0);
     Tl.SetTextSize(0.03);
     Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
@@ -2641,8 +2848,8 @@ void ControlPlotsSignalShapes()
 //    fig8();
 //    fig10();
 //    fig18();
-//    fig24();
-    fig54();
+    fig24();
+//    fig54();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "
