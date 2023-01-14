@@ -578,7 +578,7 @@ void fig28()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig28D.png");
-}*/
+}
 
 void fig41()
 {
@@ -861,24 +861,26 @@ void fig41()
     legend->Draw("same");
     c1->SaveAs("Fig41A.png");
      
-}
-/*
+}*/
+
 void fig48()
 {
     std::vector<std::string> input_filenames =
-//    {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root","/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root","/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"};
     { "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
-//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"
     };
     
-    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "data"};//, "pty_17_myy_80"};
-    std::vector<EColor> colors = {kBlue, kRed, kGreen};//, kViolet};
+    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data"};
+    std::vector<EColor> colors = {kBlue, kRed, kViolet, kGreen};
+    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
     
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_back_plus_data_mass;
-    histos_back_plus_data_mass.reserve(3);//4);
+    histos_back_plus_data_mass.reserve(4);
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_back_plus_data_pt;
-    histos_back_plus_data_pt.reserve(3);//4);
+    histos_back_plus_data_pt.reserve(4);
+    std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCounts;
+    backCounts.reserve(3);
     
     int count = 0;
     for (auto& i: input_filenames)
@@ -1032,32 +1034,57 @@ void fig48()
         {
             return merged_photon.Vector().Pt()/1e3;
             
-        }, {"merged_photon"});
-        
+        }, {"merged_photon"})
+        .Define("reconstructed_mass",[&](RVec<Electron>& di_electrons, Photon& merged_photon)
+        {
+         auto four_momentum = di_electrons[0].Vector() + di_electrons[1].Vector();
+         
+         return (four_momentum + merged_photon.Vector()).M()/1e3;
+         
+        }, {"di_electrons", "merged_photon"})
+        .Filter([](RVec<float>& Eratio, double reconstructed_mass)
+        {
+            return ((!Any(Eratio <= 0.8)) && ((reconstructed_mass < 110) || (reconstructed_mass > 130)));
+        }, {"photon_shower_shape_e_ratio", "reconstructed_mass"});
+
+                                     
 //        std::cout << *(diphotons.Min<double>("mass")) << '\n';
 //        std::cout << *(diphotons.Count()) << '\n';
         
+        if (count <= 2)
+        {
+            backCounts.push_back(dilepton_and_photon.Count());
+        }
+        
         histos_back_plus_data_mass.push_back(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 60, 120}, "dilepton_mass"));
         histos_back_plus_data_pt.push_back(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 165}, "merged_photon_pt"));
-
-        auto passed = dilepton_and_photon.Count();
-        std::cout << *passed << '\n';
     }
     count = 0;
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
     auto hs = new THStack("hs1","");
-    double factor;
+    double factor = 0;
+    for (auto& i: backCounts)
+    {
+        factor += *i;
+    }
     
     for (auto& h: histos_back_plus_data_mass)
     {
+        if (h->Integral() != 0 && &h != &histos_back_plus_data_mass.back())
+        {
+            h->Scale((factor/h->Integral())*SFs[count]);
+        }
         h->SetFillColor(colors[count++]);
         legend->AddEntry(&(*h), h->GetTitle(), "f");
-        if (strcmp(h->GetTitle(),"data")!=0)
+    
+        if (&h != &histos_back_plus_data_mass.back())
+        {
             hs->Add(&*h);
+        }
     }
     hs->Draw("HIST");
-    histos_back_plus_data_mass[2]->Draw("HISTsame");
+    histos_back_plus_data_mass[3]->Draw("HISTsame");
     hs->SetTitle(";m_{ll} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -1077,14 +1104,21 @@ void fig48()
     legend = new TLegend(0.65, 0.4, 0.85, 0.6);
     for (auto& h: histos_back_plus_data_pt)
     {
+        if (h->Integral() != 0 && &h != &histos_back_plus_data_pt.back())
+        {
+            h->Scale((factor/h->Integral())*SFs[count]);
+        }
         h->SetFillColor(colors[count++]);
         legend->AddEntry(&(*h), h->GetTitle(), "f");
-        if (count!=3)
+    
+        if (&h != &histos_back_plus_data_pt.back())
+        {
             hs->Add(&*h);
+        }
     }
     hs->Draw("HIST");
-    histos_back_plus_data_pt[2]->Draw("HISTsame");
-    hs->SetTitle(";p_{t} [GeV];Events");
+    histos_back_plus_data_pt[3]->Draw("HISTsame");
+    hs->SetTitle(";photon p_{T} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
     
@@ -1096,7 +1130,7 @@ void fig48()
     legend->Draw();
     c1->SaveAs("Fig48B.png");
 }
-
+/*
 void fig59()
 {
     std::vector<std::string> input_filenames =
@@ -2368,8 +2402,8 @@ void DataBackgroundComparison()
     auto start_time = Clock::now();
 //    fig27();
 //    fig28();
-    fig41();
-//    fig48();
+//    fig41();
+    fig48();
 //    fig59();
 //    Table9();
 //    Table10();
