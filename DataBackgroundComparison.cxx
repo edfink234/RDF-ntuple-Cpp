@@ -861,7 +861,7 @@ void fig41()
     legend->Draw("same");
     c1->SaveAs("Fig41A.png");
      
-}*/
+}
 
 void fig48()
 {
@@ -1044,7 +1044,7 @@ void fig48()
         }, {"di_electrons", "merged_photon"})
         .Filter([](RVec<float>& Eratio, double reconstructed_mass)
         {
-            return ((!Any(Eratio <= 0.8)) && ((reconstructed_mass < 110) || (reconstructed_mass > 130)));
+            return ((!Any(Eratio <= 0.8)) && ((reconstructed_mass <= 110) || (reconstructed_mass >= 130)));
         }, {"photon_shower_shape_e_ratio", "reconstructed_mass"});
 
                                      
@@ -1130,26 +1130,34 @@ void fig48()
     legend->Draw();
     c1->SaveAs("Fig48B.png");
 }
-/*
+
 void fig59()
 {
     std::vector<std::string> input_filenames =
-//    {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root","/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root","/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"};
     {
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
-      //  "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"
     };
     
-    std::vector<const char*> prefixes = {"Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "data"};//, "pty_17_myy_80"};
-    std::vector<EColor> colors = {kBlack, kMagenta, kBlue, kRed, kGreen};//, kViolet};
+    std::vector<const char*> prefixes = {"Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data"};
+    std::vector<EColor> colors = {kMagenta, kBlack, kBlue, kRed, kViolet, kGreen};
     
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_sig;
-    histos_sig.reserve(2);
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_back_plus_data;
-    histos_back_plus_data.reserve(3);//4);
-    
+    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_sig_SB;
+    histos_sig_SB.reserve(2);
+    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_sig_SR;
+    histos_sig_SR.reserve(2);
+    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_back_plus_data_SB;
+    histos_back_plus_data_SB.reserve(4);
+    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_back_plus_data_SR;
+    histos_back_plus_data_SR.reserve(4);
+    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
+    std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCountsSB;
+    backCountsSB.reserve(3);
+    std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCountsSR;
+    backCountsSR.reserve(3);
     int count = 0;
     for (auto& i: input_filenames)
     {
@@ -1296,45 +1304,69 @@ void fig59()
             auto dilepton_four_momentum = di_electrons[0].Vector() + di_electrons[1].Vector();
             return DeltaR(dilepton_four_momentum, merged_photon.Vector());
             
+        }, {"di_electrons", "merged_photon"})
+        .Define("reconstructed_mass",[&](RVec<Electron>& di_electrons, Photon& merged_photon)
+        {
+            auto four_momentum = di_electrons[0].Vector() + di_electrons[1].Vector();
+
+            return (four_momentum + merged_photon.Vector()).M()/1e3;
+         
         }, {"di_electrons", "merged_photon"});
+        
+        auto SB = dilepton_and_photon.Filter(
+        [](RVec<float>& Eratio, double reconstructed_mass)
+        {
+            return ((!Any(Eratio <= 0.8)) && ((reconstructed_mass <= 110) || (reconstructed_mass >= 130)));
+        }, {"photon_shower_shape_e_ratio", "reconstructed_mass"});
+        
+        auto SR = dilepton_and_photon.Filter(
+        [](RVec<float>& Eratio, double reconstructed_mass)
+        {
+            return ((!Any(Eratio <= 0.8)) && ((reconstructed_mass > 110) && (reconstructed_mass < 130)));
+        }, {"photon_shower_shape_e_ratio", "reconstructed_mass"});
         
 //        std::cout << *(diphotons.Min<double>("mass")) << '\n';
 //        std::cout << *(diphotons.Count()) << '\n';
         
+        if (count >= 2 && count <= 4)
+        {
+            backCountsSB.push_back(SB.Count());
+            backCountsSR.push_back(SR.Count());
+        }
         if (count < 2) //signal only
         {
-            histos_sig.push_back(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
+            histos_sig_SB.push_back(SB.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
+            histos_sig_SR.push_back(SR.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
         }
         else
         {
-            histos_back_plus_data.push_back(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
+            histos_back_plus_data_SB.push_back(SB.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
+            histos_back_plus_data_SR.push_back(SR.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
         }
-        auto passed = dilepton_and_photon.Count();
-        std::cout << *passed << '\n';
     }
     count = 0;
     TCanvas* c1 = new TCanvas();
-    TLegend* legend = new TLegend(0.2, 0.4, 0.4, 0.6);
+    TLegend* legend = new TLegend(0.675, 0.5, 0.875, 0.7);
     double factor;
-    for (auto& h: histos_sig)
+    for (auto& h: histos_sig_SB)
     {
         h->SetLineColor(colors[count++]);
         legend->AddEntry(&(*h), h->GetTitle(), "l");
         
-        if (&h == &histos_sig.front())
+        if (&h == &histos_sig_SB.front())
         {
-            factor = h->Integral();
-            h->Scale(factor/h->Integral());
+//            factor = h->Integral();
+//            h->Scale(factor/h->Integral());
             h->SetTitle(";#DeltaR (ll#gamma);Events");
             h->GetYaxis()->CenterTitle(true);
             h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 68, "Y");
+            h->SetAxisRange(0., 5.5, "Y");
 //            h->SetAxisRange(0., 1200,"Y");
             h->Draw("HIST");
         }
         else
         {
-            h->Scale(factor/h->Integral());
+//            h->Scale(factor/h->Integral());
             h->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
@@ -1343,25 +1375,40 @@ void fig59()
     gStyle->SetOptStat(0);
     TLatex Tl;
     Tl.SetTextSize(0.03);
-    Tl.DrawLatexNDC(0.2, 0.8, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.2, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.6, 0.85, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.75,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig59D.png");
     
+    factor = 0;
+    count = 0;
+    for (auto& i: backCountsSB)
+    {
+        factor += *i;
+    }
+    
     auto hs = new THStack("hs1","");
     c1 = new TCanvas();
     legend = new TLegend(0.2, 0.4, 0.4, 0.6);
-    for (auto& h: histos_back_plus_data)
+    for (auto& h: histos_back_plus_data_SB)
     {
-        h->SetFillColor(colors[count++]);
+        if (h->Integral() != 0 && &h != &histos_back_plus_data_SB.back())
+        {
+            h->Scale((factor/h->Integral())*SFs[count]);
+        }
+        h->SetFillColor(colors[2+count++]);
         legend->AddEntry(&(*h), h->GetTitle(), "f");
-        if (strcmp(h->GetTitle(),"data")!=0)
+    
+        if (&h != &histos_back_plus_data_SB.back())
+        {
             hs->Add(&*h);
+        }
     }
     hs->Draw("HIST");
-    histos_back_plus_data[2]->Draw("HISTsame");
+    histos_back_plus_data_SB[3]->Draw("HISTsame");
     hs->SetTitle(";#DeltaR (ll#gamma);Events");
+    hs->SetMaximum(50);
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
     
@@ -1372,26 +1419,36 @@ void fig59()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig59A.png");
+    
+    factor = 0;
+    for (auto& i: backCountsSR)
+    {
+        factor += *i;
+    }
     count=2;
     c1 = new TCanvas();
-    legend = new TLegend(0.2, 0.4, 0.4, 0.6);
+    legend = new TLegend(0.2, 0.5, 0.4, 0.7);
     hs = new THStack("hs2","");
-    for (auto& h: histos_back_plus_data)
+    for (auto& h: histos_back_plus_data_SR)
     {
-        if (strcmp(h->GetTitle(),"data")!=0)
+        if (h->Integral() != 0 && &h != &histos_back_plus_data_SR.back())
         {
+            h->Scale((factor/h->Integral())*SFs[count-2]);
+        }
+        if (&h != &histos_back_plus_data_SR.back())
+        {
+            hs->Add(&*h);
             h->SetFillColor(colors[count++]);
             legend->AddEntry(&(*h), h->GetTitle(), "f");
-            hs->Add(&*h);
         }
     }
     hs->Draw("HIST");
     count=0;
-    for (auto& h: histos_sig)
+    for (auto& h: histos_sig_SR)
     {
-        h->SetLineColor(colors[count++]);
+        h->SetLineColor(colors[count]);
         h->SetLineWidth(2);
-        legend->AddEntry(&(*h), prefixes[count-1], "l");
+        legend->AddEntry(&(*h), prefixes[count++], "l");
         
         h->SetTitle(";#DeltaR (ll#gamma);Events");
         h->GetYaxis()->CenterTitle(true);
@@ -1401,37 +1458,42 @@ void fig59()
         h->Draw("HISTsame");
         gPad->Modified(); gPad->Update();
     }
+    hs->SetMaximum(80);
     hs->SetTitle(";#DeltaR (ll#gamma);Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
     
     gStyle->SetOptStat(0);
     Tl.SetTextSize(0.03);
-    Tl.DrawLatexNDC(0.2, 0.8, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.2, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.2, 0.85, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.2, 0.75,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig59B.png");
     
     count=2;
     c1 = new TCanvas();
-    legend = new TLegend(0.2, 0.4, 0.4, 0.6);
+    legend = new TLegend(0.15, 0.45, 0.35, 0.65);
     count=2;
-    factor = histos_sig.front()->Integral();
+//    factor = histos_sig_SR.front()->Integral();
     hs = new THStack("hs3","");
-    for (auto& h: histos_back_plus_data)
+    for (auto& h: histos_back_plus_data_SR)
     {
-        if (strcmp(h->GetTitle(),"data")!=0)
+        if (h->Integral() != 0 && &h != &histos_back_plus_data_SR.back())
         {
-            h->Scale(factor/(2*h->Integral()));
+            h->Scale((factor/h->Integral())*SFs[count-2]);
+        }
+    
+        if (&h != &histos_back_plus_data_SR.back())
+        {
+            hs->Add(&*h);
             h->SetFillColor(colors[count++]);
             legend->AddEntry(&(*h), h->GetTitle(), "f");
-            hs->Add(&*h);
         }
     }
     hs->Draw("HIST");
     count=0;
-    for (auto& h: histos_sig)
+    for (auto& h: histos_sig_SR)
     {
         h->SetLineColor(colors[count++]);
         h->SetLineWidth(2);
@@ -1441,21 +1503,19 @@ void fig59()
         h->SetTitle(";#DeltaR (ll#gamma);Events");
         h->GetYaxis()->CenterTitle(true);
         h->GetXaxis()->SetTitleOffset(1.2);
-        h->SetAxisRange(0., 68, "Y");
-//            h->SetAxisRange(0., 1200,"Y");
         h->Draw("HISTsame");
         gPad->Modified(); gPad->Update();
     }
    
-    
+    hs->SetMaximum(18);
     hs->SetTitle(";#DeltaR (ll#gamma);Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
     
     gStyle->SetOptStat(0);
     Tl.SetTextSize(0.03);
-    Tl.DrawLatexNDC(0.2, 0.8, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.2, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.2, 0.825, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.2, 0.725,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig59C.png");
@@ -1866,7 +1926,7 @@ void Table10()
     
     std::cout << "\n\n\n";
 }
-
+*/
 void Table16()
 {
     std::vector<std::vector<std::string>> input_filenames =
@@ -2047,53 +2107,46 @@ void Table16()
             return (reconstructed_mass >= 110) && (reconstructed_mass <= 130);
         }, {"reconstructed_mass"});
         
+        auto SB = pSB.Filter(
+        [](RVec<float>& Eratio)
+        {
+            return (!Any(Eratio <= 0.8));
+        }, {"photon_shower_shape_e_ratio"});
+        
+        auto SR = pSR.Filter(
+        [](RVec<float>& Eratio)
+        {
+            return (!Any(Eratio <= 0.8));
+        }, {"photon_shower_shape_e_ratio"});
         
         Totals.push_back(merged_reco_photons_matched.Count());
         Totals.push_back(pSB.Count());
         Totals.push_back(pSR.Count());
-        
-//        if (count <= 2)
-//        {
-//            out << *merged_reco_photons_matched.Count()*SFs[count++] << '\n';
-//        }
-//        else
-//        {
-//            out << *merged_reco_photons_matched.Count() << '\n';
-//            count++;
-//        }
+        Totals.push_back(SB.Count());
+        Totals.push_back(SR.Count());
+
     }
     
     ROOT::RDF::RunGraphs(Totals);
-    int count = 1, globCount = 0, otherCount = 0;
-    std::vector<std::vector<double>> Vals(3);
+    int count = 0;
+    std::vector<std::vector<double>> Vals(5);
     
     for (auto& i: Totals)
     {
-        if (globCount < 2)
-        {
-//            std::cout << (*i.GetResultPtr<ULong64_t>())*(SFs[globCount]) << '\n';
-            Vals[otherCount++].push_back((*i.GetResultPtr<ULong64_t>())*(SFs[globCount]));
-        }
-        else
-        {
-//            std::cout << *i.GetResultPtr<ULong64_t>() << '\n';
-            Vals[otherCount++].push_back(*i.GetResultPtr<ULong64_t>());
-        }
-        if (count++%3==0)
-        {
-            otherCount = 0;
-            globCount++;
-        }
+        Vals[count++%5].push_back(*i.GetResultPtr<ULong64_t>());
     }
     
     Vals[0].push_back(Vals[0][0]+Vals[0][1]+Vals[0][2]);
     Vals[1].push_back(Vals[1][0]+Vals[1][1]+Vals[1][2]);
     Vals[2].push_back(Vals[2][0]+Vals[2][1]+Vals[2][2]);
+    Vals[3].push_back(Vals[3][0]+Vals[3][1]+Vals[3][2]);
+    Vals[4].push_back(Vals[4][0]+Vals[4][1]+Vals[4][2]);
     
+    std::cout << R"--(\section*{Table 16})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
     std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|c|})--" << '\n';
     std::cout << R"--(\hline)--" << '\n';
-//    std::vector<std::string> prefixes = { "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data", "Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV"};
+
     std::cout << "{} & ";
     for (auto& i: prefixes)
     {
@@ -2108,7 +2161,7 @@ void Table16()
     }
     std::cout << '\n';
     count = 0;
-    std::vector<std::string> rows = {"Full Reg", "pSB", "pSR"};
+    std::vector<std::string> rows = {"Full Reg", "pSB", "pSR", "SB", "SR"};
     for (auto& i: Vals)
     {
         std::cout << rows[count++] << " & ";
@@ -2122,10 +2175,7 @@ void Table16()
             {
                 std::cout << j << " & ";
             }
-            
-//            std::cout << j << '\n';
         }
-//        std::cout << R"--(\\ \hline)--" << '\n';
     }
     
     std::cout << R"--(\end{tabular}})--" << '\n';
@@ -2300,52 +2350,33 @@ void Table19()
             return (reconstructed_mass >= 110) && (reconstructed_mass <= 130);
         }, {"reconstructed_mass"});
         
-        auto pSR_ID = pSR.Filter(
+        auto SR = pSR.Filter(
+        [](RVec<float>& Eratio)
+        {
+            return (!Any(Eratio <= 0.8));
+        }, {"photon_shower_shape_e_ratio"});
+        
+        auto SR_ID = SR.Filter(
         [&](Photon& merged_photon)
         {
             return merged_photon.photon_id;
         }, {"merged_photon"});
         
-        
-        
         Totals.push_back(ptCut.Count()); //preselection
         Totals.push_back(failed_resolved.Count()); //failed_resolved
         Totals.push_back(photon_pt_cut.Count()); //photon_pt_cut
         Totals.push_back(pSR.Count()); //pSR
-        Totals.push_back(pSR_ID.Count()); //pSR_ID
-        
-//        if (count <= 2)
-//        {
-//            out << *merged_reco_photons_matched.Count()*SFs[count++] << '\n';
-//        }
-//        else
-//        {
-//            out << *merged_reco_photons_matched.Count() << '\n';
-//            count++;
-//        }
+        Totals.push_back(SR.Count()); //SR
+        Totals.push_back(SR_ID.Count()); //SR_ID
     }
     
     ROOT::RDF::RunGraphs(Totals);
-    int count = 1, globCount = 0, otherCount = 0;
-    std::vector<std::vector<double>> Vals(5);
+    int count = 0;
+    std::vector<std::vector<double>> Vals(6);
     
     for (auto& i: Totals)
     {
-        if (globCount < 2)
-        {
-//            std::cout << (*i.GetResultPtr<ULong64_t>())*(SFs[globCount]) << '\n';
-            Vals[otherCount++].push_back((*i.GetResultPtr<ULong64_t>())*(SFs[globCount]));
-        }
-        else
-        {
-//            std::cout << *i.GetResultPtr<ULong64_t>() << '\n';
-            Vals[otherCount++].push_back(*i.GetResultPtr<ULong64_t>());
-        }
-        if (count++%5==0)
-        {
-            otherCount = 0;
-            globCount++;
-        }
+        Vals[count++%6].push_back(*i.GetResultPtr<ULong64_t>());
     }
     
     Vals[0].push_back(Vals[0][0]+Vals[0][1]+Vals[0][2]);
@@ -2353,11 +2384,13 @@ void Table19()
     Vals[2].push_back(Vals[2][0]+Vals[2][1]+Vals[2][2]);
     Vals[3].push_back(Vals[3][0]+Vals[3][1]+Vals[3][2]);
     Vals[4].push_back(Vals[4][0]+Vals[4][1]+Vals[4][2]);
+    Vals[5].push_back(Vals[5][0]+Vals[5][1]+Vals[5][2]);
     
+    std::cout << R"--(\section*{Table 19})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
     std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|c|})--" << '\n';
     std::cout << R"--(\hline)--" << '\n';
-//    std::vector<std::string> prefixes = { "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data", "Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV"};
+
     std::cout << "{} & ";
     for (auto& i: prefixes)
     {
@@ -2372,7 +2405,7 @@ void Table19()
     }
     std::cout << '\n';
     count = 0;
-    std::vector<std::string> rows = {"pass preselection", "failed resolved category", R"--(photon $p_T$ cut)--", "pSR", "pSR-ID"};
+    std::vector<std::string> rows = {"pass preselection", "failed resolved category", R"--(photon $p_T$ cut)--", "pSR", "SR", "SR-ID"};
     for (auto& i: Vals)
     {
         std::cout << rows[count++] << " & ";
@@ -2386,29 +2419,26 @@ void Table19()
             {
                 std::cout << j << " & ";
             }
-            
-//            std::cout << j << '\n';
         }
-//        std::cout << R"--(\\ \hline)--" << '\n';
     }
     
     std::cout << R"--(\end{tabular}})--" << '\n';
     
     std::cout << "\n\n\n";
 }
-*/
+
 void DataBackgroundComparison()
 {
     auto start_time = Clock::now();
 //    fig27();
 //    fig28();
 //    fig41();
-    fig48();
+//    fig48();
 //    fig59();
 //    Table9();
 //    Table10();
-//    Table16();
-//    Table19();
+    Table16();
+    Table19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
