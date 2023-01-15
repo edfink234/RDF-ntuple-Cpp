@@ -81,7 +81,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-
+/*
 void Table4()
 {
     std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
@@ -616,7 +616,7 @@ void Table5()
     
     std::cout << "\n\n\n";
 }
-
+*/
 void Table14()
 {
     std::vector<std::string> input_filenames =
@@ -794,11 +794,11 @@ void Table14()
     {
         merged_id_freqs[i]++;
     }
-    
+    std::cout << R"--(\section*{Table 14})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
     std::cout << R"--(\begin{tabular}{|c|c|})--" << '\n';
     std::cout << R"--(\hline)--" << '\n';
-    std::cout << R"--(\multicolumn{2}{|c|}{$ee\gamma\gamma$ Merged Photon}\\ \hline)--" << '\n';
+    std::cout << R"--(\multicolumn{2}{|c|}{$Z\gamma$ Merged Photon}\\ \hline)--" << '\n';
     std::cout << R"--(Pdg id & \% \\ \hline )--" << '\n';
     for (auto& i: merged_id_freqs)
     {
@@ -878,34 +878,33 @@ void Table15()
     }, {"di_electrons"});
     
     auto photon_passes_cuts = ptCut.Define("photons_pass_cuts",
-    [&](RVec<TruthParticle> truth_particles)
+    [&](RVec<Photon> photons)
     {
-        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-        [](TruthParticle& x)
+        photons.erase(std::remove_if(photons.begin(),photons.end(),
+        [](Photon& x)
         {
-            return ((abs(x.mc_pdg_id) != 22) || (abs(x.mc_eta) >= 2.37) || (x.mc_pt <= 10e3));
+          return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
-        }), truth_particles.end());
-        
-        return truth_particles;
-        
-    }, {"truth_particles"});
+        }), photons.end());
+
+        return photons;
+    }, {"photons"});
     
     auto merged_reco_photons_matched = photon_passes_cuts.Filter(
-    [&](RVec<TruthParticle>& reco_photons_test)
+    [&](RVec<Photon>& reco_photons_test)
     {
-        RVec<TruthParticle> reco_photons_matched = reco_photons_test;
+        RVec<Photon> reco_photons_matched = reco_photons_test;
         
         reco_photons_matched.erase(std::remove_if(reco_photons_matched.begin(),reco_photons_matched.end(),
-        [](TruthParticle& x)
+        [](Photon& x)
         {
-            return x.mc_pt <= 10e3;
+            return x.photon_pt <= 10e3;
 
         }), reco_photons_matched.end());
         
         if (reco_photons_matched.size() == 1)
         {
-            return true ? reco_photons_matched[0].mc_pt > 20e3 : false;
+            return true ? reco_photons_matched[0].photon_pt > 20e3 : false;
         }
         
         else if (reco_photons_matched.empty())
@@ -931,25 +930,73 @@ void Table15()
         
         for (auto& p: reco_photons_matched)
         {
-            if (p.mc_pt > 20e3)
+            if (p.photon_pt > 20e3)
             {
                 return true;
             }
         }
         return false;
         
-    }, {"photons_pass_cuts"});
+    }, {"photons_pass_cuts"}).Define("merged_photon",
+    [&](RVec<Photon>& reco_photons_matched)
+    {
+        for (auto& p: reco_photons_matched)
+        {
+            if (p.photon_pt > 20e3)
+            {
+              return p;
+            }
+        }
+
+        return reco_photons_matched[0]; //jic the compiler complains
+
+    }, {"photons_pass_cuts"}).Define("reconstructed_mass",
+    [&](RVec<Electron>& di_electrons, Photon& merged_photon)
+    {
+        auto four_momentum = di_electrons[0].Vector() + di_electrons[1].Vector();
+        
+        return (four_momentum + merged_photon.Vector()).M()/1e3;
+        
+    }, {"di_electrons", "merged_photon"});
     
-    auto total = df.Count();
-    auto fractionOfEvents = merged_reco_photons_matched.Count();
+    auto pSB = merged_reco_photons_matched.Filter(
+    [](double reconstructed_mass)
+    {
+        return (reconstructed_mass < 110) || (reconstructed_mass > 130);
+    }, {"reconstructed_mass"});
     
+    auto pSR = merged_reco_photons_matched.Filter(
+    [](double reconstructed_mass)
+    {
+        return (reconstructed_mass >= 110) && (reconstructed_mass <= 130);
+    }, {"reconstructed_mass"});
+    
+    auto SB = pSB.Filter(
+    [](RVec<float>& Eratio)
+    {
+        return (!Any(Eratio <= 0.8));
+    }, {"photon_shower_shape_e_ratio"});
+    
+    auto SR = pSR.Filter(
+    [](RVec<float>& Eratio)
+    {
+        return (!Any(Eratio <= 0.8));
+    }, {"photon_shower_shape_e_ratio"});
+    
+    auto pSB_count = pSB.Count();
+    auto pSR_count = pSR.Count();
+    auto SB_count = SB.Count();
+    auto SR_count = SR.Count();
+    
+    std::cout << R"--(\section*{Table 15})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
     std::cout << R"--(\begin{tabular}{|c|c|})--" << '\n';
     std::cout << R"--(\hline)--" << '\n';
-    std::cout << R"--(\multicolumn{2}{|c|}{$ee\gamma\gamma$ Merged Photon}\\ \hline)--" << '\n';
-    std::cout << R"--(Category & Events \\ \hline )--" << '\n';
-    std::cout << "Total & " << *total << R"--(\\ \hline)--" << '\n';
-    std::cout << "Merged & " << *fractionOfEvents << R"--(\\ \hline)--" << '\n';
+    std::cout << R"--({} & $Z\gamma$ \\ \hline )--" << '\n';
+    std::cout << "pSB & " << *pSB_count << R"--(\\ \hline)--" << '\n';
+    std::cout << "pSR & " << *pSR_count << R"--(\\ \hline)--" << '\n';
+    std::cout << "SB & " << *SB_count << R"--(\\ \hline)--" << '\n';
+    std::cout << "SR & " << *SR_count << R"--(\\ \hline)--" << '\n';
     std::cout << R"--(\end{tabular}})--" << '\n';
 }
 
@@ -959,7 +1006,6 @@ void Fig19()
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
     };
-    
     
     std::vector<float> massPoints = {5, 1};
     std::ofstream out("Fig19.txt");
@@ -1222,9 +1268,9 @@ void Categorization()
     auto start_time = Clock::now();
 //    Table4();
 //    Table5();
-//    Table14();
-//    Table15();
-    Fig19();
+    Table14();
+    Table15();
+//    Fig19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;

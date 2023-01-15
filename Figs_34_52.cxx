@@ -207,16 +207,6 @@ void Fig34()
         return gg.M()/1e3;
     }, {"chosen_two"});
     
-//    auto precount = df.Count();
-//    auto count = resolved.Count();
-//
-//    auto vals = resolved.Take<double>("m_gg");
-//    for (auto& i: *vals)
-//    {
-//        std::cout << i << '\n';
-//    }
-//
-//    std::cout << *precount << '\n' << *count << '\n';
     auto di_ph_mm = resolved.Histo1D<double>({"data", "data", 10u, 0.6, 7.2}, "m_gg");
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.65, 0.4, 0.75, 0.6);
@@ -242,15 +232,17 @@ void Fig52()
     std::vector<std::string> input_filenames =
     {
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
-          "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"
     };
     
-    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "data", "pty_17_myy_80"};
-    std::vector<EColor> colors = {kBlue, kRed, kGreen, kViolet};
-    
+    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data"};
+    std::vector<EColor> colors = {kBlue, kRed, kViolet, kGreen};
+    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_back_plus_data;
-    histos_back_plus_data.reserve(4);//4);
+    histos_back_plus_data.reserve(4);
+    std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCounts;
+    backCounts.reserve(3);
     
     int count = 0;
     
@@ -395,13 +387,31 @@ void Fig52()
         [](Photon& p)
         {
             return p.photon_pt/1e3;
-        }, {"merged_photon"});
+        }, {"merged_photon"}).Define("reconstructed_mass",
+        [&](RVec<Electron>& di_electrons, Photon& merged_photon)
+        {
+            auto four_momentum = di_electrons[0].Vector() + di_electrons[1].Vector();
+
+            return (four_momentum + merged_photon.Vector()).M()/1e3;
+
+        }, {"di_electrons", "merged_photon"}).Filter(
+        [](double reconstructed_mass, RVec<float>& Eratio)
+        {
+            return ((!Any(Eratio <= 0.8)) && ((reconstructed_mass < 110) || (reconstructed_mass > 130)));
+        }, {"reconstructed_mass", "photon_shower_shape_e_ratio"});
+
+        if (count <= 2)
+        {
+            backCounts.push_back(merged_reco_photons_matched.Count());
+        }
         
         histos_back_plus_data.push_back(merged_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 165}, "merged_photon_pt"));
-        
-        auto passed = merged_reco_photons_matched.Count();
-        std::cout << *passed << '\n';
-                                         
+    }
+    
+    double factor;
+    for (auto& i: backCounts)
+    {
+        factor += *i;
     }
     
     auto hs = new THStack("hs3","");
@@ -410,21 +420,24 @@ void Fig52()
     count=0;
     for (auto& h: histos_back_plus_data)
     {
+        if (h->Integral() != 0 && &h != &histos_back_plus_data.back())
+        {
+            h->Scale((factor/h->Integral())*SFs[count]);
+        }
         h->SetFillColor(colors[count++]);
         legend->AddEntry(&(*h), h->GetTitle(), "f");
-        if (strcmp(h->GetTitle(),"data")!=0)
+    
+        if (&h != &histos_back_plus_data.back())
         {
             hs->Add(&*h);
         }
     }
 
     hs->Draw("HIST");
-    histos_back_plus_data[2]->Draw("HISTsame");
+    histos_back_plus_data[3]->Draw("HISTsame");
     hs->SetTitle(";photon p_{T} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
-
-//    histos_back_plus_data[2]->Draw("same");
     gStyle->SetOptStat(0);
     TLatex Tl;
     Tl.SetTextSize(0.03);
@@ -438,6 +451,7 @@ void Fig52()
 void Figs_34_52()
 {
     auto start_time = Clock::now();
+    Fig34();
     Fig52();
     auto end_time = Clock::now();
     std::cout << "Time difference: "

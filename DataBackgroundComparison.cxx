@@ -83,7 +83,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-/*
+
 void fig27()
 {
     auto hs = new THStack("hs","");
@@ -101,7 +101,7 @@ void fig27()
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos;
     std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCounts;
     histos.reserve(4);
-    backCounts.reserve(4);
+    backCounts.reserve(3);
     int count = 0;
     for (auto& i: input_filenames)
     {
@@ -1926,7 +1926,7 @@ void Table10()
     
     std::cout << "\n\n\n";
 }
-*/
+
 void Table16()
 {
     std::vector<std::vector<std::string>> input_filenames =
@@ -2450,19 +2450,3 @@ int main()
     DataBackgroundComparison();
 }
 
-//ROOT.gInterpreter.Declare("""
-//using namespace ROOT::VecOps;
-//RVec<double> someFunc(RVec<double> l_tlv_pt, RVec<int>& l_pdg_id)
-//{
-//    RVec<double> new_pt;
-//
-//    for (size_t i = 0; i < l_tlv_pt.size(); i++)
-//    {
-//        if (abs(l_pdg_id[i])==11)
-//        {
-//            new_pt.push_back(l_tlv_pt[i]);
-//        }
-//    }
-//    return new_pt;
-//}
-//""")
