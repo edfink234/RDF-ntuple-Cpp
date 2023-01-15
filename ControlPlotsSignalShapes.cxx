@@ -186,17 +186,12 @@ void fig1A()
            
         if (count <= 2)
         {
-//            break;
             back_histos.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
             backCounts.push_back(dilep_mass.Count());
-//            auto passed = dilep_mass.Count();
-//            std::cout << *passed << '\n';
         }
         else
         {
             histos.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
-//            auto passed = dilep_mass.Count();
-//            std::cout << *passed << '\n';
         }
     }
     count = 0;
@@ -213,13 +208,13 @@ void fig1A()
     {
         h->SetFillColor(colors[count]);
         legend->AddEntry(&(*h), h->GetTitle(), "f");
-
-        h->Scale((factor/h->Integral())*SFs[count]);
+        if (h->Integral() != 0)
+        {
+            h->Scale((factor/h->Integral())*SFs[count]);
+        }
         h->SetTitle(";m_{ll}  [GeV];Events");
         h->GetYaxis()->CenterTitle(true);
-        h->SetAxisRange(0., 1000,"Y");
-//        gPad->Modified(); gPad->Update();
-        
+
         hs->Add(&*h);
         h->SetAxisRange(0., 1000,"Y");
         count++;
@@ -255,7 +250,7 @@ void fig1A()
     legend->Draw();
     c1->SaveAs("Fig1A.png");
 }
-
+/*
 void fig5()
 {
     std::vector<std::string> input_filenames = { "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
@@ -2836,17 +2831,17 @@ void fig54()
     c1->SaveAs("Fig54B.png");
 }
 
-
+*/
 void ControlPlotsSignalShapes()
 {
     auto start_time = Clock::now();
-//    fig1A();
+    fig1A();
 //    fig5();
 //    fig6();
 //    fig8();
 //    fig10();
 //    fig18();
-    fig24();
+//    fig24();
 //    fig54();
     
     auto end_time = Clock::now();
