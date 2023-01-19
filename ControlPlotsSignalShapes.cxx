@@ -79,7 +79,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_mu18_mu8noL1",
 };
 //Other mA5 file: /Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root
-
+/*
 void fig1A()
 {
     
@@ -751,6 +751,8 @@ void fig6()
     c1->SaveAs("Fig6B.png");
     
 //    std::cout << *truth_photons_from_axions.Count() << '\n';
+   
+}
 
 void fig8()
 {
@@ -1225,7 +1227,7 @@ void fig8()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig8F.png");
-}
+}*/
 
 void fig10()
 {
@@ -1278,6 +1280,7 @@ void fig10()
     histos_deltaR_low.reserve(input_filenames.size());
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_deltaR_high;
     histos_deltaR_high.reserve(input_filenames.size());
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
 
     std::vector<const char*> prefixes = {"sig ggF m_{A} = 5 GeV", "sig ggF m_{A} = 1 GeV"};
     std::vector<EColor> colors = {kBlack, kMagenta};
@@ -1451,44 +1454,36 @@ void fig10()
             
         }, {"truth_photons_from_axions"});
         
-//        std::cout << *stable_truth_dileptons_and_diphotons.Count() << '\n';
-        if (count==0) //add more later
-        {
-            histos_deltaR_high.push_back(stable_truth_dileptons_and_diphotons.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 1.05}, "delta_r_gamma_gamma"));
-        }
-        else if (count==1) //add more later
-        {
-            histos_deltaR_low.push_back(stable_truth_dileptons_and_diphotons.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 1.05}, "delta_r_gamma_gamma"));
-        }
-        count++;
+        Nodes.push_back(stable_truth_dileptons_and_diphotons.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 1.05}, "delta_r_gamma_gamma"));
         
-        auto passed = stable_truth_dileptons_and_diphotons.Count();
-        std::cout << *passed << '\n';
+        count++;
+
     }
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.6);
     double factor;
     
     count = 0;
-    for (auto& h: histos_deltaR_high)
+    for (auto& i: {0})
     {
-        h->SetLineColor(colors[count++]);
-        legend->AddEntry(&(*h), h->GetTitle(), "l");
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
         
-        if (&h == &histos_deltaR_high.front())
+        if (i == 0)
         {
-            factor = h->Integral();
-            h->Scale(factor/h->Integral());
-            h->SetTitle(";#DeltaR_{#gamma#gamma};Events");
-            h->GetYaxis()->CenterTitle(true);
-//            h->SetAxisRange(0., 300,"Y");
-            h->Draw("HIST");
+            factor = Nodes[i].GetResultPtr<TH1D>()->Integral();
+            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma};Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
         }
         else
         {
-            h->Scale(factor/h->Integral());
-            h->Draw("HISTsame");
+            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
     }
@@ -1504,28 +1499,26 @@ void fig10()
     
     c1 = new TCanvas();
     legend = new TLegend(0.65, 0.45, 0.85, 0.65);
-    count = 0;
-    for (auto& h: histos_deltaR_low)
+
+    for (auto& i: {1})
     {
-        h->SetLineColor(colors[count++]);
-        legend->AddEntry(&(*h), h->GetTitle(), "l");
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
         
-        if (&h == &histos_deltaR_low.front())
+        if (i == 1)
         {
-            factor = h->Integral();
-            h->Scale(factor/h->Integral());
-            h->SetTitle(";#DeltaR_{#gamma#gamma};Events");
-            h->GetYaxis()->CenterTitle(true);
-//            h->SetAxisRange(0., 300,"Y");
-            h->Draw("HIST");
+            factor = Nodes[i].GetResultPtr<TH1D>()->Integral();
+            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma};Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
         }
         else
         {
-            h->Scale(factor/h->Integral());
-            h->SetTitle(";#gamma#gamma p_{T} [GeV];Events");
-            h->GetYaxis()->CenterTitle(true);
-//            h->SetAxisRange(0., 300,"Y");
-            h->Draw("HISTsame");
+            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#gamma#gamma p_{T} [GeV];Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
     }
@@ -1538,6 +1531,7 @@ void fig10()
     c1->SaveAs("Fig10B.png");
 }
 
+/*
 void fig18()
 {
     std::vector<std::string> input_filenames = {
@@ -2826,7 +2820,7 @@ void fig54()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig54B.png");
-}
+}*/
 
 
 void ControlPlotsSignalShapes()
@@ -2835,8 +2829,8 @@ void ControlPlotsSignalShapes()
 //    fig1A();
 //    fig5();
 //    fig6();
-    fig8();
-//    fig10();
+//    fig8();
+    fig10();
 //    fig18();
 //    fig24();
 //    fig54();
