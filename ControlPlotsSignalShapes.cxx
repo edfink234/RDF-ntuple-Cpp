@@ -79,7 +79,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_mu18_mu8noL1",
 };
 //Other mA5 file: /Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root
-/*
+
 void fig1A()
 {
     
@@ -1227,7 +1227,7 @@ void fig8()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig8F.png");
-}*/
+}
 
 void fig10()
 {
@@ -1276,10 +1276,6 @@ void fig10()
         return truthSelected;
     };
     
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_deltaR_low;
-    histos_deltaR_low.reserve(input_filenames.size());
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_deltaR_high;
-    histos_deltaR_high.reserve(input_filenames.size());
     std::vector<ROOT::RDF::RResultHandle> Nodes;
 
     std::vector<const char*> prefixes = {"sig ggF m_{A} = 5 GeV", "sig ggF m_{A} = 1 GeV"};
@@ -1531,7 +1527,7 @@ void fig10()
     c1->SaveAs("Fig10B.png");
 }
 
-/*
+
 void fig18()
 {
     std::vector<std::string> input_filenames = {
@@ -1583,6 +1579,7 @@ void fig18()
     histos_mA5.reserve(input_filenames.size());
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_mA1;
     histos_mA1.reserve(input_filenames.size());
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
 
     std::vector<const char*> prefixes = {"Both photons match", "one photon match", "None match"};
     std::vector<EColor> colors = {kBlack, kRed, kBlue};
@@ -1760,50 +1757,50 @@ void fig18()
             return four_momentum.Pt()/1e3;
         }, {"truth_photons_from_axions"});
         
-//        std::cout << *stable_truth_dileptons_and_diphotons.Count() << '\n';
-        if (count==0) //add more later
-        {
-            histos_mA5.push_back(two_reco_photons_matched.Histo1D<double>({prefixes[0], prefixes[0], 100u, 0, 202}, "truth_photons_from_axions_pt"));
-            histos_mA5.push_back(one_reco_photons_matched.Histo1D<double>({prefixes[1], prefixes[1], 100u, 0, 202}, "truth_photons_from_axions_pt"));
-            histos_mA5.push_back(zero_reco_photons_matched.Histo1D<double>({prefixes[2], prefixes[2], 100u, 0, 202}, "truth_photons_from_axions_pt"));
-        }
-        else if (count==1) //add more later
-        {
-            histos_mA1.push_back(two_reco_photons_matched.Histo1D<double>({prefixes[0], prefixes[0], 100u, 0, 202}, "truth_photons_from_axions_pt"));
-            histos_mA1.push_back(one_reco_photons_matched.Histo1D<double>({prefixes[1], prefixes[1], 100u, 0, 202}, "truth_photons_from_axions_pt"));
-            histos_mA1.push_back(zero_reco_photons_matched.Histo1D<double>({prefixes[2], prefixes[2], 100u, 0, 202}, "truth_photons_from_axions_pt"));
-        }
-        count++;
+//        if (count==0) //add more later
+//        {
+//            histos_mA5.push_back(two_reco_photons_matched.Histo1D<double>({prefixes[0], prefixes[0], 100u, 0, 202}, "truth_photons_from_axions_pt"));
+//            histos_mA5.push_back(one_reco_photons_matched.Histo1D<double>({prefixes[1], prefixes[1], 100u, 0, 202}, "truth_photons_from_axions_pt"));
+//            histos_mA5.push_back(zero_reco_photons_matched.Histo1D<double>({prefixes[2], prefixes[2], 100u, 0, 202}, "truth_photons_from_axions_pt"));
+//        }
+//        else if (count==1) //add more later
+//        {
+//            histos_mA1.push_back(two_reco_photons_matched.Histo1D<double>({prefixes[0], prefixes[0], 100u, 0, 202}, "truth_photons_from_axions_pt"));
+//            histos_mA1.push_back(one_reco_photons_matched.Histo1D<double>({prefixes[1], prefixes[1], 100u, 0, 202}, "truth_photons_from_axions_pt"));
+//            histos_mA1.push_back(zero_reco_photons_matched.Histo1D<double>({prefixes[2], prefixes[2], 100u, 0, 202}, "truth_photons_from_axions_pt"));
+//        }
         
-        auto passed = preselection.Count();
-        std::cout << *passed << '\n';
+        Nodes.push_back(two_reco_photons_matched.Histo1D<double>({prefixes[0], prefixes[0], 100u, 0, 202}, "truth_photons_from_axions_pt"));
+        Nodes.push_back(one_reco_photons_matched.Histo1D<double>({prefixes[1], prefixes[1], 100u, 0, 202}, "truth_photons_from_axions_pt"));
+        Nodes.push_back(zero_reco_photons_matched.Histo1D<double>({prefixes[2], prefixes[2], 100u, 0, 202}, "truth_photons_from_axions_pt"));
+        
+        count++;
     }
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.55, 0.3, 0.75, 0.5);
     double factor;
     
     count = 0;
-    for (auto& h: histos_mA5)
+    for (int i = 0; i <= 2; i++)
     {
-        h->SetLineColor(colors[count++]);
-        legend->AddEntry(&(*h), h->GetTitle(), "l");
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
         
-        if (&h == &histos_mA5.front())
+        if (i == 0)
         {
-            factor = h->Integral();
-//            h->Scale(factor/h->Integral());
-            h->SetTitle(";p_{T_{#gamma#gamma}} [GeV];Events");
-            h->GetYaxis()->CenterTitle(true);
-            h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 170,"Y");
-//            h->SetAxisRange(0., 1250,"Y");
-            h->Draw("HIST");
+            factor = Nodes[i].GetResultPtr<TH1D>()->Integral();
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";p_{T_{#gamma#gamma}} [GeV];Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+            Nodes[i].GetResultPtr<TH1D>()->SetAxisRange(0., 170,"Y");
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
         }
         else
         {
-//            h->Scale(factor/h->Integral());
-            h->Draw("HISTsame");
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
     }
@@ -1821,29 +1818,27 @@ void fig18()
     c1 = new TCanvas();
     legend = new TLegend(0.55, 0.3, 0.75, 0.5);
     count = 0;
-    for (auto& h: histos_mA1)
+    for (int i = 3; i <= 5; i++)
     {
-        h->SetLineColor(colors[count++]);
-        legend->AddEntry(&(*h), h->GetTitle(), "l");
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
         
-        if (&h == &histos_mA1.front())
+        if (i == 3)
         {
-            factor = h->Integral();
-//            h->Scale(factor/h->Integral());
-            h->SetTitle(";p_{T_{#gamma#gamma}} [GeV];Events");
-            h->GetYaxis()->CenterTitle(true);
-            h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 430,"Y");
-            h->Draw("HIST");
+            factor = Nodes[i].GetResultPtr<TH1D>()->Integral();
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";p_{T_{#gamma#gamma}} [GeV];Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+            Nodes[i].GetResultPtr<TH1D>()->SetAxisRange(0., 430,"Y");
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
         }
         else
         {
-//            h->Scale(factor/h->Integral());
-            h->SetTitle(";p_{T_{#gamma#gamma}} [GeV];Events");
-            h->GetYaxis()->CenterTitle(true);
-            h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 430,"Y");
-            h->Draw("HISTsame");
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";p_{T_{#gamma#gamma}} [GeV];Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+            Nodes[i].GetResultPtr<TH1D>()->SetAxisRange(0., 430,"Y");
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
     }
@@ -2820,7 +2815,7 @@ void fig54()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig54B.png");
-}*/
+}
 
 
 void ControlPlotsSignalShapes()
@@ -2830,8 +2825,8 @@ void ControlPlotsSignalShapes()
 //    fig5();
 //    fig6();
 //    fig8();
-    fig10();
-//    fig18();
+//    fig10();
+    fig18();
 //    fig24();
 //    fig54();
     
