@@ -81,7 +81,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-/*
+
 void Table4()
 {
     std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
@@ -263,38 +263,6 @@ void Table4()
             }
             return false;
         }, {"photons_pass_cuts"});
-        
-//        auto reco_photons_matched = truth_photons_from_axions.Define("reco_photons_matched",
-//        [&](RVec<Photon>& chosen_two, RVec<TruthParticle>& truth_photons_from_axions)
-//        {
-//            PtEtaPhiEVector tp1 = truth_photons_from_axions[0].Vector();
-//            PtEtaPhiEVector tp2 = truth_photons_from_axions[1].Vector();
-//
-//            if ((DeltaR(chosen_two[0].Vector(), tp1) < 0.2 && DeltaR(chosen_two[0].Vector(), tp2) < 0.2) ||
-//                (DeltaR(chosen_two[1].Vector(), tp1) < 0.2 && DeltaR(chosen_two[1].Vector(), tp2) < 0.2))
-//            {
-//                return RVec<TruthParticle>{truth_photons_from_axions[0], truth_photons_from_axions[1]};
-//            }
-//
-//            else if ((DeltaR(chosen_two[0].Vector(), tp1) < 0.2) ||
-//                    (DeltaR(chosen_two[1].Vector(), tp1) < 0.2))
-//            {
-//                return RVec<TruthParticle>{truth_photons_from_axions[0]};
-//            }
-//
-//            else if ((DeltaR(chosen_two[0].Vector(), tp2) < 0.2) ||
-//                    (DeltaR(chosen_two[1].Vector(), tp2) < 0.2))
-//            {
-//                return RVec<TruthParticle>{truth_photons_from_axions[1]};
-//            }
-//
-//            else
-//            {
-//                return RVec<TruthParticle>();
-//            }
-//
-//
-//        }, {"photons_pass_cuts", "truth_photons_from_axions"});
         
         auto reco_photons_matched = truth_photons_from_axions.Define("reco_photons_matched",
         [&](RVec<Photon>& chosen_two, RVec<TruthParticle>& truth_photons_from_axions)
@@ -519,7 +487,7 @@ void Table5()
         {
             if (reco_photons_matched.size() == 1)
             {
-                return reco_photons_matched[0].photon_pt > 20e3 ? true : false;
+                return reco_photons_matched[0].photon_pt > 20e3;
             }
             else if (reco_photons_matched.empty())
             {
@@ -616,7 +584,7 @@ void Table5()
     
     std::cout << "\n\n\n";
 }
-*/
+
 void Table14()
 {
     std::vector<std::string> input_filenames =
