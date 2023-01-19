@@ -176,7 +176,6 @@ void fig1A()
             
         auto dilep_mass = ptCut.Define("dilep_mass",[&](RVec<Electron>& electrons)
         {
-            
             PtEtaPhiEVector four_momentum =
             electrons[0].Vector() + electrons[1].Vector();
             
@@ -195,13 +194,28 @@ void fig1A()
         }
     }
     count = 0;
+    int back_count = 0;
     double factor;
     double total_back = 0;
     for (auto& i: backCounts)
     {
-        total_back += *i;
+        total_back += *i*SFs[back_count++];
     }
-    int back_count = 0;
+    
+    /*
+     First, we calculate the total Zgamma background by taking the weighted sum, i.e.,
+     adding all of the counts of the individual Zgamma samples weighted by their
+     respective scaling tasks.
+     
+     so total_back will look something like this:
+     
+     total_back = bc1*s1 + bc2*s2 + bc3*s3
+     
+     Below, we loop over the background Zgamma samples. For each sample, we
+     now just have to scale it by its scale factor, and that way the total THStack
+     will add to total_back as we had intended.
+     */
+    
     factor = total_back;
     auto hs = new THStack("hs3","");
     for (auto& h: back_histos)
@@ -210,13 +224,12 @@ void fig1A()
         legend->AddEntry(&(*h), h->GetTitle(), "f");
         if (h->Integral() != 0)
         {
-            h->Scale((factor/h->Integral())*SFs[count]);
+            h->Scale(SFs[count]);
         }
         h->SetTitle(";m_{ll}  [GeV];Events");
         h->GetYaxis()->CenterTitle(true);
 
         hs->Add(&*h);
-        h->SetAxisRange(0., 1000,"Y");
         count++;
     }
     hs->Draw("HIST");
@@ -229,8 +242,10 @@ void fig1A()
         h->Scale(factor/h->Integral());
         h->SetTitle(";m_{ll}  [GeV];Events");
         h->GetYaxis()->CenterTitle(true);
-//            h->SetAxisRange(0., 3300,"Y");
-        h->Scale(factor/h->Integral());
+        if (h->Integral() != 0)
+        {
+            h->Scale((factor/h->Integral()));
+        }
         h->Draw("HISTsame");
         gPad->Modified(); gPad->Update();
     }
@@ -239,7 +254,7 @@ void fig1A()
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
     hs->SetMinimum(0);
-    hs->SetMaximum(600.);
+    hs->SetMaximum(310.);
     
     gStyle->SetOptStat(0);
     TLatex Tl;
@@ -2269,7 +2284,7 @@ void fig24()
         h->SetFillColor(back_colors[back_count]);
         legend->AddEntry(&(*h), h->GetTitle(), "f");
         if (h->Integral() != 0)
-            h->Scale((factor/h->Integral())*SFs[back_count++]);
+            h->Scale((factor/h->Integral()) *SFs[back_count++]);
         h->SetTitle(";m_{ll}  [GeV];Events");
         h->GetYaxis()->CenterTitle(true);
         h->SetAxisRange(0., 1000,"Y");
