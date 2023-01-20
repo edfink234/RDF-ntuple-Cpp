@@ -25,6 +25,7 @@
 #include "TLatex.h"
 #include "TLegend.h"
 #include "Rtypes.h"
+#include "ROOT/RDFHelpers.hxx"
 
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
@@ -128,7 +129,7 @@ void Table4()
         }
         return truthSelected;
     };
-    int count = 0;
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
     
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
     std::cout << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
@@ -303,28 +304,32 @@ void Table4()
             
         }, {"reco_photons_matched"});
         
-//        auto zero_reco_photons_matched = reco_photons_matched.Filter(
-//        [&](RVec<Photon>& reco_photons_matched)
-//        {
-//            return reco_photons_matched.empty();
-//
-//        }, {"reco_photons_matched"});
-        
-        auto total = reco_photons_matched.Count();
-        
-        auto both = two_reco_photons_matched.Count();
-        auto one = one_reco_photons_matched.Count();
-       
-        std::cout << prefixes[count++] << " & " << (*both / static_cast<double>(*total))*100
-        << " & " << (*one / static_cast<double>(*total))*100 << " & " << ((*one + *both) / static_cast<double>(*total))*100
-        << " & " << ((*total - (*one + *both)) / static_cast<double>(*total))*100 << R"--(\\ \hline )--" << '\n';
-        
+        Nodes.push_back(reco_photons_matched.Count());
+        Nodes.push_back(two_reco_photons_matched.Count());
+        Nodes.push_back(one_reco_photons_matched.Count());
     }
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    
+    int count = 0;
+    double total, both, one;
+    
+    for (int i = 0; i <= 3; i += 3)
+    {
+        total = static_cast<double>(*Nodes[i].GetResultPtr<ULong64_t>());
+        both = static_cast<double>(*Nodes[i+1].GetResultPtr<ULong64_t>());
+        one = static_cast<double>(*Nodes[i+2].GetResultPtr<ULong64_t>());
+        
+        std::cout << prefixes[count++] << " & " << (both / total)*100
+        << " & " << (one / total)*100 << " & " << ((one + both) / total)*100
+        << " & " << ((total - (one + both)) / total)*100 << R"--(\\ \hline )--" << '\n';
+    }
+    
     std::cout << R"--(\end{tabular}})--" << '\n';
     
     std::cout << "\n\n\n";
 }
-
+/*
 void Table5()
 {
     std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
@@ -1229,16 +1234,16 @@ void Fig19()
     legend->Draw();
     c1->SaveAs("Fig19.png");
 //    system("rm Fig19.txt");
-}
+}*/
 
 void Categorization()
 {
     auto start_time = Clock::now();
-//    Table4();
+    Table4();
 //    Table5();
 //    Table14();
 //    Table15();
-    Fig19();
+//    Fig19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
