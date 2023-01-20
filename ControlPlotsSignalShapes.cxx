@@ -1014,7 +1014,7 @@ void fig8()
     }
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
-//    *Nodes[j].GetResultPtr<ULong64_t>()
+
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.6);
     double factor;

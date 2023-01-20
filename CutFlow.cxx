@@ -391,7 +391,7 @@ void Table8()
         std::cout << i << "\n\n";
     }
 }
-/*
+
 void Table11()
 {
     std::vector<std::string> input_filenames = {
@@ -408,7 +408,8 @@ void Table11()
     cutFlows.reserve(input_filenames.size());
     double totalEvents = 0, passPreselection = 0, photonPtDeltaRCount = 0, xWindow = 0,
     srCount = 0, srIDCount=0;
-    int count = 0;
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
+
     std::ostringstream os;
     os << R"--(\section*{Table 11})--" << '\n';
     os << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
@@ -558,28 +559,37 @@ void Table11()
             return (photons[0].photon_id_loose && photons[1].photon_id_loose);
         },{"chosen_two"});
         
-        if (count < 3)
-        {
-            totalEvents += *df.Count();
-            passPreselection += *ptCut.Count();
-            photonPtDeltaRCount += *photonPtDeltaR.Count();
-            xWindow += *X_window.Count();
-            srCount += *SR.Count();
-            srIDCount += *SR_ID.Count();
-            
-            os << Samples[count++] << " & " << *df.Count() << " & " <<
-                    *ptCut.Count() << " & " << *photonPtDeltaR.Count() << " & " << *X_window.Count()
-                    << " & " << *SR.Count() << " & " << *SR_ID.Count()
-                    << R"--( \\ \hline )--" << '\n';
-        }
-        else
-        {
-            os << Samples[count++] << " & " << *df.Count() << " & " <<
-                    *ptCut.Count() << " & " << *photonPtDeltaR.Count() << " & " << *X_window.Count()
-                    << " & " << *SR.Count() << " & " << *SR_ID.Count()
-                    << R"--( \\ \hline )--" << '\n';
-        }
+        Nodes.push_back(df.Count());
+        Nodes.push_back(ptCut.Count());
+        Nodes.push_back(photonPtDeltaR.Count());
+        Nodes.push_back(X_window.Count());
+        Nodes.push_back(SR.Count());
+        Nodes.push_back(SR_ID.Count());
+        
     }
+    
+    for (int i=0, j=0; i<6 && j <= 36; i++, j+=6)
+    {
+        os << Samples[i]
+        << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
+        << R"--( \\ \hline )--" << '\n';
+    }
+    
+    for (int i = 0; i <= 12; i += 6)
+    {
+        totalEvents += *Nodes[i].GetResultPtr<ULong64_t>();
+        passPreselection += *Nodes[i+1].GetResultPtr<ULong64_t>();
+        photonPtDeltaRCount += *Nodes[i+2].GetResultPtr<ULong64_t>();
+        xWindow += *Nodes[i+3].GetResultPtr<ULong64_t>();
+        srCount += *Nodes[i+4].GetResultPtr<ULong64_t>();
+        srIDCount += *Nodes[i+5].GetResultPtr<ULong64_t>();
+    }
+    
     os << R"--(Total $Z\gamma$ & )--" << totalEvents << " & " << passPreselection
     << " & " << photonPtDeltaRCount << " & " << xWindow << " & " << srCount
     << " & " << srIDCount
@@ -591,7 +601,7 @@ void Table11()
     {
         std::cout << i << "\n\n";
     }
-}*/
+}
 
 void CutFlow()
 {
@@ -599,7 +609,7 @@ void CutFlow()
     
     Table3();
     Table8();
-//    Table11();
+    Table11();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "
