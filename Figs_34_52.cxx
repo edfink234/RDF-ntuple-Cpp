@@ -25,6 +25,7 @@
 #include "TLatex.h"
 #include "TLegend.h"
 #include "Rtypes.h"
+#include "ROOT/RDFHelpers.hxx"
 
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
@@ -81,7 +82,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-
+/*
 void Fig34()
 {
     std::vector<std::string> input_filenames = {
@@ -225,7 +226,7 @@ void Fig34()
     legend->Draw();
     c1->SaveAs("Fig34.png");
     
-}
+}*/
 
 void Fig52()
 {
@@ -243,7 +244,7 @@ void Fig52()
     histos_back_plus_data.reserve(4);
     std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCounts;
     backCounts.reserve(3);
-    
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
     int count = 0;
     
     for (auto& i: input_filenames)
@@ -402,39 +403,44 @@ void Fig52()
 
         if (count <= 2)
         {
-            backCounts.push_back(merged_reco_photons_matched.Count());
+//            backCounts.push_back(merged_reco_photons_matched.Count());
+            Nodes.push_back(merged_reco_photons_matched.Count());
         }
         
-        histos_back_plus_data.push_back(merged_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 165}, "merged_photon_pt"));
+//        histos_back_plus_data.push_back(merged_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 165}, "merged_photon_pt"));
+        Nodes.push_back(merged_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 165}, "merged_photon_pt"));
     }
     
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    
     double factor;
-    for (auto& i: backCounts)
+    count = 0;
+    for (auto& i: {0,2,4})
     {
-        factor += *i;
+        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*SFs[count++];
     }
     
     auto hs = new THStack("hs3","");
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
     count=0;
-    for (auto& h: histos_back_plus_data)
+    for (auto& i: {1,3,5,6})
     {
-        if (h->Integral() != 0 && &h != &histos_back_plus_data.back())
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 6)
         {
-            h->Scale((factor/h->Integral())*SFs[count]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]);
         }
-        h->SetFillColor(colors[count++]);
-        legend->AddEntry(&(*h), h->GetTitle(), "f");
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
     
-        if (&h != &histos_back_plus_data.back())
+        if (i != 6)
         {
-            hs->Add(&*h);
+            hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         }
     }
 
     hs->Draw("HIST");
-    histos_back_plus_data[3]->Draw("HISTsame");
+    Nodes[6].GetResultPtr<TH1D>()->Draw("HISTsame");
     hs->SetTitle(";photon p_{T} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -451,7 +457,7 @@ void Fig52()
 void Figs_34_52()
 {
     auto start_time = Clock::now();
-    Fig34();
+//    Fig34();
     Fig52();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
