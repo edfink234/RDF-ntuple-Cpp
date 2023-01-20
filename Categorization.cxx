@@ -327,7 +327,7 @@ void Table4()
     
     std::cout << "\n\n\n";
 }
-*/
+
 void Table5()
 {
     std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
@@ -592,7 +592,7 @@ void Table5()
     
     std::cout << "\n\n\n";
 }
-/*
+
 void Table14()
 {
     std::vector<std::string> input_filenames =
@@ -974,7 +974,7 @@ void Table15()
     std::cout << "SB & " << *SB_count << R"--(\\ \hline)--" << '\n';
     std::cout << "SR & " << *SR_count << R"--(\\ \hline)--" << '\n';
     std::cout << R"--(\end{tabular}})--" << '\n';
-}
+}*/
 
 void Fig19()
 {
@@ -985,6 +985,7 @@ void Fig19()
     
     std::vector<float> massPoints = {5, 1};
     std::ofstream out("Fig19.txt");
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
     
     auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
     {
@@ -1028,7 +1029,6 @@ void Fig19()
     
     std::vector<const char*> prefixes = {"no cat", "merged", "resolved"};
     std::vector<EColor> colors = {kCyan, kOrange, kBlue};
-    int count = 0;
     
     for (auto& file: input_filenames)
     {
@@ -1185,15 +1185,27 @@ void Fig19()
             
         }, {"photons_pass_cuts"});
         
-        auto total = photon_passes_cuts.Count();
-        auto numMerged = merged.Count();
-        auto numResolved = resolved.Count();
-        
-        double noCat = *total - (*numMerged+*numResolved);
-        
-        out << noCat / static_cast<double>(*total) << '\n' << *numMerged / static_cast<double>(*total)  << '\n'
-            << *numResolved / static_cast<double>(*total) << '\n';
+        Nodes.push_back(photon_passes_cuts.Count());
+        Nodes.push_back(merged.Count());
+        Nodes.push_back(resolved.Count());
     }
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    
+    double total, numMerged, numResolved, noCat;
+    
+    for (int i = 0; i <= 3; i += 3)
+    {
+        total = static_cast<double>(*Nodes[i].GetResultPtr<ULong64_t>());
+        numMerged = static_cast<double>(*Nodes[i+1].GetResultPtr<ULong64_t>());
+        numResolved = static_cast<double>(*Nodes[i+2].GetResultPtr<ULong64_t>());
+        noCat = total - (numMerged+numResolved);
+        
+        out << noCat / total << '\n' << numMerged / total  << '\n'
+            << numResolved / total << '\n';
+    }
+    
+    
     out.close();
     
     std::ifstream in("Fig19.txt");
@@ -1236,17 +1248,16 @@ void Fig19()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig19.png");
-//    system("rm Fig19.txt");
-}*/
+}
 
 void Categorization()
 {
     auto start_time = Clock::now();
 //    Table4();
-    Table5();
+//    Table5();
 //    Table14();
 //    Table15();
-//    Fig19();
+    Fig19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " seconds" << std::endl;
