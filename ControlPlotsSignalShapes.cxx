@@ -2211,15 +2211,6 @@ void fig54()
         return truthSelected;
     };
     
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_mass;
-    histos_mass.reserve(input_filenames.size());
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_deltaR;
-    histos_deltaR.reserve(input_filenames.size());
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_pt;
-    histos_pt.reserve(input_filenames.size());
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_E_Ratio;
-    histos_E_Ratio.reserve(input_filenames.size());
-    
     std::vector<ROOT::RDF::RResultHandle> Nodes;
 
     std::vector<const char*> prefixes = {"Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV"};
@@ -2450,13 +2441,6 @@ void fig54()
             return (four_momentum + merged_photon.Vector()).Pt()/1e3;
             
         }, {"stable_truth_leptons", "merged_photon"});
-                                            
-//        std::cout << *stable_truth_dileptons_and_diphotons.Count() << '\n';
-
-//        histos_mass.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 80, 200}, "reconstructed_mass"));
-//        histos_deltaR.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 4.7}, "reconstructed_deltaR"));
-//        histos_pt.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 220}, "reconstructed_pt"));
-//        histos_E_Ratio.push_back(stable_truth_dilepton_and_photon.Histo1D<RVec<float>>({prefixes[count], prefixes[count++], 100u, 0, 1}, "photon_shower_shape_e_ratio"));
         
         Nodes.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 80, 200}, "reconstructed_mass"));
         Nodes.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 4.7}, "reconstructed_deltaR"));

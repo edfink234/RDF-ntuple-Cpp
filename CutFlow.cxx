@@ -21,6 +21,7 @@
 #include "TLatex.h"
 #include "TLegend.h"
 #include "Rtypes.h"
+#include "ROOT/RDFHelpers.hxx"
 
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
@@ -80,11 +81,6 @@ constexpr std::array<const char*,35> triggers =
 
 void Table3()
 {
-    /*
-     Doesn't work for 5 GeV Sample because
-     electron_id_medium doesn't exist apparently...
-     */
-//    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
     std::vector<std::string> input_filenames = {
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
@@ -97,7 +93,6 @@ void Table3()
     cutFlows.reserve(input_filenames.size());
     constexpr std::array<const char*,6> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", "Data", R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
     
-    int count = 0;
     std::ostringstream os;
     os << R"--(\section*{Table 3})--" << '\n';
     os << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
@@ -108,6 +103,8 @@ void Table3()
     
     double beforePreselecZGamma = 0, twoLeptonsZGamma = 0, oppChargeZGamma = 0, leadingPtZGamma = 0, deltaRZGamma = 0, MassZGamma = 0, ptCutZGamma = 0;
 
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
+    
     for (auto& file: input_filenames)
     {
         SchottDataFrame df(MakeRDF({file}, 8));
@@ -171,30 +168,41 @@ void Table3()
             return pT > 10;
         }, {"di_electrons"});
         
-        if (count < 3)
-        {
-            beforePreselecZGamma += *df.Count();
-            twoLeptonsZGamma += *two_leptons.Count();
-            oppChargeZGamma += *opp_charge.Count();
-            leadingPtZGamma += *leading_pt.Count();
-            deltaRZGamma += *delta_R.Count();
-            MassZGamma += *mass.Count();
-            ptCutZGamma += *pt_cut.Count();
-            
-            os << Samples[count++] << " & " << *df.Count() << " & " << *two_leptons.Count()
-            << " & " << *opp_charge.Count() << " & " << *leading_pt.Count() << " & "
-            << *delta_R.Count() << " & " << *mass.Count() << " & " << *pt_cut.Count()
-            << R"--( \\ \hline )--" << '\n';
-        }
-        else
-        {
-            os << Samples[count++] << " & " << *df.Count() << " & " << *two_leptons.Count()
-            << " & " << *opp_charge.Count() << " & " << *leading_pt.Count() << " & "
-            << *delta_R.Count() << " & " << *mass.Count() << " & " << *pt_cut.Count()
-            << R"--( \\ \hline )--" << '\n';
-        }
+        Nodes.push_back(df.Count());
+        Nodes.push_back(two_leptons.Count());
+        Nodes.push_back(opp_charge.Count());
+        Nodes.push_back(leading_pt.Count());
+        Nodes.push_back(delta_R.Count());
+        Nodes.push_back(mass.Count());
+        Nodes.push_back(pt_cut.Count());
     }
     
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    
+    for (int i=0, j=0; i<6 && j <= 35; i++, j+=7)
+    {
+        os << Samples[i]
+        << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+6].GetResultPtr<ULong64_t>()
+        << R"--( \\ \hline )--" << '\n';
+    }
+    
+    for (int i = 0; i <= 14; i += 7)
+    {
+        beforePreselecZGamma += *Nodes[i].GetResultPtr<ULong64_t>();
+        twoLeptonsZGamma += *Nodes[i+1].GetResultPtr<ULong64_t>();
+        oppChargeZGamma += *Nodes[i+2].GetResultPtr<ULong64_t>();
+        leadingPtZGamma += *Nodes[i+3].GetResultPtr<ULong64_t>();
+        deltaRZGamma += *Nodes[i+4].GetResultPtr<ULong64_t>();
+        MassZGamma += *Nodes[i+5].GetResultPtr<ULong64_t>();
+        ptCutZGamma += *Nodes[i+6].GetResultPtr<ULong64_t>();
+    }
+
     os << R"--(Total $Z\gamma$ & )--" << beforePreselecZGamma << " & " << twoLeptonsZGamma
     << " & " << oppChargeZGamma << " & " << leadingPtZGamma << " & "
     << deltaRZGamma << " & " << MassZGamma << " & " << ptCutZGamma
@@ -224,7 +232,8 @@ void Table8()
     std::vector<std::string> cutFlows;
     cutFlows.reserve(input_filenames.size());
     
-    int count = 0;
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
+    
     std::ostringstream os;
     os << R"--(\section*{Table 8})--" << '\n';
     os << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
@@ -345,24 +354,30 @@ void Table8()
             return (!((mass > 110) && (mass < 140)));
         }, {"di_electrons", "photons_pass_cuts"});
         
-        if (count < 3)
-        {
-            totalEvents += *df.Count();
-            resolvedEvents += *resolved.Count();
-            SREvents += *SR.Count();
-            SBEvents += *SB.Count();
-            
-            os << Samples[count++] << " & " << *df.Count() << " & " << *resolved.Count()
-            << " & " << *SB.Count() << " & " << *SR.Count()
-            << R"--( \\ \hline )--" << '\n';
-        }
-        else
-        {
-            os << Samples[count++] << " & " << *df.Count() << " & " << *resolved.Count()
-            << " & " << *SB.Count() << " & " << *SR.Count()
-            << R"--( \\ \hline )--" << '\n';
-        }
-        
+        Nodes.push_back(df.Count());
+        Nodes.push_back(resolved.Count());
+        Nodes.push_back(SB.Count());
+        Nodes.push_back(SR.Count());
+    }
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    
+    for (int i=0, j=0; i<6 && j <= 20; i++, j+=4)
+    {
+        os << Samples[i]
+        << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
+        << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
+        << R"--( \\ \hline )--" << '\n';
+    }
+    
+    for (int i = 0; i <= 8; i += 4)
+    {
+        totalEvents += *Nodes[i].GetResultPtr<ULong64_t>();
+        resolvedEvents += *Nodes[i+1].GetResultPtr<ULong64_t>();
+        SBEvents += *Nodes[i+2].GetResultPtr<ULong64_t>();
+        SREvents += *Nodes[i+3].GetResultPtr<ULong64_t>();
     }
     
     os << R"--(Total $Z\gamma$ & )--" << totalEvents << " & " << resolvedEvents
@@ -376,7 +391,7 @@ void Table8()
         std::cout << i << "\n\n";
     }
 }
-
+/*
 void Table11()
 {
     std::vector<std::string> input_filenames = {
@@ -576,7 +591,7 @@ void Table11()
     {
         std::cout << i << "\n\n";
     }
-}
+}*/
 
 void CutFlow()
 {
@@ -584,7 +599,7 @@ void CutFlow()
     
     Table3();
     Table8();
-    Table11();
+//    Table11();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "
