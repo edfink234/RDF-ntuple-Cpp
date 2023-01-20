@@ -1102,7 +1102,7 @@ void fig48()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig48B.png");
-}*/
+}
 
 void fig59()
 {
@@ -1382,7 +1382,7 @@ void fig59()
     
     factor = 0;
     count = 0;
-    for (auto& i: {5,9,13})
+    for (auto& i: {5,9,13}) // background SR
     {
         factor += (*Nodes[i].GetResultPtr<ULong64_t>())*SFs[count++];
     }
@@ -1437,7 +1437,7 @@ void fig59()
     legend = new TLegend(0.15, 0.45, 0.35, 0.65);
     count=2;
     hs = new THStack("hs3","");
-    for (auto& i: {7,11,15,17})
+    for (auto& i: {7,11,15,17}) //background and data SR
     {
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 17)
         {
@@ -1453,7 +1453,7 @@ void fig59()
     }
     hs->Draw("HIST");
     count=0;
-    for (auto& i: {1,3})
+    for (auto& i: {1,3}) //signal SR
     {
         Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
         Nodes[i].GetResultPtr<TH1D>()->SetLineWidth(2);
@@ -1479,8 +1479,8 @@ void fig59()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig59C.png");
-}/*
-
+}
+ 
 void Table9()
 {
     std::vector<std::string> input_filenames =
@@ -1655,18 +1655,19 @@ void Table9()
         return origin_id;
     }, {"subleading_photon", "truth_particles"});
     
-    auto leading_ids = diphotons.Take<int, RVec<int>>("leading_photon_pdg_id_origin");
-    auto subleading_ids = diphotons.Take<int, RVec<int>>("subleading_photon_pdg_id_origin");
+    std::vector<ROOT::RDF::RResultHandle> Nodes({diphotons.Take<int, RVec<int>>("leading_photon_pdg_id_origin"), diphotons.Take<int, RVec<int>>("subleading_photon_pdg_id_origin"), diphotons.Count()});
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
     std::unordered_map<int,int> leading_id_freqs, subleading_id_freqs;
-    double total = *diphotons.Count();
+    double total = *Nodes[2].GetResultPtr<ULong64_t>();
     
-    for (auto& i: *leading_ids)
+    for (auto& i: *Nodes[0].GetResultPtr<RVec<int>>())
     {
         leading_id_freqs[i]++;
     }
     
-    for (auto& i: *subleading_ids)
+    for (auto& i: *Nodes[1].GetResultPtr<RVec<int>>())
     {
         subleading_id_freqs[i]++;
     }
@@ -1679,7 +1680,7 @@ void Table9()
     for (auto& i: leading_id_freqs)
     {
         std::cout << i.first << " & " << std::setprecision(2) << std::fixed
-        << 100*(i.second/total) << R"--( \\ \hline)--" << '\n';
+        << 100*(i.second / total) << R"--( \\ \hline)--" << '\n';
     }
     std::cout << R"--(\end{tabular}})--" << '\n';
     
@@ -1693,14 +1694,14 @@ void Table9()
     for (auto& i: subleading_id_freqs)
     {
         std::cout << i.first << " & " << std::setprecision(2) << std::fixed
-        << 100*(i.second/total) << R"--( \\ \hline)--" << '\n';
+        << 100*(i.second / total) << R"--( \\ \hline)--" << '\n';
     }
     
     std::cout << R"--(\end{tabular}})--" << '\n';
     
     std::cout << "\n\n\n";
 }
-
+*/
 void Table10()
 {
     std::vector<std::string> input_filenames =
@@ -1862,12 +1863,15 @@ void Table10()
         return std::to_string(leading_origin_id)+"/"+std::to_string(subleading_origin_id);
     }, {"leading_photon", "subleading_photon", "truth_particles"});
     
-    auto ids = diphotons.Take<std::string, RVec<std::string>>("photon_pdg_id_origin");
-    
     std::unordered_map<std::string,int> id_freqs;
-    double total = *diphotons.Count();
     
-    for (auto& i: *ids)
+    std::vector<ROOT::RDF::RResultHandle> Nodes({diphotons.Take<std::string, RVec<std::string>>("photon_pdg_id_origin"), diphotons.Count()});
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    
+    double total = *Nodes[1].GetResultPtr<ULong64_t>();
+    
+    for (auto& i: *Nodes[0].GetResultPtr<RVec<std::string>>())
     {
         id_freqs[i]++;
     }
@@ -1886,7 +1890,7 @@ void Table10()
     
     std::cout << "\n\n\n";
 }
-
+/*
 void Table16()
 {
     std::vector<std::vector<std::string>> input_filenames =
@@ -2394,14 +2398,14 @@ void DataBackgroundComparison()
 //    fig28();
 //    fig41();
 //    fig48();
-    fig59();
+//    fig59();
 //    Table9();
-//    Table10();
+    Table10();
 //    Table16();
 //    Table19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
-       << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
+       << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " seconds" << std::endl;
     
 }
 
