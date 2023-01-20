@@ -786,7 +786,7 @@ void fig41()
     std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
     for (auto& i: {2,4,6})
     {
-        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*SFs[back_count++];;
+        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*SFs[back_count++];
     }
     
     auto hs = new THStack("hs3","");
@@ -853,12 +853,7 @@ void fig48()
     std::vector<EColor> colors = {kBlue, kRed, kViolet, kGreen};
     std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
     
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_back_plus_data_mass;
-    histos_back_plus_data_mass.reserve(4);
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_back_plus_data_pt;
-    histos_back_plus_data_pt.reserve(4);
-    std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCounts;
-    backCounts.reserve(3);
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
     
     int count = 0;
     for (auto& i: input_filenames)
@@ -1025,44 +1020,44 @@ void fig48()
             return ((!Any(Eratio <= 0.8)) && ((reconstructed_mass <= 110) || (reconstructed_mass >= 130)));
         }, {"photon_shower_shape_e_ratio", "reconstructed_mass"});
 
-                                     
-//        std::cout << *(diphotons.Min<double>("mass")) << '\n';
-//        std::cout << *(diphotons.Count()) << '\n';
-        
         if (count <= 2)
         {
-            backCounts.push_back(dilepton_and_photon.Count());
+            Nodes.push_back(dilepton_and_photon.Count());
         }
         
-        histos_back_plus_data_mass.push_back(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 60, 120}, "dilepton_mass"));
-        histos_back_plus_data_pt.push_back(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 165}, "merged_photon_pt"));
+        Nodes.push_back(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 60, 120}, "dilepton_mass"));
+        Nodes.push_back(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 165}, "merged_photon_pt"));
     }
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    
     count = 0;
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
     auto hs = new THStack("hs1","");
     double factor = 0;
-    for (auto& i: backCounts)
+    int back_count = 0;
+    for (auto& i: {0,3,6})
     {
-        factor += *i;
+        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*SFs[back_count++];;
     }
     
-    for (auto& h: histos_back_plus_data_mass)
+    for (auto& i: {1,4,7,9})
     {
-        if (h->Integral() != 0 && &h != &histos_back_plus_data_mass.back())
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 9)
         {
-            h->Scale((factor/h->Integral())*SFs[count]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]);
         }
-        h->SetFillColor(colors[count++]);
-        legend->AddEntry(&(*h), h->GetTitle(), "f");
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
     
-        if (&h != &histos_back_plus_data_mass.back())
+        if (i != 9)
         {
-            hs->Add(&*h);
+            hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         }
     }
     hs->Draw("HIST");
-    histos_back_plus_data_mass[3]->Draw("HISTsame");
+    Nodes[9].GetResultPtr<TH1D>()->Draw("HISTsame");
     hs->SetTitle(";m_{ll} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -1080,22 +1075,22 @@ void fig48()
     hs = new THStack("hs2","");
     c1 = new TCanvas();
     legend = new TLegend(0.65, 0.4, 0.85, 0.6);
-    for (auto& h: histos_back_plus_data_pt)
+    for (auto& i: {2,5,8,10})
     {
-        if (h->Integral() != 0 && &h != &histos_back_plus_data_pt.back())
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 10)
         {
-            h->Scale((factor/h->Integral())*SFs[count]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]);
         }
-        h->SetFillColor(colors[count++]);
-        legend->AddEntry(&(*h), h->GetTitle(), "f");
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
     
-        if (&h != &histos_back_plus_data_pt.back())
+        if (i != 10)
         {
-            hs->Add(&*h);
+            hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         }
     }
     hs->Draw("HIST");
-    histos_back_plus_data_pt[3]->Draw("HISTsame");
+    Nodes[10].GetResultPtr<TH1D>()->Draw("HISTsame");
     hs->SetTitle(";photon p_{T} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -2410,8 +2405,8 @@ void DataBackgroundComparison()
     auto start_time = Clock::now();
 //    fig27();
 //    fig28();
-    fig41();
-//    fig48();
+//    fig41();
+    fig48();
 //    fig59();
 //    Table9();
 //    Table10();
