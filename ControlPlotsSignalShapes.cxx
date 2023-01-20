@@ -79,7 +79,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_mu18_mu8noL1",
 };
 //Other mA5 file: /Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root
-
+/*
 void fig1A()
 {
     
@@ -1884,13 +1884,6 @@ void fig24()
         return truthSelected;
     };
     
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_unweighted;
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_weighted;
-    
-    std::vector<ROOT::RDF::RResultPtr<ULong64_t>> backCounts;
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> back_histos_unweighted;
-    std::vector<ROOT::RDF::RResultPtr<TH1D>> back_histos_weighted;
-    
     std::vector<ROOT::RDF::RResultHandle> Nodes;
     
     std::vector<const char*> prefixes = {"sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80"};
@@ -2169,7 +2162,7 @@ void fig24()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig24A.png");
-}
+}*/
 
 void fig54()
 {
@@ -2226,6 +2219,8 @@ void fig54()
     histos_pt.reserve(input_filenames.size());
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos_E_Ratio;
     histos_E_Ratio.reserve(input_filenames.size());
+    
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
 
     std::vector<const char*> prefixes = {"Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV"};
     std::vector<EColor> colors = {kBlue, kRed};
@@ -2458,40 +2453,44 @@ void fig54()
                                             
 //        std::cout << *stable_truth_dileptons_and_diphotons.Count() << '\n';
 
-        histos_mass.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 80, 200}, "reconstructed_mass"));
-        histos_deltaR.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 4.7}, "reconstructed_deltaR"));
-        histos_pt.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 220}, "reconstructed_pt"));
-        histos_E_Ratio.push_back(stable_truth_dilepton_and_photon.Histo1D<RVec<float>>({prefixes[count], prefixes[count++], 100u, 0, 1}, "photon_shower_shape_e_ratio"));
+//        histos_mass.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 80, 200}, "reconstructed_mass"));
+//        histos_deltaR.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 4.7}, "reconstructed_deltaR"));
+//        histos_pt.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 220}, "reconstructed_pt"));
+//        histos_E_Ratio.push_back(stable_truth_dilepton_and_photon.Histo1D<RVec<float>>({prefixes[count], prefixes[count++], 100u, 0, 1}, "photon_shower_shape_e_ratio"));
         
-        auto passed = preselection.Count();
-        std::cout << *passed << '\n';
+        Nodes.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 80, 200}, "reconstructed_mass"));
+        Nodes.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 4.7}, "reconstructed_deltaR"));
+        Nodes.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 220}, "reconstructed_pt"));
+        Nodes.push_back(stable_truth_dilepton_and_photon.Histo1D<RVec<float>>({prefixes[count], prefixes[count++], 100u, 0, 1}, "photon_shower_shape_e_ratio"));
+        
     }
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
     double factor;
     
     count = 0;
-    for (auto& h: histos_mass)
+    for (auto& i: {0,4})
     {
-        h->SetLineColor(colors[count++]);
-        legend->AddEntry(&(*h), h->GetTitle(), "l");
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
         
-        if (&h == &histos_mass.front())
+        if (i == 0)
         {
-            factor = h->Integral();
-            h->Scale(factor/h->Integral());
-            h->SetTitle(";m_{ll#gamma} [GeV];Events");
-            h->GetYaxis()->CenterTitle(true);
-            h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 155,"Y");
-//            h->SetAxisRange(0., 1200,"Y");
-            h->Draw("HIST");
+            factor = Nodes[i].GetResultPtr<TH1D>()->Integral();
+            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll#gamma} [GeV];Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+            Nodes[i].GetResultPtr<TH1D>()->SetAxisRange(0., 155,"Y");
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
         }
         else
         {
-            h->Scale(factor/h->Integral());
-            h->Draw("HISTsame");
+            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
     }
@@ -2508,31 +2507,29 @@ void fig54()
     c1 = new TCanvas();
     legend = new TLegend(0.15, 0.5, 0.35, 0.7);
     count = 0;
-    for (auto& h: histos_deltaR)
+    for (auto& i: {1,5})
     {
-        h->SetLineColor(colors[count++]);
-        legend->AddEntry(&(*h), h->GetTitle(), "l");
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
         
-        if (&h == &histos_deltaR.front())
+        if (i == 1)
         {
-            factor = h->Integral();
-            h->Scale(factor/h->Integral());
-            h->SetTitle(";#DeltaR (ll,#gamma) ;Events");
-            h->GetYaxis()->CenterTitle(true);
-            h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 29,"Y");
-//            h->SetAxisRange(0., 210,"Y");
-            h->Draw("HIST");
+            factor = Nodes[i].GetResultPtr<TH1D>()->Integral();
+            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR (ll,#gamma) ;Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+            Nodes[i].GetResultPtr<TH1D>()->SetAxisRange(0., 29,"Y");
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
         }
         else
         {
-            h->Scale(factor/h->Integral());
-            h->SetTitle(";#DeltaR (ll,#gamma) ;Events");
-            h->GetYaxis()->CenterTitle(true);
-            h->GetXaxis()->SetTitleOffset(1.2);
-            h->SetAxisRange(0., 29,"Y");
-//            h->SetAxisRange(0., 210,"Y");
-            h->Draw("HISTsame");
+            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR (ll,#gamma) ;Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+            Nodes[i].GetResultPtr<TH1D>()->SetAxisRange(0., 29,"Y");
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
     }
@@ -2547,29 +2544,27 @@ void fig54()
     c1 = new TCanvas();
     legend = new TLegend(0.65, 0.4, 0.85, 0.6);
     count = 0;
-    for (auto& h: histos_pt)
+    for (auto& i: {2,6})
     {
-        h->SetLineColor(colors[count++]);
-        legend->AddEntry(&(*h), h->GetTitle(), "l");
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
         
-        if (&h == &histos_pt.front())
+        if (i == 2)
         {
-            factor = h->Integral();
-            h->Scale(factor/h->Integral());
-            h->SetTitle(";p_{T} (ll,#gamma) ;Events");
-            h->GetYaxis()->CenterTitle(true);
-            h->GetXaxis()->SetTitleOffset(1.2);
-//            h->SetAxisRange(0., 450,"Y");
-            h->Draw("HIST");
+            factor = Nodes[i].GetResultPtr<TH1D>()->Integral();
+            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";p_{T} (ll,#gamma) ;Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
         }
         else
         {
-            h->Scale(factor/h->Integral());
-            h->SetTitle(";p_{T} (ll,#gamma) ;Events");
-            h->GetYaxis()->CenterTitle(true);
-            h->GetXaxis()->SetTitleOffset(1.2);
-//            h->SetAxisRange(0., 450,"Y");
-            h->Draw("HISTsame");
+            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";p_{T} (ll,#gamma) ;Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
     }
@@ -2580,33 +2575,31 @@ void fig54()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig54D.png");
-    
+
     c1 = new TCanvas();
     legend = new TLegend(0.45, 0.4, 0.65, 0.6);
     count = 0;
-    for (auto& h: histos_E_Ratio)
+    for (auto& i: {3,7})
     {
-        h->SetLineColor(colors[count++]);
-        legend->AddEntry(&(*h), h->GetTitle(), "l");
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
         
-        if (&h == &histos_E_Ratio.front())
+        if (i == 3)
         {
-            factor = h->Integral();
-            h->Scale(factor/h->Integral());
-            h->SetTitle(";E_{ratio};Events");
-            h->GetYaxis()->CenterTitle(true);
-            h->GetXaxis()->SetTitleOffset(1.2);
-//            h->SetAxisRange(0., 450,"Y");
-            h->Draw("HIST");
+            factor = Nodes[i].GetResultPtr<TH1D>()->Integral();
+            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";E_{ratio};Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
         }
         else
         {
-            h->Scale(factor/h->Integral());
-            h->SetTitle(";E_{ratio};Events");
-            h->GetYaxis()->CenterTitle(true);
-            h->GetXaxis()->SetTitleOffset(1.2);
-//            h->SetAxisRange(0., 450,"Y");
-            h->Draw("HISTsame");
+            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";E_{ratio};Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
             gPad->Modified(); gPad->Update();
         }
     }
@@ -2629,8 +2622,8 @@ void ControlPlotsSignalShapes()
 //    fig8();
 //    fig10();
 //    fig18();
-    fig24();
-//    fig54();
+//    fig24();
+    fig54();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "

@@ -1236,9 +1236,9 @@ void Categorization()
     auto start_time = Clock::now();
 //    Table4();
 //    Table5();
-    Table14();
-    Table15();
-//    Fig19();
+//    Table14();
+//    Table15();
+    Fig19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
