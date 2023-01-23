@@ -82,7 +82,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-/*
+
 void Table4()
 {
     std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
@@ -130,7 +130,7 @@ void Table4()
         return truthSelected;
     };
     std::vector<ROOT::RDF::RResultHandle> Nodes;
-    
+    std::cout << R"--(\section*{Table 4})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
     std::cout << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
     std::cout << R"--(\hline)--" << '\n';
@@ -235,7 +235,7 @@ void Table4()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
             }), photons.end());
             
             return photons;
@@ -247,7 +247,7 @@ void Table4()
             }
             auto combs = Combinations(reco_photons_matched, 2);
             size_t length = combs[0].size();
-            double delta_r, m, pt, X;
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
             for (size_t i=0; i<length; i++)
             {
@@ -255,12 +255,20 @@ void Table4()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+                if (i==0 || abs(1-X) < abs(1-best_X))
                 {
-                    return true;
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
                 }
             }
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+            {
+                return true;
+            }
             return false;
+            
         }, {"photons_pass_cuts"});
         
         auto reco_photons_matched = truth_photons_from_axions.Define("reco_photons_matched",
@@ -375,7 +383,7 @@ void Table5()
         return truthSelected;
     };
     std::vector<ROOT::RDF::RResultHandle> Nodes;
-    
+    std::cout << R"--(\section*{Table 5})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
     std::cout << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
     std::cout << R"--(\hline)--" << '\n';
@@ -482,12 +490,13 @@ void Table5()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
             }), photons.end());
             
             return photons;
-        }, {"photons"}).Filter([](RVec<Photon>& reco_photons_matched)
+        }, {"photons"}).Filter([](RVec<Photon>& reco_photons_test)
         {
+            RVec<Photon> reco_photons_matched = reco_photons_test;
             if (reco_photons_matched.size() == 1)
             {
                 return reco_photons_matched[0].photon_pt > 20e3;
@@ -499,7 +508,7 @@ void Table5()
             
             auto combs = Combinations(reco_photons_matched, 2);
             size_t length = combs[0].size();
-            double delta_r, m, pt, X;
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
             for (size_t i=0; i<length; i++)
             {
@@ -507,14 +516,22 @@ void Table5()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+                if (i==0 || abs(1-X) < abs(1-best_X))
                 {
-                    return false;
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
                 }
             }
-            for (auto& i: reco_photons_matched)
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
             {
-                if (i.photon_pt > 20e3)
+                return false;
+            }
+            
+            for (auto& p: reco_photons_matched)
+            {
+                if (p.photon_pt > 20e3)
                 {
                     return true;
                 }
@@ -668,7 +685,7 @@ void Table14()
         truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
         [](TruthParticle& x)
         {
-            return ((abs(x.mc_pdg_id) != 22) || (abs(x.mc_eta) >= 2.37) || (x.mc_pt <= 10e3));
+            return ((abs(x.mc_pdg_id) != 22) || (abs(x.mc_eta) >= 2.37));
 
         }), truth_particles.end());
         
@@ -680,19 +697,10 @@ void Table14()
     [&](RVec<TruthParticle>& reco_photons_test)
     {
         RVec<TruthParticle> reco_photons_matched = reco_photons_test;
-        
-        reco_photons_matched.erase(std::remove_if(reco_photons_matched.begin(),reco_photons_matched.end(),
-        [](TruthParticle& x)
-        {
-            return x.mc_pt <= 10e3;
-
-        }), reco_photons_matched.end());
-        
         if (reco_photons_matched.size() == 1)
         {
-            return true ? reco_photons_matched[0].mc_pt > 20e3 : false;
+            return reco_photons_matched[0].mc_pt > 20e3;
         }
-        
         else if (reco_photons_matched.empty())
         {
             return false;
@@ -700,7 +708,7 @@ void Table14()
         
         auto combs = Combinations(reco_photons_matched, 2);
         size_t length = combs[0].size();
-        double delta_r, m, pt, X;
+        double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
         for (size_t i=0; i<length; i++)
         {
@@ -708,10 +716,17 @@ void Table14()
             m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
             pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
             X = delta_r*(pt/(2.0*m));
-            if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+            if (i==0 || abs(1-X) < abs(1-best_X))
             {
-                return false;
+                best_X = X;
+                pt1 = reco_photons_matched[combs[0][i]].mc_pt;
+                pt2 = reco_photons_matched[combs[1][i]].mc_pt;
+                chosen_delta_r = delta_r;
             }
+        }
+        if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+        {
+            return false;
         }
         
         for (auto& p: reco_photons_matched)
@@ -781,7 +796,7 @@ void Table14()
         std::cout << i.first << " & " << std::setprecision(2) << std::fixed
         << 100*(i.second/ static_cast<double>(*total)) << R"--( \\ \hline)--" << '\n';
     }
-    std::cout << R"--(\end{tabular}})--" << '\n';
+    std::cout << R"--(\end{tabular}})--" << "\n\n\n";
 }
 
 void Table15()
@@ -870,19 +885,10 @@ void Table15()
     [&](RVec<Photon>& reco_photons_test)
     {
         RVec<Photon> reco_photons_matched = reco_photons_test;
-        
-        reco_photons_matched.erase(std::remove_if(reco_photons_matched.begin(),reco_photons_matched.end(),
-        [](Photon& x)
-        {
-            return x.photon_pt <= 10e3;
-
-        }), reco_photons_matched.end());
-        
         if (reco_photons_matched.size() == 1)
         {
-            return true ? reco_photons_matched[0].photon_pt > 20e3 : false;
+            return reco_photons_matched[0].photon_pt > 20e3;
         }
-        
         else if (reco_photons_matched.empty())
         {
             return false;
@@ -890,7 +896,7 @@ void Table15()
         
         auto combs = Combinations(reco_photons_matched, 2);
         size_t length = combs[0].size();
-        double delta_r, m, pt, X;
+        double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
         for (size_t i=0; i<length; i++)
         {
@@ -898,10 +904,17 @@ void Table15()
             m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
             pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
             X = delta_r*(pt/(2.0*m));
-            if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+            if (i==0 || abs(1-X) < abs(1-best_X))
             {
-                return false;
+                best_X = X;
+                pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                chosen_delta_r = delta_r;
             }
+        }
+        if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+        {
+            return false;
         }
         
         for (auto& p: reco_photons_matched)
@@ -973,8 +986,8 @@ void Table15()
     std::cout << "pSR & " << *pSR_count << R"--(\\ \hline)--" << '\n';
     std::cout << "SB & " << *SB_count << R"--(\\ \hline)--" << '\n';
     std::cout << "SR & " << *SR_count << R"--(\\ \hline)--" << '\n';
-    std::cout << R"--(\end{tabular}})--" << '\n';
-}*/
+    std::cout << R"--(\end{tabular}})--" << "\n\n\n";
+}
 
 void Fig19()
 {
@@ -1098,7 +1111,7 @@ void Fig19()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
 
             }), photons.end());
 
@@ -1106,29 +1119,37 @@ void Fig19()
         }, {"photons"});
         
         auto resolved = photon_passes_cuts.Define("chosen_two",
-        [](RVec<Photon>& reco_photons_matched)
+        [](RVec<Photon>& photons_pass_cuts)
         {
             RVec<Photon> x;
-            if (reco_photons_matched.size() < 2)
+            if (photons_pass_cuts.size() < 2)
             {
                 return x;
             }
-            auto combs = Combinations(reco_photons_matched, 2);
+            auto combs = Combinations(photons_pass_cuts, 2);
             size_t length = combs[0].size();
-            double delta_r, m, pt, X;
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
             for (size_t i=0; i<length; i++)
             {
-                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
-                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
-                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                delta_r = DeltaR(photons_pass_cuts[combs[0][i]].Vector(), photons_pass_cuts[combs[1][i]].Vector());
+                m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
+                pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+                if (i==0 || abs(1-X) < abs(1-best_X))
                 {
-                    x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
-                    return x;
+                    best_X = X;
+                    pt1 = photons_pass_cuts[combs[0][i]].photon_pt;
+                    pt2 = photons_pass_cuts[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
+                    x = {photons_pass_cuts[combs[0][i]], photons_pass_cuts[combs[1][i]]};
                 }
             }
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+            {
+                return x;
+            }
+            x.clear();
             return x;
         }, {"photons_pass_cuts"}).Filter(
         [&](RVec<Photon>& reco_photons_matched)
@@ -1140,19 +1161,10 @@ void Fig19()
         [&](RVec<Photon>& reco_photons_test)
         {
             RVec<Photon> reco_photons_matched = reco_photons_test;
-            
-            reco_photons_matched.erase(std::remove_if(reco_photons_matched.begin(),reco_photons_matched.end(),
-            [](Photon& x)
-            {
-                return x.photon_pt <= 10e3;
-
-            }), reco_photons_matched.end());
-            
             if (reco_photons_matched.size() == 1)
             {
-                return true ? reco_photons_matched[0].photon_pt > 20e3 : false;
+                return reco_photons_matched[0].photon_pt > 20e3;
             }
-            
             else if (reco_photons_matched.empty())
             {
                 return false;
@@ -1160,7 +1172,7 @@ void Fig19()
             
             auto combs = Combinations(reco_photons_matched, 2);
             size_t length = combs[0].size();
-            double delta_r, m, pt, X;
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
             for (size_t i=0; i<length; i++)
             {
@@ -1168,10 +1180,17 @@ void Fig19()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+                if (i==0 || abs(1-X) < abs(1-best_X))
                 {
-                    return false;
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
                 }
+            }
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+            {
+                return false;
             }
             
             for (auto& p: reco_photons_matched)
@@ -1221,7 +1240,6 @@ void Fig19()
     }
     for (auto& hist: hists)
     {
-        hist->GetXaxis()->SetRangeUser(0,10);
         legend->AddEntry(hist, hist->GetTitle(), "f");
         hs->Add(hist);
     }
@@ -1235,6 +1253,7 @@ void Fig19()
     hs->GetYaxis()->SetTitleSize(0.04);
     hs->GetYaxis()->SetTitleOffset(1.1);
     hs->GetXaxis()->SetRangeUser(0,10);
+    hs->SetMaximum(0.7);
     hs->GetXaxis()->SetTickLength(0);
     hs->GetXaxis()->SetLabelOffset(999);
     
@@ -1253,10 +1272,10 @@ void Fig19()
 void Categorization()
 {
     auto start_time = Clock::now();
-//    Table4();
-//    Table5();
-//    Table14();
-//    Table15();
+    Table4();
+    Table5();
+    Table14();
+    Table15();
     Fig19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "

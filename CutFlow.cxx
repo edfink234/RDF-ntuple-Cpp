@@ -310,33 +310,40 @@ void Table8()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
             return photons;
         }, {"photons"}).Filter(
         [&](RVec<Photon>& reco_photons_matched)
         {
-           if (reco_photons_matched.size() < 2)
-           {
-               return false;
-           }
-           auto combs = Combinations(reco_photons_matched, 2);
-           size_t length = combs[0].size();
-           double delta_r, m, pt, X;
+            if (reco_photons_matched.size() < 2)
+            {
+                return false;
+            }
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
-           for (size_t i=0; i<length; i++)
-           {
-               delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
-               m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
-               pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
-               X = delta_r*(pt/(2.0*m));
-               if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
-               {
-                   return true;
-               }
-           }
-           return false;
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if (i==0 || abs(1-X) < abs(1-best_X))
+                {
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
+                }
+            }
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+            {
+                return true;
+            }
+            return false;
 
         }, {"photons_pass_cuts"});
 

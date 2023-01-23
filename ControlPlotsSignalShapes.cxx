@@ -79,6 +79,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_mu18_mu8noL1",
 };
 //Other mA5 file: /Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root
+
 /*
 void fig1A()
 {
@@ -388,9 +389,6 @@ void fig5()
         return DeltaR(leading_truth_photons[0].Vector(), leading_truth_photons[1].Vector());
     }, {"leading_truth_photons"});
     
-//    auto leading_truth_photons_pt_10_passed = leading_truth_photons_pt_10.Count();
-//    std::cout << *leading_truth_photons_pt_10_passed << '\n';
-    
     auto leading_truth_photons_pt_5 = leading_truth_photons.Filter(
     [&](RVec<TruthParticle>& leading_truth_photons)
     {
@@ -401,9 +399,6 @@ void fig5()
     {
         return DeltaR(leading_truth_photons[0].Vector(), leading_truth_photons[1].Vector());
     }, {"leading_truth_photons"});
-    
-//    auto leading_truth_photons_pt_5_passed = leading_truth_photons_pt_5.Count();
-//    std::cout << *leading_truth_photons_pt_5_passed << '\n';
     
     auto leading_truth_photons_pt_0 = leading_truth_photons.Filter(
     [&](RVec<TruthParticle>& leading_truth_photons)
@@ -416,9 +411,6 @@ void fig5()
         return DeltaR(leading_truth_photons[0].Vector(), leading_truth_photons[1].Vector());
     }, {"leading_truth_photons"});
     
-//    auto leading_truth_photons_pt_0_passed = leading_truth_photons_pt_0.Count();
-//    std::cout << *leading_truth_photons_pt_0_passed << '\n';
-    
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos =
     {
         leading_truth_photons.Histo1D<double>({"Leading Photon", "Leading Photon", 20u, 0, 50}, "leading_truth_photon_pt"),
@@ -429,7 +421,6 @@ void fig5()
     };
     
     double factor = histos[0]->Integral();
-//    std::cout << factor << "  " << histos[0]-> GetEntries();
     histos[0]->Scale(factor/factor);
     histos[0]->SetLineColor(colors[0]);
     histos[0]->Draw("HIST");
@@ -702,7 +693,7 @@ void fig6()
     };
     
     double factor = histos[0]->Integral();
-//    std::cout << factor << "  " << histos[0]-> GetEntries();
+
     histos[0]->Scale(factor/factor);
     histos[0]->SetLineColor(colors[0]);
     histos[0]->Draw("HIST");
@@ -734,7 +725,6 @@ void fig6()
     histos[2]->SetLineColor(colors[0]);
     histos[2]->Draw("HIST");
     histos[2]->GetYaxis()->CenterTitle(true);
-//    histos[2]->SetAxisRange(0., 1500,"Y");
     
     legend->AddEntry(&(*histos[2]), histos[2]->GetTitle(), "l");
     histos[2]->SetTitle(";photon p_{T}  [GeV];Events");
@@ -748,8 +738,6 @@ void fig6()
     legend->Draw();
     c1->SaveAs("Fig6B.png");
     
-//    std::cout << *truth_photons_from_axions.Count() << '\n';
-   
 }
 
 void fig8()
@@ -1762,7 +1750,6 @@ void fig18()
     
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.55, 0.3, 0.75, 0.5);
-    double factor;
     
     count = 0;
     for (int i = 0; i <= 2; i++)
@@ -1772,7 +1759,6 @@ void fig18()
         
         if (i == 0)
         {
-            factor = Nodes[i].GetResultPtr<TH1D>()->Integral();
             Nodes[i].GetResultPtr<TH1D>()->SetTitle(";p_{T_{#gamma#gamma}} [GeV];Events");
             Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
             Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
@@ -1806,7 +1792,6 @@ void fig18()
         
         if (i == 3)
         {
-            factor = Nodes[i].GetResultPtr<TH1D>()->Integral();
             Nodes[i].GetResultPtr<TH1D>()->SetTitle(";p_{T_{#gamma#gamma}} [GeV];Events");
             Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
             Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
@@ -1831,16 +1816,32 @@ void fig18()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig18B.png");
-}
+}*/
 
 void fig24()
 {
     std::vector<std::string> input_filenames = {
+        //Signal samples
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
+        //Z gamma samples
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
         "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
+        //Jet samples
+//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root",
     };
+    
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
+    
+    std::vector<const char*> prefixes = {"sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
     
     TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.6);
     
@@ -1885,8 +1886,6 @@ void fig24()
     };
     
     std::vector<ROOT::RDF::RResultHandle> Nodes;
-    
-    std::vector<const char*> prefixes = {"sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80"};
     
     std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
     
@@ -1978,7 +1977,7 @@ void fig24()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
             
@@ -1995,7 +1994,7 @@ void fig24()
             }
             auto combs = Combinations(photons_pass_cuts, 2);
             size_t length = combs[0].size();
-            double delta_r, m, pt, X;
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
             for (size_t i=0; i<length; i++)
             {
@@ -2003,12 +2002,20 @@ void fig24()
                 m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
                 pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if ((delta_r < 1.5) && (X > 0.96) && (X < 1.2))
+                if (i==0 || abs(1-X) < abs(1-best_X))
                 {
+                    best_X = X;
+                    pt1 = photons_pass_cuts[combs[0][i]].photon_pt;
+                    pt2 = photons_pass_cuts[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
                     x = {photons_pass_cuts[combs[0][i]], photons_pass_cuts[combs[1][i]]};
-                    return x;
                 }
             }
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+            {
+                return x;
+            }
+            x.clear();
             return x;
         }, {"photons_pass_cuts"}).Filter(
         [&](RVec<Photon>& two_reco_photons_matched)
@@ -2027,6 +2034,10 @@ void fig24()
         if (count > 2)
         {
             Nodes.push_back(resolved.Count());
+        }
+        if (count > 5)
+        {
+            Nodes.push_back(df.Count()); //need total events for scale factor.
         }
     }
     
@@ -2162,8 +2173,8 @@ void fig24()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig24A.png");
-}*/
-
+}
+/*
 void fig54()
 {
     std::vector<std::string> input_filenames = {
@@ -2354,23 +2365,34 @@ void fig54()
         [&](RVec<Photon>& reco_photons_test)
         {
             RVec<Photon> reco_photons_matched = reco_photons_test;
-            
-            reco_photons_matched.erase(std::remove_if(reco_photons_matched.begin(),reco_photons_matched.end(),
-            [](Photon& x)
+            if (reco_photons_matched.size() == 1)
             {
-                return x.photon_pt <= 10e3;
+                return reco_photons_matched[0].photon_pt > 20e3;
+            }
+            else if (reco_photons_matched.empty())
+            {
+                return false;
+            }
+            
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
-            }), reco_photons_matched.end());
-            
-            double delta_r = DeltaR(reco_photons_matched[0].Vector(), reco_photons_matched[1].Vector());
-            double m = (reco_photons_matched[0].Vector() + reco_photons_matched[1].Vector()).M();
-            double pt = (reco_photons_matched[0].Vector() + reco_photons_matched[1].Vector()).Pt();
-            double X = delta_r*(pt/(2.0*m));
-            
-            if ((reco_photons_matched.size()==2)
-            && (delta_r < 1.5)
-            && (X > 0.96)
-            && (X < 1.2))
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if (i==0 || abs(1-X) < abs(1-best_X))
+                {
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
+                }
+            }
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
             {
                 return false;
             }
@@ -2426,6 +2448,25 @@ void fig54()
             
             return (four_momentum + merged_photon.Vector()).M()/1e3;
             
+        }, {"stable_truth_leptons", "merged_photon"});
+        
+        auto preSB = stable_truth_dilepton_and_photon.Filter(
+        [](double reconstructed_mass)
+        {
+            return ((reconstructed_mass <= 110) || (reconstructed_mass >= 130));
+        }, {"reconstructed_mass"});
+        
+        auto SR = stable_truth_dilepton_and_photon.Filter(
+        [](double reconstructed_mass, RVec<float>& Eratio)
+        {
+            return ((reconstructed_mass > 110) && (reconstructed_mass < 130) && (!Any(Eratio <= 0.8)));
+        }, {"reconstructed_mass", "photon_shower_shape_e_ratio"})
+        .Define("reconstructed_pt",[&](RVec<TruthParticle>& stable_truth_leptons, Photon& merged_photon)
+        {
+            auto four_momentum = stable_truth_leptons[0].Vector() + stable_truth_leptons[1].Vector();
+            
+            return (four_momentum + merged_photon.Vector()).Pt()/1e3;
+            
         }, {"stable_truth_leptons", "merged_photon"})
         .Define("reconstructed_deltaR",[&](RVec<TruthParticle>& stable_truth_leptons, Photon& merged_photon)
         {
@@ -2433,19 +2474,12 @@ void fig54()
             
             return DeltaR(four_momentum,merged_photon.Vector());
             
-        }, {"stable_truth_leptons", "merged_photon"})
-        .Define("reconstructed_pt",[&](RVec<TruthParticle>& stable_truth_leptons, Photon& merged_photon)
-        {
-            auto four_momentum = stable_truth_leptons[0].Vector() + stable_truth_leptons[1].Vector();
-            
-            return (four_momentum + merged_photon.Vector()).Pt()/1e3;
-            
         }, {"stable_truth_leptons", "merged_photon"});
         
         Nodes.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 80, 200}, "reconstructed_mass"));
-        Nodes.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 4.7}, "reconstructed_deltaR"));
-        Nodes.push_back(stable_truth_dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 220}, "reconstructed_pt"));
-        Nodes.push_back(stable_truth_dilepton_and_photon.Histo1D<RVec<float>>({prefixes[count], prefixes[count++], 100u, 0, 1}, "photon_shower_shape_e_ratio"));
+        Nodes.push_back(SR.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 4.7}, "reconstructed_deltaR"));
+        Nodes.push_back(SR.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 220}, "reconstructed_pt"));
+        Nodes.push_back(stable_truth_dilepton_and_photon.Histo1D<RVec<float>>({prefixes[count], prefixes[count++], 100u, 0, 1}, "photon_shower_shape_e_ratio")); //stable_truth_dilepton_and_photon -> preSB ...
         
     }
     
@@ -2594,7 +2628,7 @@ void fig54()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig54B.png");
-}
+}*/
 
 
 void ControlPlotsSignalShapes()
@@ -2606,8 +2640,8 @@ void ControlPlotsSignalShapes()
 //    fig8();
 //    fig10();
 //    fig18();
-//    fig24();
-    fig54();
+    fig24();
+//    fig54();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "
