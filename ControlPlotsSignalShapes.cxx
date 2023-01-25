@@ -1820,30 +1820,28 @@ void fig18()
 
 void fig24()
 {
-    std::vector<std::string> input_filenames = {
+    std::vector<std::vector<std::string>> input_filenames = {
         //Signal samples
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
         //Z gamma samples
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"}, {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
         //Jet samples
-//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root",
-//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root",
-//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root",
-//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root",
-//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root",
-//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root",
-//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root",
-//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root",
-//        "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root",
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
     
     std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
     
     std::vector<const char*> prefixes = {"sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
-    
-    TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.6);
     
     auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
     {
@@ -1890,14 +1888,15 @@ void fig24()
     std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
     
     std::vector<EColor> colors = {kBlack, kMagenta, kBlue, kRed, kViolet};
+    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
     int count = 0;
     
     TCanvas* c1 = new TCanvas();
-    legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+    TLegend* legend = new TLegend(0.5, 0.2, 0.8, 0.6);
     
-    for (auto& file: input_filenames)
+    for (auto& sample: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({file}, 8));
+        SchottDataFrame df(MakeRDF(sample, 8));
         
         auto trigger_selection = df.Filter(
         [](const RVec<std::string>& trigger_passed_triggers)
@@ -2041,20 +2040,42 @@ void fig24()
         }
     }
     
+//    0   1
+//    2   3
+//    4   5   6
+//    7   8   9
+//    10  11  12
+//    13  14  15  16
+//    17  18  19  20
+//    21  22  23  24
+//    25  26  27  28
+//    29  30  31  32
+//    33  34  35  36
+//    37  38  39  40
+//    41  42  43  44
+//    45  46  47  48
+    
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
     double factor;
     double total_back = 0;
     
-    //Background counts
+    //Background counts from Z gamma
     for (int i = 6, j = 0; (i <= 12 && j <= 2); i+=3, j++)
     {
         total_back += *Nodes[i].GetResultPtr<ULong64_t>()*SFs[j];
     }
+    
+    //Background counts from Z jets
+    for (int i = 15, j = 0; (i <= 47 && j <= 8); i += 4, j++)
+    {
+        total_back += *Nodes[i].GetResultPtr<ULong64_t>()*(JetNumeratorSFs[j] / *Nodes[i+1].GetResultPtr<ULong64_t>());
+    }
+    
     int back_count = 0;
     factor = total_back;
     auto hs = new THStack("hs3","");
-    //weighted
+    //weighted Zgamma
     for (auto& i: {4,7,10})
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[2+back_count]);
@@ -2068,6 +2089,22 @@ void fig24()
 
         hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
     }
+    
+    //weighted ZJets
+    for (int i = 13, j = 0; (i <= 45 && j <= 8); i += 4, j++)
+    {
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / (*Nodes[i+3].GetResultPtr<ULong64_t>()));
+        }
+        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll}  [GeV];Events");
+        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+
+        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+    }
+    
     hs->Draw("HIST");
     
     count = 0;
@@ -2102,7 +2139,7 @@ void fig24()
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
     hs->SetMinimum(0.);
-    hs->SetMaximum(22.);
+    hs->SetMaximum(2450);
     
     gStyle->SetOptStat(0);
     TLatex Tl;
@@ -2114,11 +2151,11 @@ void fig24()
     c1->SaveAs("Fig24B.png");
     
     c1 = new TCanvas();
-    legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+    legend = new TLegend(0.5, 0.2, 0.8, 0.6);
     
     back_count=0;
     hs = new THStack("hs3","");
-    //background Zgamma
+    //background Zgamma unweighted
     for (auto& i: {5,8,11})
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[2+back_count]);
@@ -2133,8 +2170,23 @@ void fig24()
         
         hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         count++;
-        
     }
+    
+    for (int i = 14, j = 0; (i <= 46 && j <= 8); i += 4, j++)
+    {
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / (*Nodes[i+2].GetResultPtr<ULong64_t>()));
+            gPad->Modified(); gPad->Update();
+        }
+        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll}  [GeV];Events");
+        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+        
+        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+    }
+    
     hs->Draw("HIST");
     count = 0;
     //signal
@@ -2164,7 +2216,7 @@ void fig24()
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
     hs->SetMinimum(0.);
-    hs->SetMaximum(74.);
+    hs->SetMaximum(1040.);
     
     gStyle->SetOptStat(0);
     Tl.SetTextSize(0.03);
