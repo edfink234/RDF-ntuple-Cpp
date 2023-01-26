@@ -79,29 +79,45 @@ constexpr std::array<const char*,35> triggers =
     "HLT_mu18_mu8noL1",
 };
 //Other mA5 file: /Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root
-
 /*
 void fig1A()
 {
-    
-    std::vector<std::string> input_filenames =
+    std::vector<std::vector<std::string>> input_filenames =
     {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
+        //Z gamma background
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+        //Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+        //Jets
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
     
-    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV"};
-    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
+    
+    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))};
     std::vector<EColor> colors = {kBlue, kRed, kViolet, kBlack, kMagenta};
+    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
+    
     TCanvas* c1 = new TCanvas();
-    TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.6);
+    TLegend* legend = new TLegend(0.625, 0.25, 0.9, 0.65);
     int count = 0;
     std::vector<ROOT::RDF::RResultHandle> Nodes;
     
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({file}, 8));
+        SchottDataFrame df(MakeRDF(file, 8));
 //        df.Describe().Print();
 //        exit(1);
         auto trigger_selection = df.Filter(
@@ -184,37 +200,64 @@ void fig1A()
             return four_momentum.M()/1e3;
             
         }, {"electrons"});
-           
-        if (count <= 2)
+            
+        if (count <= 2) //Z gamma
         {
             Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
             Nodes.push_back(dilep_mass.Count());
+            Nodes.push_back(df.Count());
         }
         
-        else
+        else if (count >= 3 && count <= 4) //signal
         {
             Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
+        }
+        
+        else //Z+jets
+        {
+            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
+            Nodes.push_back(dilep_mass.Count());
+            Nodes.push_back(df.Count());
         }
     }
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
-    
 //     Now I should be able to access my results as many times as desired without
 //     penalty.
-     
     
-    count = 0;
+//    0  1  2
+//    3  4  5
+//    6  7  8
+//    9
+//    10
+//    11 12 13
+//    14 15 16
+//    17 18 19
+//    20 21 22
+//    23 24 25
+//    26 27 28
+//    29 30 31
+//    32 33 34
+//    35 36 37
+    
     int back_count = 0;
     double factor;
     double total_back = 0;
+    
     //calculating total Zgamma background by taking the weighted sum
-    
-    for (int j = 1; j <= 5; j += 2)
+    for (int j = 1; j <= 7; j += 3)
     {
-        total_back += (*Nodes[j].GetResultPtr<ULong64_t>())*SFs[back_count++];
+        total_back += (*Nodes[j].GetResultPtr<ULong64_t>())*(SFs[back_count++] / *Nodes[j+1].GetResultPtr<ULong64_t>());
     }
-    
+        
+    //then add Zjets to total background
+    //Background counts from Z jets
+    for (int i = 12, j = 0; (i <= 36 && j <= 8); i += 3, j++)
+    {
+        total_back += *Nodes[i].GetResultPtr<ULong64_t>()*(JetNumeratorSFs[j] / *Nodes[i+1].GetResultPtr<ULong64_t>());
+    }
+        
 //     First, we calculate the total Zgamma background by taking the weighted sum, i.e.,
 //     adding all of the counts of the individual Zgamma samples weighted by their
 //     respective scaling factors.
@@ -226,17 +269,19 @@ void fig1A()
 //     Below, we loop over the background Zgamma samples. For each sample, we
 //     now just have to scale it by its scale factor, and that way the total THStack
 //     will add to total_back as we had intended.
-     
+    
+    count = 0;
     factor = total_back;
     auto hs = new THStack("hs3","");
     
-    for (int i = 0; i <= 4; i += 2)
+    //Z gamma background
+    for (int i = 0; i <= 6; i += 3)
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]/(*Nodes[i+2].GetResultPtr<ULong64_t>()));
         }
         Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll}  [GeV];Events");
         Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
@@ -244,10 +289,27 @@ void fig1A()
         hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         count++;
     }
+    
+    //Now adding on top Z+jets background
+    //weighted ZJets
+    for (int i = 11, j = 0; (i <= 35 && j <= 8); i += 3, j++)
+    {
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / (*Nodes[i+2].GetResultPtr<ULong64_t>()));
+        }
+        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll}  [GeV];Events");
+        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+
+        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+    }
+    
     hs->Draw("HIST");
 
     //Now processing signal sample results
-    for (int i = 6; i <= 7; i++)
+    for (int i = 9; i <= 10; i++)
     {
         Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
@@ -265,9 +327,10 @@ void fig1A()
     
     hs->SetTitle(";m_{ll}  [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
+    hs->GetYaxis()->SetTitleOffset(1.3);
     hs->GetXaxis()->SetTitleOffset(1.2);
     hs->SetMinimum(0);
-    hs->SetMaximum(310.);
+    hs->SetMaximum(4e6);
     
     gStyle->SetOptStat(0);
     TLatex Tl;
@@ -1885,7 +1948,7 @@ void fig24()
     
     std::vector<ROOT::RDF::RResultHandle> Nodes;
     
-    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))};
     
     std::vector<EColor> colors = {kBlack, kMagenta, kBlue, kRed, kViolet};
     std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
@@ -2033,27 +2096,24 @@ void fig24()
         if (count > 2)
         {
             Nodes.push_back(resolved.Count());
-        }
-        if (count > 5)
-        {
             Nodes.push_back(df.Count()); //need total events for scale factor.
         }
     }
     
 //    0   1
 //    2   3
-//    4   5   6
-//    7   8   9
-//    10  11  12
-//    13  14  15  16
-//    17  18  19  20
-//    21  22  23  24
-//    25  26  27  28
-//    29  30  31  32
-//    33  34  35  36
-//    37  38  39  40
-//    41  42  43  44
-//    45  46  47  48
+//    4   5   6   7
+//    8   9   10  11
+//    12  13  14  15
+//    16  17  18  19
+//    20  21  22  23
+//    24  25  26  27
+//    28  29  30  31
+//    32  33  34  35
+//    36  37  38  39
+//    40  41  42  43
+//    44  45  46  47
+//    48  49  50  51
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
@@ -2061,13 +2121,13 @@ void fig24()
     double total_back = 0;
     
     //Background counts from Z gamma
-    for (int i = 6, j = 0; (i <= 12 && j <= 2); i+=3, j++)
+    for (int i = 6, j = 0; (i <= 14 && j <= 2); i+=4, j++)
     {
-        total_back += *Nodes[i].GetResultPtr<ULong64_t>()*SFs[j];
+        total_back += *Nodes[i].GetResultPtr<ULong64_t>()*(SFs[j]/ *Nodes[i+1].GetResultPtr<ULong64_t>());
     }
     
     //Background counts from Z jets
-    for (int i = 15, j = 0; (i <= 47 && j <= 8); i += 4, j++)
+    for (int i = 18, j = 0; (i <= 50 && j <= 8); i += 4, j++)
     {
         total_back += *Nodes[i].GetResultPtr<ULong64_t>()*(JetNumeratorSFs[j] / *Nodes[i+1].GetResultPtr<ULong64_t>());
     }
@@ -2076,22 +2136,22 @@ void fig24()
     factor = total_back;
     auto hs = new THStack("hs3","");
     //weighted Zgamma
-    for (auto& i: {4,7,10})
+    for (auto& i: {4,8,12})
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[2+back_count]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[back_count++]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[back_count++]/ *Nodes[i+3].GetResultPtr<ULong64_t>());
         }
-        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll}  [GeV];Events");
+        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
         Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
 
         hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
     }
     
     //weighted ZJets
-    for (int i = 13, j = 0; (i <= 45 && j <= 8); i += 4, j++)
+    for (int i = 16, j = 0; (i <= 48 && j <= 8); i += 4, j++)
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
@@ -2099,7 +2159,7 @@ void fig24()
         {
             Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / (*Nodes[i+3].GetResultPtr<ULong64_t>()));
         }
-        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll}  [GeV];Events");
+        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
         Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
 
         hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
@@ -2156,13 +2216,13 @@ void fig24()
     back_count=0;
     hs = new THStack("hs3","");
     //background Zgamma unweighted
-    for (auto& i: {5,8,11})
+    for (auto& i: {5,9,13})
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[2+back_count]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[back_count++]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[back_count++]/(*Nodes[i+2].GetResultPtr<ULong64_t>()));
             gPad->Modified(); gPad->Update();
         }
         Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll}  [GeV];Events");
@@ -2172,7 +2232,7 @@ void fig24()
         count++;
     }
     
-    for (int i = 14, j = 0; (i <= 46 && j <= 8); i += 4, j++)
+    for (int i = 17, j = 0; (i <= 49 && j <= 8); i += 4, j++)
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
