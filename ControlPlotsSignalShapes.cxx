@@ -5,6 +5,7 @@
 #include <string>
 #include <array>
 #include <cstdlib>
+#include <iomanip>
 
 #include <ROOT/RLogger.hxx>
 #include "Math/VectorUtil.h"
@@ -79,15 +80,15 @@ constexpr std::array<const char*,35> triggers =
     "HLT_mu18_mu8noL1",
 };
 //Other mA5 file: /Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root
-/*
+
 void fig1A()
 {
     std::vector<std::vector<std::string>> input_filenames =
     {
         //Z gamma background
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"}, //pty2_9_17
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"}, //pty_17_myy_0_80
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"}, //pty_17_myy_80
         //Signal
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
@@ -103,10 +104,10 @@ void fig1A()
         {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
     
-    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
     
     std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
-    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))};
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
     std::vector<EColor> colors = {kBlue, kRed, kViolet, kBlack, kMagenta};
     std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
     
@@ -124,7 +125,7 @@ void fig1A()
         [](const RVec<std::string>& trigger_passed_triggers)
         {
             bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
-           
+
             if (!trigger_found)
             {
                 return false;
@@ -189,7 +190,7 @@ void fig1A()
         auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
         {
             auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
-            return pT > 10;
+            return pT >= 10;
         }, {"di_electrons"});
             
         auto dilep_mass = ptCut.Define("dilep_mass",[&](RVec<Electron>& electrons)
@@ -203,19 +204,19 @@ void fig1A()
             
         if (count <= 2) //Z gamma
         {
-            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
+            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 60u, 60, 120}, "dilep_mass"));
             Nodes.push_back(dilep_mass.Count());
             Nodes.push_back(df.Count());
         }
         
         else if (count >= 3 && count <= 4) //signal
         {
-            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
+            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 60u, 60, 120}, "dilep_mass"));
         }
         
         else //Z+jets
         {
-            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
+            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 60u, 60, 120}, "dilep_mass"));
             Nodes.push_back(dilep_mass.Count());
             Nodes.push_back(df.Count());
         }
@@ -245,18 +246,57 @@ void fig1A()
     double factor;
     double total_back = 0;
     
+    std::cout << "Z+gamma\n=======\n";
+    std::cout << std::setw(25) << "Sample"
+    << std::setw(10) << "Events"
+    << std::setw(20) << "Scale Factors"
+    << std::setw(20) << "Weighted Events"
+    << '\n';
     //calculating total Zgamma background by taking the weighted sum
-    for (int j = 1; j <= 7; j += 3)
+    for (int j = 1, i=0; (j <= 7 && i<=2) ; j += 3, i++)
     {
         total_back += (*Nodes[j].GetResultPtr<ULong64_t>())*(SFs[back_count++] / *Nodes[j+1].GetResultPtr<ULong64_t>());
-    }
         
+        std::cout << std::setw(25) << prefixes[i]
+        << std::setw(10) << std::setprecision(2) << std::fixed << (*Nodes[j].GetResultPtr<ULong64_t>())
+        << std::setw(20) << std::setprecision(2) << std::fixed << (SFs[back_count-1] / *Nodes[j+1].GetResultPtr<ULong64_t>())
+        << std::setw(20) << std::setprecision(2) << std::fixed << (*Nodes[j].GetResultPtr<ULong64_t>())*(SFs[back_count-1] / *Nodes[j+1].GetResultPtr<ULong64_t>())
+        << '\n';
+        
+    }
+    std::cout << "\n\nWeighted Z-gamma sum = " << std::setprecision(2) << std::fixed
+    << total_back << "\n\n\n";
+    
+    std::cout << "Z+jets\n=======\n";
+    std::cout << std::setw(25) << "Sample"
+    << std::setw(10) << "Events"
+    << std::setw(20) << "Scale Factors"
+    << std::setw(20) << "Weighted Events"
+    << '\n';
+    
+    double jetCount = total_back;
     //then add Zjets to total background
     //Background counts from Z jets
-    for (int i = 12, j = 0; (i <= 36 && j <= 8); i += 3, j++)
+    for (int i = 12, j = 0, k = 5; (i <= 36 && j <= 8); i += 3, j++, k++)
     {
         total_back += *Nodes[i].GetResultPtr<ULong64_t>()*(JetNumeratorSFs[j] / *Nodes[i+1].GetResultPtr<ULong64_t>());
+        
+        std::cout << std::setw(25) << prefixes[k]
+        << std::setw(10) << std::setprecision(2) << std::fixed << *Nodes[i].GetResultPtr<ULong64_t>()
+        << std::setw(20) << std::setprecision(2) << std::fixed << (JetNumeratorSFs[j] / *Nodes[i+1].GetResultPtr<ULong64_t>())
+        << std::setw(20) << std::setprecision(2) << std::fixed << *Nodes[i].GetResultPtr<ULong64_t>()*(JetNumeratorSFs[j] / *Nodes[i+1].GetResultPtr<ULong64_t>())
+        << '\n';
+        
     }
+    
+    jetCount = total_back - jetCount;
+    
+    std::cout << "\n\nWeighted Z-Jets sum = " << std::setprecision(2) << std::fixed
+    << jetCount << "\n\n\n";
+    
+    std::cout << "\n\nWeighted Total Bkg sum = " << std::setprecision(2) << std::fixed
+    << total_back << "\n\n\n";
+    
         
 //     First, we calculate the total Zgamma background by taking the weighted sum, i.e.,
 //     adding all of the counts of the individual Zgamma samples weighted by their
@@ -330,7 +370,7 @@ void fig1A()
     hs->GetYaxis()->SetTitleOffset(1.3);
     hs->GetXaxis()->SetTitleOffset(1.2);
     hs->SetMinimum(0);
-    hs->SetMaximum(4e6);
+    hs->SetMaximum(6e6);
     
     gStyle->SetOptStat(0);
     TLatex Tl;
@@ -339,10 +379,10 @@ void fig1A()
     Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
     legend->SetBorderSize(0);
     legend->Draw();
-    c1->SaveAs("Fig1A.png");
+    c1->SaveAs("Fig1A.pdf");
 }
 
-
+/*
 void fig5()
 {
     std::vector<std::string> input_filenames = { "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
@@ -1879,7 +1919,7 @@ void fig18()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig18B.png");
-}*/
+}
 
 void fig24()
 {
@@ -2286,7 +2326,7 @@ void fig24()
     legend->Draw();
     c1->SaveAs("Fig24A.png");
 }
-/*
+
 void fig54()
 {
     std::vector<std::string> input_filenames = {
@@ -2746,13 +2786,13 @@ void fig54()
 void ControlPlotsSignalShapes()
 {
     auto start_time = Clock::now();
-//    fig1A();
+    fig1A();
 //    fig5();
 //    fig6();
 //    fig8();
 //    fig10();
 //    fig18();
-    fig24();
+//    fig24();
 //    fig54();
     
     auto end_time = Clock::now();

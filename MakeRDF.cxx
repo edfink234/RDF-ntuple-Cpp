@@ -7,6 +7,10 @@
 #include "TBranch.h"
 #include "TInterpreter.h"
 
+//#include "RDFObjects.h"
+//#include "MakeRDF.h"
+//#include "RDFevent.h"
+
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFevent.h"
@@ -32,6 +36,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
     if (!loaded)
     {
         //load objects
+//        gInterpreter->LoadMacro("RDFObjects.h");
         gInterpreter->LoadMacro("/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h");
         //then load printValue overloads so objects can be printed
         gInterpreter->Declare("std::string cling::printValue(TruthParticle *);");

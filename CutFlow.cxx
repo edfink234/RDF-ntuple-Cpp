@@ -78,20 +78,34 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-
+/*
 void Table3()
 {
-    std::vector<std::string> input_filenames = {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"
+    std::vector<std::vector<std::string>> input_filenames = {
+        //Z gamma background
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+        //Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        //Data
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
+        //Jets
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
     
     std::vector<std::string> cutFlows;
     cutFlows.reserve(input_filenames.size());
-    constexpr std::array<const char*,6> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", "Data", R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
+    constexpr std::array<const char*,15> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Signal $m_{\text{A}}$ = 5 GeV)--", "Data", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
     
     std::ostringstream os;
     os << R"--(\section*{Table 3})--" << '\n';
@@ -103,11 +117,13 @@ void Table3()
     
     double beforePreselecZGamma = 0, twoLeptonsZGamma = 0, oppChargeZGamma = 0, leadingPtZGamma = 0, deltaRZGamma = 0, MassZGamma = 0, ptCutZGamma = 0;
 
+    double beforePreselecZJets = 0, twoLeptonsZJets = 0, oppChargeZJets = 0, leadingPtZJets = 0, deltaRZJets = 0, MassZJets = 0, ptCutZJets = 0;
+    
     std::vector<ROOT::RDF::RResultHandle> Nodes;
     
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({file}, 8));
+        SchottDataFrame df(MakeRDF(file, 8));
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -179,7 +195,26 @@ void Table3()
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
-    for (int i=0, j=0; i<6 && j <= 35; i++, j+=7)
+  
+//     0      1    2     3     4     5     6      Z-gamma
+//     7      8    9     10    11    12    13     Z-gamma
+//     14    15    16    17    18    19    20     Z-gamma
+//     21    22    23    24    25    26    27     ma1
+//     28    29    30    31    32    33    34     ma5
+//     35    36    37    38    39    40    41     data
+//     42    43    44    45    46    47    48     Z-jets
+//     49    50    51    52    53    54    55     Z-jets
+//     56    57    58    59    60    61    62     Z-jets
+//     63    64    65    66    67    68    69     Z-jets
+//     70    71    72    73    74    75    76     Z-jets
+//     77    78    79    80    81    82    83     Z-jets
+//     84    85    86    87    88    89    90     Z-jets
+//     91    92    93    94    95    96    97     Z-jets
+//     98    99    100   101   102   103   104    Z-jets
+     
+     
+    
+    for (int i=0, j=0; (i<15 && j <= 98); i++, j+=7)
     {
         os << Samples[i]
         << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
@@ -202,10 +237,26 @@ void Table3()
         MassZGamma += *Nodes[i+5].GetResultPtr<ULong64_t>();
         ptCutZGamma += *Nodes[i+6].GetResultPtr<ULong64_t>();
     }
+    
+    for (int i = 42; i <= 98; i += 7)
+    {
+        beforePreselecZJets += *Nodes[i].GetResultPtr<ULong64_t>();
+        twoLeptonsZJets += *Nodes[i+1].GetResultPtr<ULong64_t>();
+        oppChargeZJets += *Nodes[i+2].GetResultPtr<ULong64_t>();
+        leadingPtZJets += *Nodes[i+3].GetResultPtr<ULong64_t>();
+        deltaRZJets += *Nodes[i+4].GetResultPtr<ULong64_t>();
+        MassZJets += *Nodes[i+5].GetResultPtr<ULong64_t>();
+        ptCutZJets += *Nodes[i+6].GetResultPtr<ULong64_t>();
+    }
 
     os << R"--(Total $Z\gamma$ & )--" << beforePreselecZGamma << " & " << twoLeptonsZGamma
     << " & " << oppChargeZGamma << " & " << leadingPtZGamma << " & "
     << deltaRZGamma << " & " << MassZGamma << " & " << ptCutZGamma
+    << R"--( \\ \hline )--" << '\n';
+    
+    os << R"--(Total $Z$ jets & )--" << beforePreselecZJets << " & " << twoLeptonsZJets
+    << " & " << oppChargeZJets << " & " << leadingPtZJets << " & "
+    << deltaRZJets << " & " << MassZJets << " & " << ptCutZJets
     << R"--( \\ \hline )--" << '\n';
     
     os << R"--(\end{tabular}})--" << '\n';
@@ -218,17 +269,32 @@ void Table3()
 
 void Table8()
 {
-    std::vector<std::string> input_filenames = {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"
+    std::vector<std::vector<std::string>> input_filenames = {
+        //Z gamma background
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+        //Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        //Data
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
+        //Jets
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
     
-    constexpr std::array<const char*,6> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", "Data", R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
+    constexpr std::array<const char*,15> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Signal $m_{\text{A}}$ = 5 GeV)--", "Data", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
     
-    double totalEvents = 0, resolvedEvents = 0, SREvents = 0, SBEvents = 0;
+    double totalEventsZgamma = 0, resolvedEventsZgamma = 0, SREventsZgamma = 0, SBEventsZgamma = 0;
+    double totalEventsZJets = 0, resolvedEventsZJets = 0, SREventsZJets = 0, SBEventsZJets = 0;
     std::vector<std::string> cutFlows;
     cutFlows.reserve(input_filenames.size());
     
@@ -243,7 +309,7 @@ void Table8()
            \\ \hline )--" << '\n';
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({file}, 8));
+        SchottDataFrame df(MakeRDF(file, 8));
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -369,7 +435,37 @@ void Table8()
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
-    for (int i=0, j=0; i<6 && j <= 20; i++, j+=4)
+//     0    1    2    3   Z-gamma
+//
+//     4    5    6    7   Z-gamma
+//
+//     8    9    10   11  Z-gamma
+//
+//     12   13   14   15  ma1
+//
+//     16   17   18   19  ma5
+//
+//     20   21   22   23  data
+//
+//     24   25   26   27  Z-jets
+//
+//     28   29   30   31  Z-jets
+//
+//     32   33   34   35  Z-jets
+//
+//     36   37   38   39  Z-jets
+//
+//     40   41   42   43  Z-jets
+//
+//     44   45   46   47  Z-jets
+//
+//     48   49   50   51  Z-jets
+//
+//     52   53   54   55  Z-jets
+//
+//     56   57   58   59  Z-jets
+ 
+    for (int i=0, j=0; (i<15 && j <= 56); i++, j+=4)
     {
         os << Samples[i]
         << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
@@ -381,15 +477,27 @@ void Table8()
     
     for (int i = 0; i <= 8; i += 4)
     {
-        totalEvents += *Nodes[i].GetResultPtr<ULong64_t>();
-        resolvedEvents += *Nodes[i+1].GetResultPtr<ULong64_t>();
-        SBEvents += *Nodes[i+2].GetResultPtr<ULong64_t>();
-        SREvents += *Nodes[i+3].GetResultPtr<ULong64_t>();
+        totalEventsZgamma += *Nodes[i].GetResultPtr<ULong64_t>();
+        resolvedEventsZgamma += *Nodes[i+1].GetResultPtr<ULong64_t>();
+        SBEventsZgamma += *Nodes[i+2].GetResultPtr<ULong64_t>();
+        SREventsZgamma += *Nodes[i+3].GetResultPtr<ULong64_t>();
     }
     
-    os << R"--(Total $Z\gamma$ & )--" << totalEvents << " & " << resolvedEvents
-    << " & " << SBEvents << " & " << SREvents
+    for (int i = 24; i <= 56; i += 4)
+    {
+        totalEventsZJets += *Nodes[i].GetResultPtr<ULong64_t>();
+        resolvedEventsZJets += *Nodes[i+1].GetResultPtr<ULong64_t>();
+        SBEventsZJets += *Nodes[i+2].GetResultPtr<ULong64_t>();
+        SREventsZJets += *Nodes[i+3].GetResultPtr<ULong64_t>();
+    }
+    
+    os << R"--(Total $Z\gamma$ & )--" << totalEventsZgamma << " & " << resolvedEventsZgamma
+    << " & " << SBEventsZgamma << " & " << SREventsZgamma
     << R"--( \\ \hline )--" << '\n';
+    
+    os << R"--(Total $Z$ jets & )--" << totalEventsZJets << " & " << resolvedEventsZJets
+        << " & " << SBEventsZJets << " & " << SREventsZJets
+        << R"--( \\ \hline )--" << '\n';
     
     os << R"--(\end{tabular}})--" << '\n';
     cutFlows.push_back(os.str());
@@ -398,23 +506,39 @@ void Table8()
         std::cout << i << "\n\n";
     }
 }
-
+ */
 void Table11()
 {
-    std::vector<std::string> input_filenames = {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"
+    std::vector<std::vector<std::string>> input_filenames = {
+        //Z gamma background
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+        //Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        //Data
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
+        //Jets
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
     
-    constexpr std::array<const char*,6> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", "Data", R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
+    constexpr std::array<const char*,15> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Signal $m_{\text{A}}$ = 5 GeV)--", "Data", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
     
     std::vector<std::string> cutFlows;
     cutFlows.reserve(input_filenames.size());
-    double totalEvents = 0, passPreselection = 0, photonPtDeltaRCount = 0, xWindow = 0,
-    srCount = 0, srIDCount=0;
+    double totalEventsZgamma = 0, passPreselectionZgamma = 0, photonPtDeltaRCountZgamma = 0, xWindowZgamma = 0,
+    srCountZgamma = 0, srIDCountZgamma = 0;
+    double totalEventsZjets = 0, passPreselectionZjets = 0, photonPtDeltaRCountZjets = 0, xWindowZjets = 0,
+        srCountZjets = 0, srIDCountZjets = 0;
     std::vector<ROOT::RDF::RResultHandle> Nodes;
 
     std::ostringstream os;
@@ -426,7 +550,7 @@ void Table11()
            \\ \hline )--" << '\n';
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({file}, 8));
+        SchottDataFrame df(MakeRDF(file, 8));
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -575,7 +699,39 @@ void Table11()
         
     }
     
-    for (int i=0, j=0; i<6 && j <= 36; i++, j+=6)
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    
+//    0    1    2    3    4    5      Z-gamma
+//
+//    6    7    8    9    10   11     Z-gamma
+//
+//    12   13   14   15   16   17     Z-gamma
+//
+//    18   19   20   21   22   23     ma1
+//
+//    24   25   26   27   28   29     ma5
+//
+//    30   31   32   33   34   35     data
+//
+//    36   37   38   39   40   41     Z-jets
+//
+//    42   43   44   45   46   47     Z-jets
+//
+//    48   49   50   51   52   53     Z-jets
+//
+//    54   55   56   57   58   59     Z-jets
+//
+//    60   61   62   63   64   65     Z-jets
+//
+//    66   67   68   69   70   71     Z-jets
+//
+//    72   73   74   75   76   77     Z-jets
+//
+//    78   79   80   81   82   83     Z-jets
+//
+//    84   85   86   87   88   89     Z-jets
+//
+    for (int i=0, j=0; (i<15 && j <= 84); i++, j+=6)
     {
         os << Samples[i]
         << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
@@ -589,18 +745,39 @@ void Table11()
     
     for (int i = 0; i <= 12; i += 6)
     {
-        totalEvents += *Nodes[i].GetResultPtr<ULong64_t>();
-        passPreselection += *Nodes[i+1].GetResultPtr<ULong64_t>();
-        photonPtDeltaRCount += *Nodes[i+2].GetResultPtr<ULong64_t>();
-        xWindow += *Nodes[i+3].GetResultPtr<ULong64_t>();
-        srCount += *Nodes[i+4].GetResultPtr<ULong64_t>();
-        srIDCount += *Nodes[i+5].GetResultPtr<ULong64_t>();
+        totalEventsZgamma += *Nodes[i].GetResultPtr<ULong64_t>();
+        passPreselectionZgamma += *Nodes[i+1].GetResultPtr<ULong64_t>();
+        photonPtDeltaRCountZgamma += *Nodes[i+2].GetResultPtr<ULong64_t>();
+        xWindowZgamma += *Nodes[i+3].GetResultPtr<ULong64_t>();
+        srCountZgamma += *Nodes[i+4].GetResultPtr<ULong64_t>();
+        srIDCountZgamma += *Nodes[i+5].GetResultPtr<ULong64_t>();
     }
     
-    os << R"--(Total $Z\gamma$ & )--" << totalEvents << " & " << passPreselection
-    << " & " << photonPtDeltaRCount << " & " << xWindow << " & " << srCount
-    << " & " << srIDCount
-    << R"--( \\ \hline )--" << '\n';
+    for (int i = 36; i <= 84; i += 6)
+    {
+        totalEventsZjets += *Nodes[i].GetResultPtr<ULong64_t>();
+        passPreselectionZjets += *Nodes[i+1].GetResultPtr<ULong64_t>();
+        photonPtDeltaRCountZjets += *Nodes[i+2].GetResultPtr<ULong64_t>();
+        xWindowZjets += *Nodes[i+3].GetResultPtr<ULong64_t>();
+        srCountZjets += *Nodes[i+4].GetResultPtr<ULong64_t>();
+        srIDCountZjets += *Nodes[i+5].GetResultPtr<ULong64_t>();
+    }
+    
+    os << R"--(Total $Z\gamma$ & )--" << totalEventsZgamma
+        << " & " << passPreselectionZgamma
+        << " & " << photonPtDeltaRCountZgamma
+        << " & " << xWindowZgamma
+        << " & " << srCountZgamma
+        << " & " << srIDCountZgamma
+        << R"--( \\ \hline )--" << '\n';
+    
+    os << R"--(Total $Z$ jets & )--" << totalEventsZjets
+        << " & " << passPreselectionZjets
+        << " & " << photonPtDeltaRCountZjets
+        << " & " << xWindowZjets
+        << " & " << srCountZjets
+        << " & " << srIDCountZjets
+        << R"--( \\ \hline )--" << '\n';
     
     os << R"--(\end{tabular}})--" << '\n';
     cutFlows.push_back(os.str());
@@ -614,8 +791,8 @@ void CutFlow()
 {
     auto start_time = Clock::now();
     
-    Table3();
-    Table8();
+//    Table3();
+//    Table8();
     Table11();
     
     auto end_time = Clock::now();
