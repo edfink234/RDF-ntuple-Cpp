@@ -379,7 +379,7 @@ void fig1A()
     Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
     legend->SetBorderSize(0);
     legend->Draw();
-    c1->SaveAs("Fig1A.pdf");
+    c1->SaveAs("Fig1A.png");
 }
 
 /*
