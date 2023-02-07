@@ -83,7 +83,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-
+/*
 void fig27()
 {
     auto hs = new THStack("hs","");
@@ -323,24 +323,43 @@ void fig27()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig27.png");
-}
-/*
+}*/
+
 void fig28()
 {
-    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"
+    std::vector<std::vector<std::string>> input_filenames = {
+        //Z gamma background
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+        //Data
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
+        //Jets
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
-    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
-    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data"};
+
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
+    
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
+    
+    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
     std::vector<EColor> colors = {kBlue, kRed, kViolet, kGreen};
+    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
     
     std::vector<ROOT::RDF::RResultHandle> Nodes;
     
     int count = 0;
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({i}, 8));
+        SchottDataFrame df(MakeRDF(i, 8));
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -457,7 +476,7 @@ void fig28()
             
             PtEtaPhiEVector rpm = reco_photons_matched[0].Vector()+reco_photons_matched[1].Vector();
             
-            return rpm.M()/1e3 < 20; //looks like their applying this mass cut, but I don't think they say it...
+            return rpm.M()/1e3 < 2; //looks like their applying this mass cut, but I don't think they say it...
 
         }, {"chosen_two"}).Define("mass",
         [&](RVec<Photon>& diph)
@@ -480,47 +499,83 @@ void fig28()
             return abs((diph[0].Vector() - diph[1].Vector()).Eta());
         }, {"chosen_two"});
         
-        if (count <= 2)
+        if (count <= 2 || count >= 4)
         {
             Nodes.push_back(diphotons.Count());
+            Nodes.push_back(df.Count());
         }
 
-        Nodes.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 95}, "mass"));
-        Nodes.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 2.5}, "deltaR"));
-        Nodes.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 2}, "deltaPhi"));
-        Nodes.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 4}, "deltaEta"));
+        Nodes.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 12}, "mass"));
+        Nodes.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 0.25}, "deltaR"));
+        Nodes.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 0.2}, "deltaPhi"));
+        Nodes.push_back(diphotons.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 0.04}, "deltaEta"));
     }
+    
+//    0    1    2    3    4    5      Z-gamma
+//    6    7    8    9    10   11     Z-gamma
+//    12   13   14   15   16   17     Z-gamma
+//              18   19   20   21     data
+//    22   23   24   25   26   27     Z-jets
+//    28   29   30   31   32   33     Z-jets
+//    34   35   36   37   38   39     Z-jets
+//    40   41   42   43   44   45     Z-jets
+//    46   47   48   49   50   51     Z-jets
+//    52   53   54   55   56   57     Z-jets
+//    58   59   60   61   62   63     Z-jets
+//    64   65   66   67   68   69     Z-jets
+//    70   71   72   73   74   75     Z-jets
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
     double factor;
     int back_count = 0;
-    for (auto& i: {0, 5, 10})
+    for (auto& i: {0, 6, 12})
     {
-        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*SFs[back_count++];
+        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*(SFs[back_count++] / *Nodes[i+1].GetResultPtr<ULong64_t>());
     }
+    
+    for (int i = 22, j = 0; (i <= 70 && j<= 8); i += 6, j++)
+    {
+        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*(JetNumeratorSFs[j] / *Nodes[i+1].GetResultPtr<ULong64_t>());
+    }
+    
     auto hs = new THStack("hs1","");
     TCanvas* c1 = new TCanvas();
-    TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+    TLegend* legend = new TLegend(0.475, 0.2, 0.85, 0.6);
     count = 0;
-    
-    for (auto& i: {1,6,11,15})
+    //Z-gamma
+    for (auto& i: {2,8,14,18})
     {
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 15)
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 18)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]/ *Nodes[i-1].GetResultPtr<ULong64_t>());
         }
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
     
-        if (i != 15)
+        if (i != 18)
         {
             hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         }
     }
+    //Z-jets
+    count = 0;
+    for (int i = 24; i <= 72; i += 6)
+    {
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[count]/ *Nodes[i-1].GetResultPtr<ULong64_t>());
+        }
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+    
+        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+    }
 
     hs->Draw("HIST");
-    Nodes[15].GetResultPtr<TH1D>()->Draw("HISTsame");
+    Nodes[18].GetResultPtr<TH1D>()->Draw("HISTsame");
+    hs->SetMinimum(0);
+    hs->SetMaximum(6.0e2);
     hs->SetTitle(";m_{#gamma#gamma} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -535,25 +590,42 @@ void fig28()
     
     hs = new THStack("hs2","");
     c1 = new TCanvas();
-    legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+    legend = new TLegend(0.5, 0.2, 0.875, 0.6);
     count = 0;
-    for (auto& i: {2,7,12,16})
+    //Z-gamma
+    for (auto& i: {3,9,15,19})
     {
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 16)
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 19)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]/ *Nodes[i-2].GetResultPtr<ULong64_t>());
         }
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
     
-        if (i != 16)
+        if (i != 19)
         {
             hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         }
     }
+    
+    //Z-jets
+    count = 0;
+    for (int i = 25; i <= 73; i += 6)
+    {
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[count]/ *Nodes[i-2].GetResultPtr<ULong64_t>());
+        }
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+    
+        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+    }
 
     hs->Draw("HIST");
-    Nodes[16].GetResultPtr<TH1D>()->Draw("HISTsame");
+    Nodes[19].GetResultPtr<TH1D>()->Draw("HISTsame");
+    hs->SetMinimum(0);
+    hs->SetMaximum(5.0e2);
     hs->SetTitle(";#DeltaR_{#gamma#gamma};Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -567,25 +639,41 @@ void fig28()
     
     hs = new THStack("hs3","");
     c1 = new TCanvas();
-    legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+    legend = new TLegend(0.575, 0.2125, 0.9, 0.6125);
     count = 0;
-    for (auto& i: {3,8,13,17})
+    for (auto& i: {4,10,16,20})
     {
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 17)
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 20)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]/ *Nodes[i-3].GetResultPtr<ULong64_t>());
         }
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
     
-        if (i != 17)
+        if (i != 20)
         {
             hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         }
     }
+    
+    //Z-jets
+    count = 0;
+    for (int i = 26; i <= 74; i += 6)
+    {
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[count]/ *Nodes[i-3].GetResultPtr<ULong64_t>());
+        }
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+    
+        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+    }
 
     hs->Draw("HIST");
-    Nodes[17].GetResultPtr<TH1D>()->Draw("HISTsame");
+    Nodes[20].GetResultPtr<TH1D>()->Draw("HISTsame");
+    hs->SetMinimum(0);
+    hs->SetMaximum(4.15e2);
     hs->SetTitle(";#Delta#phi_{#gamma#gamma};Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -599,25 +687,41 @@ void fig28()
     
     hs = new THStack("hs4","");
     c1 = new TCanvas();
-    legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+    legend = new TLegend(0.125, 0.4, 0.5, 0.8);
     count = 0;
-    for (auto& i: {4,9,14,18})
+    for (auto& i: {5,11,17,21})
     {
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 18)
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 21)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]/ *Nodes[i-4].GetResultPtr<ULong64_t>());
         }
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
     
-        if (i != 18)
+        if (i != 21)
         {
             hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         }
     }
+    
+    //Z-jets
+    count = 0;
+    for (int i = 27; i <= 75; i += 6)
+    {
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[count]/ *Nodes[i-4].GetResultPtr<ULong64_t>());
+        }
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[count++]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+    
+        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+    }
 
     hs->Draw("HIST");
-    Nodes[18].GetResultPtr<TH1D>()->Draw("HISTsame");
+    Nodes[21].GetResultPtr<TH1D>()->Draw("HISTsame");
+    hs->SetMinimum(0);
+    hs->SetMaximum(2.83e1);
     hs->SetTitle(";#Delta#eta_{#gamma#gamma};Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -629,7 +733,7 @@ void fig28()
     legend->Draw();
     c1->SaveAs("Fig28D.png");
 }
-
+/*
 void fig41()
 {
     std::vector<std::string> input_filenames =
@@ -2460,8 +2564,8 @@ void Table19()
 void DataBackgroundComparison()
 {
     auto start_time = Clock::now();
-    fig27();
-//    fig28();
+//    fig27();
+    fig28();
 //    fig41();
 //    fig48();
 //    fig59();
