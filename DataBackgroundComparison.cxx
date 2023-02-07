@@ -323,7 +323,7 @@ void fig27()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig27.png");
-}*/
+}
 
 void fig28()
 {
@@ -732,27 +732,46 @@ void fig28()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig28D.png");
-}
-/*
+}*/
+
 void fig41()
 {
-    std::vector<std::string> input_filenames =
-    {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
+    std::vector<std::vector<std::string>> input_filenames = {
+        //Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+        //Z gamma background
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+        //Data
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
+        //Jets
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
+
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
     
-    std::vector<const char*> prefixes = {"Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data"};
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
+    
+    std::vector<const char*> prefixes = {"Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
     std::vector<EColor> colors = {kBlack, kMagenta, kBlue, kRed, kViolet, kGreen};
+    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
     
     std::vector<ROOT::RDF::RResultHandle> Nodes;
     
     int count = 0;
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({i}, 8));
+        SchottDataFrame df(MakeRDF(i, 8));
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -901,14 +920,31 @@ void fig41()
         }
         else
         {
-            if (count >= 2 && count <= 4)
+            if ((count >= 2 && count <= 4) || (count >= 6))
             {
                 Nodes.push_back(dilepton_and_photon.Count());
+                Nodes.push_back(df.Count());
             }
 
             Nodes.push_back(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 80, 410}, "reconstructed_mass"));
         }
     }
+    
+//    0               ma5
+//    1               ma1
+//    2   3   4       Z-gamma
+//    5   6   7       Z-gamma
+//    8   9   10      Z-gamma
+//    11              data
+//    12  13  14      Z-jets
+//    15  16  17      Z-jets
+//    18  19  20      Z-jets
+//    21  22  23      Z-jets
+//    24  25  26      Z-jets
+//    27  28  29      Z-jets
+//    30  31  32      Z-jets
+//    33  34  35      Z-jets
+//    36  37  38      Z-jets
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
@@ -916,6 +952,7 @@ void fig41()
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
     double factor;
+    //signal
     for (auto& i: {0,1})
     {
         Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
@@ -951,33 +988,44 @@ void fig41()
 //    count = 0;
     factor = 0;
     int back_count = 0;
-    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
-    for (auto& i: {2,4,6})
+    for (auto& i: {2,5,8})
     {
-        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*SFs[back_count++];
+        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*(SFs[back_count++] / *Nodes[i+1].GetResultPtr<ULong64_t>());
     }
     
     auto hs = new THStack("hs3","");
     c1 = new TCanvas();
-    legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+    legend = new TLegend(0.5, 0.2, 0.85, 0.6);
     
-    for (auto& i: {3,5,7,8})
+    //Z-gamma
+    for (auto& i: {4,7,10,11})
     {
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 8)
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 11)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count-2]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count-2] / *Nodes[i-1].GetResultPtr<ULong64_t>());
         }
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
     
-        if (i != 8)
+        if (i != 11)
         {
             hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         }
     }
+    
+    for (int i = 14, j = 0; (i <= 38 && j <= 8); i += 3, j++)
+    {
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / *Nodes[i-1].GetResultPtr<ULong64_t>());
+        }
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+    }
 
     hs->Draw("HIST");
-    Nodes[8].GetResultPtr<TH1D>()->Draw("HISTsame");
+    Nodes[11].GetResultPtr<TH1D>()->Draw("HISTsame");
     count=0;
     
     for (auto &i: {0,1})
@@ -994,7 +1042,7 @@ void fig41()
         c1->Modified();
         c1->Update();
     }
-    hs->SetMaximum(202);
+    hs->SetMaximum(2.9e5);
     hs->SetTitle(";m_{ll#gamma} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -1008,7 +1056,7 @@ void fig41()
     c1->SaveAs("Fig41A.png");
      
 }
-
+/*
 void fig48()
 {
     std::vector<std::string> input_filenames =
@@ -2565,8 +2613,8 @@ void DataBackgroundComparison()
 {
     auto start_time = Clock::now();
 //    fig27();
-    fig28();
-//    fig41();
+//    fig28();
+    fig41();
 //    fig48();
 //    fig59();
 //    Table9();
