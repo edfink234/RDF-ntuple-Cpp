@@ -426,7 +426,7 @@ void Fig52()
             Nodes.push_back(df.Count());
         }
         
-        Nodes.push_back(merged_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 165}, "merged_photon_pt"));
+        Nodes.push_back(merged_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count++], 60u, 0, 165}, "merged_photon_pt"));
     }
     
 //    0   1   2   Z-gamma
@@ -447,16 +447,21 @@ void Fig52()
     
     double factor;
     count = 0;
-    for (auto& i: {0,3,6})
+    for (auto& i: {0,3,6}) //Z-gamma
     {
         factor += (*Nodes[i].GetResultPtr<ULong64_t>())*(SFs[count++] / *Nodes[i+1].GetResultPtr<ULong64_t>());
     }
     
+    for (int i = 10, j = 0; (i <= 34 && j <= 8); i += 3, j++) //Z-jets
+    {
+        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*(JetNumeratorSFs[j] / *Nodes[i+1].GetResultPtr<ULong64_t>());
+    }
+    
     auto hs = new THStack("hs3","");
     TCanvas* c1 = new TCanvas();
-    TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+    TLegend* legend = new TLegend(0.55, 0.2, 0.85, 0.6);
     count=0;
-    for (auto& i: {1,4,7,9})
+    for (auto& i: {2,5,8,9}) //Z-gamma
     {
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 9)
         {
@@ -470,12 +475,24 @@ void Fig52()
             hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         }
     }
+    
+    for (int i = 12, j = 0; (i <= 36 && j <= 8); i += 3, j++) //Z-jets
+    {
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / *Nodes[i-1].GetResultPtr<ULong64_t>());
+        }
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+    }
 
     hs->Draw("HIST");
     Nodes[9].GetResultPtr<TH1D>()->Draw("HISTsame");
     hs->SetTitle(";photon p_{T} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
+    hs->GetYaxis()->SetTitleOffset(1.35);
     gStyle->SetOptStat(0);
     TLatex Tl;
     Tl.SetTextSize(0.03);
