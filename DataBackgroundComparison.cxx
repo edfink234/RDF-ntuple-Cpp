@@ -2353,7 +2353,7 @@ void Table10()
     std::cout << R"--(\end{tabular}})--" << '\n';
     
     std::cout << "\n\n\n";
-}*/
+}
 
 void Table16()
 {
@@ -2646,25 +2646,34 @@ void Table16()
     std::cout << R"--(\end{tabular}})--" << '\n';
     
     std::cout << "\n\n\n";
-}
-/*
+}*/
+
 void Table19()
 {
     std::vector<std::vector<std::string>> input_filenames =
     {
+        //Z-gamma
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"}, {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+        //data
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
+        //signal
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"}
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        //Jets
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
     
-    std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", "data", R"--($\text{Sig } m_{A}$ = 5 GeV)--", R"--($\text{Sig } m_{A}$ = 1 GeV)--", R"--(Total Bkg)--"};
+    std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", "data", R"--($\text{Sig } m_{A}$ = 5 GeV)--", R"--($\text{Sig } m_{A}$ = 1 GeV)--", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
     
-    std::ofstream out("Table16.txt");
-    
-    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
-       
     std::vector<ROOT::RDF::RResultHandle> Totals;
     
     for (auto& i: input_filenames)
@@ -2835,61 +2844,95 @@ void Table19()
     }
     
     ROOT::RDF::RunGraphs(Totals);
-    int count = 0;
-    std::vector<std::vector<double>> Vals(6);
     
-    for (auto& i: Totals)
-    {
-        Vals[count++%6].push_back(*i.GetResultPtr<ULong64_t>());
-    }
-    
-    Vals[0].push_back(Vals[0][0]+Vals[0][1]+Vals[0][2]);
-    Vals[1].push_back(Vals[1][0]+Vals[1][1]+Vals[1][2]);
-    Vals[2].push_back(Vals[2][0]+Vals[2][1]+Vals[2][2]);
-    Vals[3].push_back(Vals[3][0]+Vals[3][1]+Vals[3][2]);
-    Vals[4].push_back(Vals[4][0]+Vals[4][1]+Vals[4][2]);
-    Vals[5].push_back(Vals[5][0]+Vals[5][1]+Vals[5][2]);
+//    0    1    2    3    4    5      Z-gamma
+//    6    7    8    9    10   11     Z-gamma
+//    12   13   14   15   16   17     Z-gamma
+//    18   19   20   21   22   23     data
+//    24   25   26   27   28   29     signal
+//    30   31   32   33   34   35     signal
+//    36   37   38   39   40   41     Z-jets
+//    42   43   44   45   46   47     Z-jets
+//    48   49   50   51   52   53     Z-jets
+//    54   55   56   57   58   59     Z-jets
+//    60   61   62   63   64   65     Z-jets
+//    66   67   68   69   70   71     Z-jets
+//    72   73   74   75   76   77     Z-jets
+//    78   79   80   81   82   83     Z-jets
+//    84   85   86   87   88   89     Z-jets
     
     std::cout << R"--(\section*{Table 19})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
-    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|c|})--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
     std::cout << R"--(\hline)--" << '\n';
+    std::cout << R"--({} & pass preselection & failed resolved category & photon $p_T$ cut & pSR & SR & SR-ID \\ \hline)--" << '\n';
+    
+    double total_Z_gamma[6] = {0}, total_Z_jets[6] = {0}, total[6] = {0};
+    for (int i = 0, j = 0; (i <= 84 && j <= 14); i += 6, j++)
+    {
+        std::cout << prefixes[j]
+        << " & " << std::setprecision(2) << std::fixed << *Totals[i].GetResultPtr<ULong64_t>()
+        << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>()
+        << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>()
+        << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>()
+        << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>()
+        << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>()
+        << R"--( \\ \hline)--" << '\n';
+        
+        if (i >= 0 && i <= 12) //Z-gamma
+        {
+            for (int k = 0; k < 6; k++)
+            {
+                total_Z_gamma[k] += *Totals[i+k].GetResultPtr<ULong64_t>();
+                total[k] += *Totals[i+k].GetResultPtr<ULong64_t>();
+            }
+        }
+        
+        else if (i >= 36 && i <= 84) //Z-gamma
+        {
+            for (int k = 0; k < 6; k++)
+            {
+                total_Z_jets[k] += *Totals[i+k].GetResultPtr<ULong64_t>();
+                total[k] += *Totals[i+k].GetResultPtr<ULong64_t>();
+            }
+        }
+    }
+    
+    std::vector<std::string> totalPrefixes = {R"--(Total $Z\gamma$)--", R"--(Total $Z$ jets)--", R"--(Total Bkg)--"};
 
-    std::cout << "{} & ";
-    for (auto& i: prefixes)
-    {
-        if (i==prefixes.back())
-        {
-            std::cout << i << R"--(\\ \hline)--" << '\n';
-        }
-        else
-        {
-            std::cout << i << " & ";
-        }
-    }
-    std::cout << '\n';
-    count = 0;
-    std::vector<std::string> rows = {"pass preselection", "failed resolved category", R"--(photon $p_T$ cut)--", "pSR", "SR", "SR-ID"};
-    for (auto& i: Vals)
-    {
-        std::cout << rows[count++] << " & ";
-        for (auto& j: i)
-        {
-            if (j==i.back())
-            {
-                std::cout << j << R"--( \\ \hline)--" << '\n';
-            }
-            else
-            {
-                std::cout << j << " & ";
-            }
-        }
-    }
+    std::cout << R"--(Total $Z\gamma$)--";
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[0];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[1];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[2];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[3];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[4];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[5];
+    std::cout << R"--( \\ \hline)--" << '\n';
+    
+    std::cout << R"--(Total $Z$ jets)--";
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[0];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[1];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[2];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[3];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[4];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[5];
+
+    std::cout << R"--( \\ \hline)--" << '\n';
+    
+    std::cout << R"--(Total Bkg)--";
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[0];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[1];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[2];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[3];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[4];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[5];
+    std::cout << R"--( \\ \hline)--" << '\n';
     
     std::cout << R"--(\end{tabular}})--" << '\n';
     
     std::cout << "\n\n\n";
-}*/
+    
+}
 
 void DataBackgroundComparison()
 {
@@ -2901,8 +2944,8 @@ void DataBackgroundComparison()
 //    fig59();
 //    Table9();
 //    Table10();
-    Table16();
-//    Table19();
+//    Table16();
+    Table19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " seconds" << std::endl;
