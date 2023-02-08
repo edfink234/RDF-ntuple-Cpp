@@ -82,7 +82,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-
+/*
 void Fig34()
 {
     std::vector<std::string> input_filenames = {
@@ -234,27 +234,43 @@ void Fig34()
     legend->Draw();
     c1->SaveAs("Fig34.png");
     
-}
+}*/
 
 void Fig52()
 {
-    std::vector<std::string> input_filenames =
-    {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
+    std::vector<std::vector<std::string>> input_filenames = {
+        //Z gamma background
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+        //Data
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
+        //Jets
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
     
-    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data"};
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
+    
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
+    
+    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
     std::vector<EColor> colors = {kBlue, kRed, kViolet, kGreen};
-    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
+    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
 
     std::vector<ROOT::RDF::RResultHandle> Nodes;
     int count = 0;
     
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({i}, 8));
+        SchottDataFrame df(MakeRDF(i, 8));
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -404,44 +420,59 @@ void Fig52()
             return ((!Any(Eratio <= 0.8)) && ((reconstructed_mass < 110) || (reconstructed_mass > 130)));
         }, {"reconstructed_mass", "photon_shower_shape_e_ratio"});
 
-        if (count <= 2)
+        if (count <= 2 || count >= 4)
         {
             Nodes.push_back(merged_reco_photons_matched.Count());
+            Nodes.push_back(df.Count());
         }
         
         Nodes.push_back(merged_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 165}, "merged_photon_pt"));
     }
     
+//    0   1   2   Z-gamma
+//    3   4   5   Z-gamma
+//    6   7   8   Z-gamma
+//            9   Data
+//    10  11  12  Z-jets
+//    13  14  15  Z-jets
+//    16  17  18  Z-jets
+//    19  20  21  Z-jets
+//    22  23  24  Z-jets
+//    25  26  27  Z-jets
+//    28  29  30  Z-jets
+//    31  32  33  Z-jets
+//    34  35  36  Z-jets
+    
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
     double factor;
     count = 0;
-    for (auto& i: {0,2,4})
+    for (auto& i: {0,3,6})
     {
-        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*SFs[count++];
+        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*(SFs[count++] / *Nodes[i+1].GetResultPtr<ULong64_t>());
     }
     
     auto hs = new THStack("hs3","");
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
     count=0;
-    for (auto& i: {1,3,5,6})
+    for (auto& i: {1,4,7,9})
     {
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 6)
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 9)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count] / *Nodes[i-1].GetResultPtr<ULong64_t>());
         }
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
     
-        if (i != 6)
+        if (i != 9)
         {
             hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         }
     }
 
     hs->Draw("HIST");
-    Nodes[6].GetResultPtr<TH1D>()->Draw("HISTsame");
+    Nodes[9].GetResultPtr<TH1D>()->Draw("HISTsame");
     hs->SetTitle(";photon p_{T} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -458,7 +489,7 @@ void Fig52()
 void Figs_34_52()
 {
     auto start_time = Clock::now();
-    Fig34();
+//    Fig34();
     Fig52();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
