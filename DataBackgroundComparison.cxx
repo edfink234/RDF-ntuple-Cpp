@@ -1055,7 +1055,7 @@ void fig41()
     legend->Draw("same");
     c1->SaveAs("Fig41A.png");
 }
- */
+
 void fig48()
 {
     std::vector<std::vector<std::string>> input_filenames = {
@@ -1380,29 +1380,44 @@ void fig48()
     legend->Draw();
     c1->SaveAs("Fig48B.png");
 }
-/*
+*/
 void fig59()
 {
-    std::vector<std::string> input_filenames =
-    {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root",
+    std::vector<std::vector<std::string>> input_filenames = {
+        //Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+        //Z gamma background
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+        //Data
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
+        //Jets
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
-    
-    std::vector<const char*> prefixes = {"Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data"};
-    std::vector<EColor> colors = {kMagenta, kBlack, kBlue, kRed, kViolet, kGreen};
-    
-    std::vector<ROOT::RDF::RResultHandle> Nodes;
-    
-    std::array<double,3> SFs = {((139e15)*(.871e-12))/150000.,((139e15)*(.199e-12))/150000., ((139e15)*(.0345e-15))/110465.};
 
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
+    
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
+    
+    std::vector<const char*> prefixes = {"Sig m_{A} = 5 GeV", "Sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
+    std::vector<EColor> colors = {kBlack, kMagenta, kBlue, kRed, kViolet, kGreen};
+    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
+
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
     int count = 0;
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({i}, 8));
+        SchottDataFrame df(MakeRDF(i, 8));
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -1564,22 +1579,33 @@ void fig59()
             return ((!Any(Eratio <= 0.8)) && ((reconstructed_mass > 110) && (reconstructed_mass < 130)));
         }, {"photon_shower_shape_e_ratio", "reconstructed_mass"});
         
-        if (count >= 2 && count <= 4) //background
+        if ((count >= 2 && count <= 4) || (count >= 6)) //background: Z-gamma and Z-jets
         {
             Nodes.push_back(SB.Count());
             Nodes.push_back(SR.Count());
+            Nodes.push_back(df.Count());
         }
-        if (count < 2) //signal only
-        {
-            Nodes.push_back(SB.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
-            Nodes.push_back(SR.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
-        }
-        else //back and data
-        {
-            Nodes.push_back(SB.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
-            Nodes.push_back(SR.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
-        }
+        
+        Nodes.push_back(SB.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
+        Nodes.push_back(SR.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 4.7}, "dilepton_mergedPhoton_deltaR"));
+
     }
+    
+//                0   1       //ma5
+//                2   3       //ma1
+//    4   5   6   7   8       //Z-gamma
+//    9   10  11  12  13      //Z-gamma
+//    14  15  16  17  18      //Z-gamma
+//                19  20      //data
+//    21  22  23  24  25      //Z-jets
+//    26  27  28  29  30      //Z-jets
+//    31  32  33  34  35      //Z-jets
+//    36  37  38  39  40      //Z-jets
+//    41  42  43  44  45      //Z-jets
+//    46  47  48  49  50      //Z-jets
+//    51  52  53  54  55      //Z-jets
+//    56  57  58  59  60      //Z-jets
+//    61  62  63  64  65      //Z-jets
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
@@ -1618,34 +1644,54 @@ void fig59()
     
     factor = 0;
     count = 0;
-    for (auto& i: {4,8,12}) //background sideband region
+    for (auto& i: {4,9,14}) //Z-gamma sideband region
     {
-        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*SFs[count++];
+        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*(SFs[count++]/ *Nodes[i+2].GetResultPtr<ULong64_t>());
     }
+    
+    for (int i = 21, j = 0; ( i <= 61 && j <= 8); i+=5, j++) //Z-jets sideband region
+    {
+        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*(JetNumeratorSFs[j]/ *Nodes[i+2].GetResultPtr<ULong64_t>());
+    }
+    
     count = 0;
     auto hs = new THStack("hs1","");
     c1 = new TCanvas();
-    legend = new TLegend(0.2, 0.4, 0.4, 0.6);
-    for (auto& i: {6,10,14,16}) //background & data sideband region
+    legend = new TLegend(0.7, 0.4, 0.875, 0.75);
+    for (auto& i: {7,12,17,19}) //Z-gamma & data sideband region
     {
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 16)
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 19)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count]/ *Nodes[i-1].GetResultPtr<ULong64_t>());
         }
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[2+count++]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
     
-        if (i != 16)
+        if (i != 19)
         {
             hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
         }
     }
+    
+    for (int i = 24, j = 0; (i <= 64 && j <= 8); i+=5, j++) //Z-jets sideband region
+    {
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j]/ *Nodes[i-1].GetResultPtr<ULong64_t>());
+        }
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+
+        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+    }
+    
     hs->Draw("HIST");
-    Nodes[16].GetResultPtr<TH1D>()->Draw("HISTsame");
+    Nodes[19].GetResultPtr<TH1D>()->Draw("HISTsame");
     hs->SetTitle(";#DeltaR (ll#gamma);Events");
-    hs->SetMaximum(20);
+    hs->SetMaximum(1.2e4);
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
+    hs->GetYaxis()->SetTitleOffset(1.35);
     
     gStyle->SetOptStat(0);
     Tl.SetTextSize(0.03);
@@ -1657,28 +1703,58 @@ void fig59()
     
     factor = 0;
     count = 0;
-    for (auto& i: {5,9,13}) // background SR
+    double sig_factor = Nodes[1].GetResultPtr<TH1D>()->Integral();
+    std::vector<double> backScalings;
+    
+    for (auto& i: {5,10,15}) //Z-gamma SR
     {
-        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*SFs[count++];
+        backScalings.push_back((*Nodes[i].GetResultPtr<ULong64_t>())*(SFs[count]/ *Nodes[i+1].GetResultPtr<ULong64_t>()));
+        
+        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*(SFs[count++]/ *Nodes[i+1].GetResultPtr<ULong64_t>());
     }
     
+    for (int i = 22, j = 0; ( i <= 62 && j <= 8); i+=5, j++) //Z-jets SR
+    {
+        backScalings.push_back((*Nodes[i].GetResultPtr<ULong64_t>())*(JetNumeratorSFs[j]/ *Nodes[i+1].GetResultPtr<ULong64_t>()));
+        
+        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*(JetNumeratorSFs[j]/ *Nodes[i+1].GetResultPtr<ULong64_t>());
+    }
+    
+    for (double& i: backScalings)
+    {
+        i = (i/factor)*sig_factor;
+    }
+
     count=2;
     c1 = new TCanvas();
-    legend = new TLegend(0.2, 0.5, 0.4, 0.7);
+    legend = new TLegend(0.65, 0.4, 0.85, 0.8);
     hs = new THStack("hs2","");
-    for (auto& i: {7,11,15,17}) //background & data signal region
+    for (auto& i: {8,13,18,20}) //Z-gamma & data signal region
     {
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 17)
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 20)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count-2]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count-2]/ *Nodes[i-2].GetResultPtr<ULong64_t>());
         }
-        if (i != 17)
+        if (i != 20)
         {
-            hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+            hs->Add(static_cast<TH1D*>(Nodes[i].GetResultPtr<TH1D>()->Clone()));
             Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
             legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         }
     }
+    
+    for (int i = 25, j = 0; (i <= 65 && j <= 8); i+=5, j++) //Z-jets SR
+    {
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j]/ *Nodes[i-2].GetResultPtr<ULong64_t>());
+        }
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+
+        hs->Add(static_cast<TH1D*>(Nodes[i].GetResultPtr<TH1D>()->Clone()));
+    }
+    
     hs->Draw("HIST");
     count=0;
     for (auto& i: {1,3}) // signal SR
@@ -1694,10 +1770,11 @@ void fig59()
         Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
         gPad->Modified(); gPad->Update();
     }
-    hs->SetMaximum(80);
+    hs->SetMaximum(2.5e4);
     hs->SetTitle(";#DeltaR (ll#gamma);Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
+    hs->GetYaxis()->SetTitleOffset(1.35);
     
     gStyle->SetOptStat(0);
     Tl.SetTextSize(0.03);
@@ -1709,23 +1786,37 @@ void fig59()
     
     count=2;
     c1 = new TCanvas();
-    legend = new TLegend(0.15, 0.45, 0.35, 0.65);
+    legend = new TLegend(0.7, 0.35, 0.875, 0.75);
     count=2;
     hs = new THStack("hs3","");
-    for (auto& i: {7,11,15,17}) //background and data SR
+    int temp = 0;
+    for (auto& i: {8,13,18,20}) //background and data SR
     {
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 17)
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 20)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count-2]);
+            Nodes[i].GetResultPtr<TH1D>()->Scale(backScalings[temp++]/Nodes[i].GetResultPtr<TH1D>()->Integral());
         }
     
-        if (i != 17)
+        if (i != 20)
         {
             hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
             Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
             legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         }
     }
+    temp = 3;
+    for (int i = 25, j = 0; (i <= 65 && j <= 8); i+=5, j++) //Z-jets SR
+    {
+        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(backScalings[temp++]/Nodes[i].GetResultPtr<TH1D>()->Integral());
+        }
+        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+
+        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+    }
+    
     hs->Draw("HIST");
     count=0;
     for (auto& i: {1,3}) //signal SR
@@ -1734,15 +1825,14 @@ void fig59()
         Nodes[i].GetResultPtr<TH1D>()->SetLineWidth(2);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), prefixes[count-1], "l");
         
-        Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+        Nodes[i].GetResultPtr<TH1D>()->Scale(sig_factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
         Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR (ll#gamma);Events");
         Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
         Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
         Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
         gPad->Modified(); gPad->Update();
     }
-   
-    hs->SetMaximum(6.5);
+    hs->SetMaximum(7e1);
     hs->SetTitle(";#DeltaR (ll#gamma);Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -1755,7 +1845,7 @@ void fig59()
     legend->Draw();
     c1->SaveAs("Fig59C.png");
 }
- 
+/*
 void Table9()
 {
     std::vector<std::string> input_filenames =
@@ -2678,8 +2768,8 @@ void DataBackgroundComparison()
 //    fig27();
 //    fig28();
 //    fig41();
-    fig48();
-//    fig59();
+//    fig48();
+    fig59();
 //    Table9();
 //    Table10();
 //    Table16();
