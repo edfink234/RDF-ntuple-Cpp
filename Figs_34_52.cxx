@@ -82,7 +82,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-/*
+
 void Fig34()
 {
     std::vector<std::string> input_filenames = {
@@ -234,7 +234,7 @@ void Fig34()
     legend->Draw();
     c1->SaveAs("Fig34.png");
     
-}*/
+}
 
 void Fig52()
 {

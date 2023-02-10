@@ -105,6 +105,10 @@ void Table3()
     
     std::vector<std::string> cutFlows;
     cutFlows.reserve(input_filenames.size());
+    
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
+    
     constexpr std::array<const char*,15> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Signal $m_{\text{A}}$ = 5 GeV)--", "Data", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
     
     std::ostringstream os;
@@ -216,37 +220,63 @@ void Table3()
     
     for (int i=0, j=0; (i<15 && j <= 98); i++, j+=7)
     {
-        os << Samples[i]
-        << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+6].GetResultPtr<ULong64_t>()
-        << R"--( \\ \hline )--" << '\n';
+        os << Samples[i];
+        if (i >= 0 && i <= 2) //Z-gamma
+        {
+            os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+6].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--( \\ \hline )--" << '\n';
+        }
+        
+        else if (i >= 6) //Z-jets
+        {
+            os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+6].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--( \\ \hline )--" << '\n';
+        }
+        else
+        {
+            os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+6].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+        }
     }
     
-    for (int i = 0; i <= 14; i += 7)
+    for (int i = 0, j = 0; (i <= 14 && j <= 2); i += 7, j++)
     {
-        beforePreselecZGamma += *Nodes[i].GetResultPtr<ULong64_t>();
-        twoLeptonsZGamma += *Nodes[i+1].GetResultPtr<ULong64_t>();
-        oppChargeZGamma += *Nodes[i+2].GetResultPtr<ULong64_t>();
-        leadingPtZGamma += *Nodes[i+3].GetResultPtr<ULong64_t>();
-        deltaRZGamma += *Nodes[i+4].GetResultPtr<ULong64_t>();
-        MassZGamma += *Nodes[i+5].GetResultPtr<ULong64_t>();
-        ptCutZGamma += *Nodes[i+6].GetResultPtr<ULong64_t>();
+        beforePreselecZGamma += *Nodes[i].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        twoLeptonsZGamma += *Nodes[i+1].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        oppChargeZGamma += *Nodes[i+2].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        leadingPtZGamma += *Nodes[i+3].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        deltaRZGamma += *Nodes[i+4].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        MassZGamma += *Nodes[i+5].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        ptCutZGamma += *Nodes[i+6].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
     }
     
-    for (int i = 42; i <= 98; i += 7)
+    for (int i = 42, j = 0; (i <= 98 && j <= 8); i += 7, j++)
     {
-        beforePreselecZJets += *Nodes[i].GetResultPtr<ULong64_t>();
-        twoLeptonsZJets += *Nodes[i+1].GetResultPtr<ULong64_t>();
-        oppChargeZJets += *Nodes[i+2].GetResultPtr<ULong64_t>();
-        leadingPtZJets += *Nodes[i+3].GetResultPtr<ULong64_t>();
-        deltaRZJets += *Nodes[i+4].GetResultPtr<ULong64_t>();
-        MassZJets += *Nodes[i+5].GetResultPtr<ULong64_t>();
-        ptCutZJets += *Nodes[i+6].GetResultPtr<ULong64_t>();
+        beforePreselecZJets += *Nodes[i].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        twoLeptonsZJets += *Nodes[i+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        oppChargeZJets += *Nodes[i+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        leadingPtZJets += *Nodes[i+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        deltaRZJets += *Nodes[i+4].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        MassZJets += *Nodes[i+5].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        ptCutZJets += *Nodes[i+6].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
     }
 
     os << R"--(Total $Z\gamma$ & )--" << beforePreselecZGamma << " & " << twoLeptonsZGamma
@@ -290,6 +320,9 @@ void Table8()
         {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
         {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
+    
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
     
     constexpr std::array<const char*,15> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Signal $m_{\text{A}}$ = 5 GeV)--", "Data", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
     
@@ -467,28 +500,49 @@ void Table8()
  
     for (int i=0, j=0; (i<15 && j <= 56); i++, j+=4)
     {
-        os << Samples[i]
-        << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
-        << R"--( \\ \hline )--" << '\n';
+        os << Samples[i];
+        if (i >= 0 && i <= 2)
+        {
+            os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--( \\ \hline )--" << '\n';
+        }
+        
+        else if (i >= 6)
+        {
+            os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--( \\ \hline )--" << '\n';
+        }
+        
+        else
+        {
+            os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+        }
     }
     
-    for (int i = 0; i <= 8; i += 4)
+    for (int i = 0, j = 0; (i <= 8 && j <= 2); i += 4, j++)
     {
-        totalEventsZgamma += *Nodes[i].GetResultPtr<ULong64_t>();
-        resolvedEventsZgamma += *Nodes[i+1].GetResultPtr<ULong64_t>();
-        SBEventsZgamma += *Nodes[i+2].GetResultPtr<ULong64_t>();
-        SREventsZgamma += *Nodes[i+3].GetResultPtr<ULong64_t>();
+        totalEventsZgamma += *Nodes[i].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        resolvedEventsZgamma += *Nodes[i+1].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        SBEventsZgamma += *Nodes[i+2].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        SREventsZgamma += *Nodes[i+3].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
     }
     
-    for (int i = 24; i <= 56; i += 4)
+    for (int i = 24, j = 0; (i <= 56 && j <= 8); i += 4, j++)
     {
-        totalEventsZJets += *Nodes[i].GetResultPtr<ULong64_t>();
-        resolvedEventsZJets += *Nodes[i+1].GetResultPtr<ULong64_t>();
-        SBEventsZJets += *Nodes[i+2].GetResultPtr<ULong64_t>();
-        SREventsZJets += *Nodes[i+3].GetResultPtr<ULong64_t>();
+        totalEventsZJets += *Nodes[i].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        resolvedEventsZJets += *Nodes[i+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        SBEventsZJets += *Nodes[i+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        SREventsZJets += *Nodes[i+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
     }
     
     os << R"--(Total $Z\gamma$ & )--" << totalEventsZgamma << " & " << resolvedEventsZgamma
@@ -505,8 +559,8 @@ void Table8()
     {
         std::cout << i << "\n\n";
     }
-}
- */
+}*/
+
 void Table11()
 {
     std::vector<std::vector<std::string>> input_filenames = {
@@ -532,6 +586,9 @@ void Table11()
     };
     
     constexpr std::array<const char*,15> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Signal $m_{\text{A}}$ = 5 GeV)--", "Data", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
+    
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
     
     std::vector<std::string> cutFlows;
     cutFlows.reserve(input_filenames.size());
@@ -696,7 +753,6 @@ void Table11()
         Nodes.push_back(X_window.Count());
         Nodes.push_back(SR.Count());
         Nodes.push_back(SR_ID.Count());
-        
     }
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
@@ -733,34 +789,58 @@ void Table11()
 //
     for (int i=0, j=0; (i<15 && j <= 84); i++, j+=6)
     {
-        os << Samples[i]
-        << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>()
-        << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
-        << R"--( \\ \hline )--" << '\n';
+        os << Samples[i];
+        
+        if (i >= 0 && i <= 2)
+        {
+            os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--( \\ \hline )--" << '\n';
+        }
+        else if (i >= 6)
+        {
+            os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--( \\ \hline )--" << '\n';
+        }
+        else
+        {
+            os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>()
+                << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+        }
     }
     
-    for (int i = 0; i <= 12; i += 6)
+    for (int i = 0, j = 0; (i <= 12 && j <= 2); i += 6, j++)
     {
-        totalEventsZgamma += *Nodes[i].GetResultPtr<ULong64_t>();
-        passPreselectionZgamma += *Nodes[i+1].GetResultPtr<ULong64_t>();
-        photonPtDeltaRCountZgamma += *Nodes[i+2].GetResultPtr<ULong64_t>();
-        xWindowZgamma += *Nodes[i+3].GetResultPtr<ULong64_t>();
-        srCountZgamma += *Nodes[i+4].GetResultPtr<ULong64_t>();
-        srIDCountZgamma += *Nodes[i+5].GetResultPtr<ULong64_t>();
+        totalEventsZgamma += *Nodes[i].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        passPreselectionZgamma += *Nodes[i+1].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        photonPtDeltaRCountZgamma += *Nodes[i+2].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        xWindowZgamma += *Nodes[i+3].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        srCountZgamma += *Nodes[i+4].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        srIDCountZgamma += *Nodes[i+5].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
     }
     
-    for (int i = 36; i <= 84; i += 6)
+    for (int i = 36, j = 0; (i <= 84 && j <= 8); i += 6, j++)
     {
-        totalEventsZjets += *Nodes[i].GetResultPtr<ULong64_t>();
-        passPreselectionZjets += *Nodes[i+1].GetResultPtr<ULong64_t>();
-        photonPtDeltaRCountZjets += *Nodes[i+2].GetResultPtr<ULong64_t>();
-        xWindowZjets += *Nodes[i+3].GetResultPtr<ULong64_t>();
-        srCountZjets += *Nodes[i+4].GetResultPtr<ULong64_t>();
-        srIDCountZjets += *Nodes[i+5].GetResultPtr<ULong64_t>();
+        totalEventsZjets += *Nodes[i].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        passPreselectionZjets += *Nodes[i+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        photonPtDeltaRCountZjets += *Nodes[i+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        xWindowZjets += *Nodes[i+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        srCountZjets += *Nodes[i+4].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        srIDCountZjets += *Nodes[i+5].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
     }
     
     os << R"--(Total $Z\gamma$ & )--" << totalEventsZgamma

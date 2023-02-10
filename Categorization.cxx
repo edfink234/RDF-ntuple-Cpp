@@ -82,7 +82,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-/*
+
 void Table4()
 {
     std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
@@ -608,8 +608,8 @@ void Table5()
     std::cout << R"--(\end{tabular}})--" << '\n';
     
     std::cout << "\n\n\n";
-}*/
-/*
+}
+
 void Table14()
 {
     std::vector<std::vector<std::string>> input_filenames =
@@ -841,7 +841,7 @@ void Table14()
     }
     
     std::cout << R"--(\end{tabular}})--" << "\n\n\n";
-}*/
+}
 
 void Table15()
 {
@@ -1070,7 +1070,7 @@ void Table15()
     std::cout << "SR & " << SR_Z_gamma << " & " << SR_Z_jets << " & " << SR_total <<  R"--(\\ \hline)--" << '\n';
     std::cout << R"--(\end{tabular}})--" << "\n\n\n";
 }
-/*
+
 void Fig19()
 {
     std::vector<std::string> input_filenames = {
@@ -1350,7 +1350,7 @@ void Fig19()
     legend->Draw();
     c1->SaveAs("Fig19.png");
 }
-*/
+
 void Categorization()
 {
     auto start_time = Clock::now();

@@ -262,7 +262,6 @@ void fig1A()
         << std::setw(20) << std::setprecision(2) << std::fixed << (SFs[back_count-1] / *Nodes[j+1].GetResultPtr<ULong64_t>())
         << std::setw(20) << std::setprecision(2) << std::fixed << (*Nodes[j].GetResultPtr<ULong64_t>())*(SFs[back_count-1] / *Nodes[j+1].GetResultPtr<ULong64_t>())
         << '\n';
-        
     }
     std::cout << "\n\nWeighted Z-gamma sum = " << std::setprecision(2) << std::fixed
     << total_back << "\n\n\n";
@@ -382,7 +381,7 @@ void fig1A()
     c1->SaveAs("Fig1A.png");
 }
 
-/*
+
 void fig5()
 {
     std::vector<std::string> input_filenames = { "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
@@ -2780,7 +2779,7 @@ void fig54()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig54B.png");
-}*/
+}
 
 
 void ControlPlotsSignalShapes()
