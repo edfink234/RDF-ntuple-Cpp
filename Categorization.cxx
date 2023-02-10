@@ -1046,7 +1046,7 @@ void Table15()
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
     std::cout << R"--(\begin{tabular}{|c|c|c|c|})--" << '\n';
     std::cout << R"--(\hline)--" << '\n';
-    std::cout << R"--( {} & \multicolumn{1}{|c|}{\parbox{7.5cm}{\centering $Z\gamma$ \\ (\%)}} & \multicolumn{1}{|c|}{\parbox{7.5cm}{\centering $Z$ jets \\ (\%)}} & \multicolumn{1}{|c|}{\parbox{7.5cm}{\centering Total bkg \\ (\%)}} \\[5 pt]
+    std::cout << R"--( {} & \multicolumn{1}{|c|}{\parbox{7.5cm}{\centering $Z\gamma$}} & \multicolumn{1}{|c|}{\parbox{7.5cm}{\centering $Z$ jets}} & \multicolumn{1}{|c|}{\parbox{7.5cm}{\centering Total bkg}} \\[5 pt]
         \hline)--" << '\n';
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently

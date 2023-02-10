@@ -78,7 +78,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-/*
+
 void Table3()
 {
     std::vector<std::vector<std::string>> input_filenames = {
@@ -559,7 +559,7 @@ void Table8()
     {
         std::cout << i << "\n\n";
     }
-}*/
+}
 
 void Table11()
 {
@@ -873,7 +873,7 @@ void CutFlow()
     
 //    Table3();
 //    Table8();
-    Table11();
+//    Table11();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "

@@ -83,7 +83,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-
+/*
 void fig27()
 {
     auto hs = new THStack("hs","");
@@ -1845,30 +1845,29 @@ void fig59()
     legend->Draw();
     c1->SaveAs("Fig59C.png");
 }
- 
+
 void Table9()
 {
     std::vector<std::vector<std::string>> input_filenames =
     {
         //Z gamma background
-        {
-            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"
-        },
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"}, //pty2_9_17
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"}, //pty_17_myy_0_80
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"}, //pty_17_myy_80
         //Jets
-        {
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root",
-        },
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
+    
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
     
     std::vector<ROOT::RDF::RResultHandle> Nodes;
     
@@ -2115,7 +2114,7 @@ void Table9()
     
     std::cout << "\n\n\n";
 }
- 
+
 void Table10()
 {
     std::vector<std::vector<std::string>> input_filenames =
@@ -2379,6 +2378,9 @@ void Table16()
         {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
     
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
+    
     std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", "data", R"--($\text{Sig } m_{A}$ = 5 GeV)--", R"--($\text{Sig } m_{A}$ = 1 GeV)--", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
             
     std::vector<ROOT::RDF::RResultHandle> Totals;
@@ -2554,6 +2556,7 @@ void Table16()
             return (!Any(Eratio <= 0.8));
         }, {"photon_shower_shape_e_ratio"});
         
+        Totals.push_back(df.Count());
         Totals.push_back(merged_reco_photons_matched.Count());
         Totals.push_back(pSB.Count());
         Totals.push_back(pSR.Count());
@@ -2562,21 +2565,21 @@ void Table16()
 
     }
     
-//    0    1    2    3    4   //Z-gamma
-//    5    6    7    8    9   //Z-gamma
-//    10   11   12   13   14  //Z-gamma
-//    15   16   17   18   19  //data
-//    20   21   22   23   24  //signal
-//    25   26   27   28   29  //signal
-//    30   31   32   33   34  //Z-jets
-//    35   36   37   38   39  //Z-jets
-//    40   41   42   43   44  //Z-jets
-//    45   46   47   48   49  //Z-jets
-//    50   51   52   53   54  //Z-jets
-//    55   56   57   58   59  //Z-jets
-//    60   61   62   63   64  //Z-jets
-//    65   66   67   68   69  //Z-jets
-//    70   71   72   73   74  //Z-jets
+//    0    1    2    3    4    5      Z-gamma
+//    6    7    8    9    10   11     Z-gamma
+//    12   13   14   15   16   17     Z-gamma
+//    18   19   20   21   22   23     data
+//    24   25   26   27   28   29     signal
+//    30   31   32   33   34   35     signal
+//    36   37   38   39   40   41     Z-jets
+//    42   43   44   45   46   47     Z-jets
+//    48   49   50   51   52   53     Z-jets
+//    54   55   56   57   58   59     Z-jets
+//    60   61   62   63   64   65     Z-jets
+//    66   67   68   69   70   71     Z-jets
+//    72   73   74   75   76   77     Z-jets
+//    78   79   80   81   82   83     Z-jets
+//    84   85   86   87   88   89     Z-jets
         
     
     ROOT::RDF::RunGraphs(Totals);
@@ -2588,31 +2591,57 @@ void Table16()
     std::cout << R"--({} & Full Reg & pSB & pSR & SB & SR \\ \hline)--" << '\n';
     
     double total_Z_gamma[5] = {0}, total_Z_jets[5] = {0}, total[5] = {0};
-    for (int i = 0, j = 0; (i <= 70 && j <= 14); i += 5, j++)
+    for (int i = 0, j = 0; (i <= 84 && j <= 14); i += 6, j++)
     {
-        std::cout << prefixes[j]
-        << " & " << std::setprecision(2) << std::fixed << *Totals[i].GetResultPtr<ULong64_t>()
-        << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>()
-        << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>()
-        << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>()
-        << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>()
-        << R"--( \\ \hline)--" << '\n';
+        std::cout << prefixes[j];
+        if (j >= 0 && j <= 2)
+        {
+            std::cout
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--( \\ \hline)--" << '\n';
+        }
         
-        if (i >= 0 && i <= 10) //Z-gamma
+        else if (j >= 6)
+        {
+            std::cout
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--( \\ \hline)--" << '\n';
+        }
+        
+        else
+        {
+            std::cout
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>()
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>()
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>()
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>()
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>()
+            << R"--( \\ \hline)--" << '\n';
+        }
+        
+        if (i >= 0 && i <= 12) //Z-gamma
         {
             for (int k = 0; k < 5; k++)
             {
-                total_Z_gamma[k] += *Totals[i+k].GetResultPtr<ULong64_t>();
-                total[k] += *Totals[i+k].GetResultPtr<ULong64_t>();
+                total_Z_gamma[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (SFs[i/6] / *Totals[i].GetResultPtr<ULong64_t>());
+                total[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (SFs[i/6] / *Totals[i].GetResultPtr<ULong64_t>());
             }
         }
         
-        else if (i >= 30 && i <= 70) //Z-gamma
+        else if (i >= 36 && i <= 84) //Z-jets
         {
             for (int k = 0; k < 5; k++)
             {
-                total_Z_jets[k] += *Totals[i+k].GetResultPtr<ULong64_t>();
-                total[k] += *Totals[i+k].GetResultPtr<ULong64_t>();
+                total_Z_jets[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i/6 - 6] / *Totals[i].GetResultPtr<ULong64_t>());
+                total[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i/6 - 6] / *Totals[i].GetResultPtr<ULong64_t>());
             }
         }
     }
@@ -2647,7 +2676,7 @@ void Table16()
     
     std::cout << "\n\n\n";
 }
-
+*/
 void Table19()
 {
     std::vector<std::vector<std::string>> input_filenames =
@@ -2673,6 +2702,9 @@ void Table19()
     };
     
     std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", "data", R"--($\text{Sig } m_{A}$ = 5 GeV)--", R"--($\text{Sig } m_{A}$ = 1 GeV)--", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
+    
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
     
     std::vector<ROOT::RDF::RResultHandle> Totals;
     
@@ -2835,6 +2867,7 @@ void Table19()
             return merged_photon.photon_id;
         }, {"merged_photon"});
         
+        Totals.push_back(df.Count());
         Totals.push_back(ptCut.Count()); //preselection
         Totals.push_back(failed_resolved.Count()); //failed_resolved
         Totals.push_back(photon_pt_cut.Count()); //photon_pt_cut
@@ -2845,21 +2878,21 @@ void Table19()
     
     ROOT::RDF::RunGraphs(Totals);
     
-//    0    1    2    3    4    5      Z-gamma
-//    6    7    8    9    10   11     Z-gamma
-//    12   13   14   15   16   17     Z-gamma
-//    18   19   20   21   22   23     data
-//    24   25   26   27   28   29     signal
-//    30   31   32   33   34   35     signal
-//    36   37   38   39   40   41     Z-jets
-//    42   43   44   45   46   47     Z-jets
-//    48   49   50   51   52   53     Z-jets
-//    54   55   56   57   58   59     Z-jets
-//    60   61   62   63   64   65     Z-jets
-//    66   67   68   69   70   71     Z-jets
-//    72   73   74   75   76   77     Z-jets
-//    78   79   80   81   82   83     Z-jets
-//    84   85   86   87   88   89     Z-jets
+//    0    1    2    3    4    5    6     Z-gamma
+//    7    8    9    10   11   12   13    Z-gamma
+//    14   15   16   17   18   19   20    Z-gamma
+//    21   22   23   24   25   26   27    data
+//    28   29   30   31   32   33   34    signal
+//    35   36   37   38   39   40   41    signal
+//    42   43   44   45   46   47   48    Z-jets
+//    49   50   51   52   53   54   55    Z-jets
+//    56   57   58   59   60   61   62    Z-jets
+//    63   64   65   66   67   68   69    Z-jets
+//    70   71   72   73   74   75   76    Z-jets
+//    77   78   79   80   81   82   83    Z-jets
+//    84   85   86   87   88   89   90    Z-jets
+//    91   92   93   94   95   96   97    Z-jets
+//    98   99   100  101  102  103  104   Z-jets
     
     std::cout << R"--(\section*{Table 19})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
@@ -2868,32 +2901,60 @@ void Table19()
     std::cout << R"--({} & pass preselection & failed resolved category & photon $p_T$ cut & pSR & SR & SR-ID \\ \hline)--" << '\n';
     
     double total_Z_gamma[6] = {0}, total_Z_jets[6] = {0}, total[6] = {0};
-    for (int i = 0, j = 0; (i <= 84 && j <= 14); i += 6, j++)
+    for (int i = 0, j = 0; (i <= 98 && j <= 14); i += 7, j++)
     {
-        std::cout << prefixes[j]
-        << " & " << std::setprecision(2) << std::fixed << *Totals[i].GetResultPtr<ULong64_t>()
-        << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>()
-        << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>()
-        << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>()
-        << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>()
-        << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>()
-        << R"--( \\ \hline)--" << '\n';
+        std::cout << prefixes[j];
+        if (j >= 0 && j <= 2)
+        {
+            std::cout
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+6].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--( \\ \hline)--" << '\n';
+        }
         
-        if (i >= 0 && i <= 12) //Z-gamma
+        else if (j >= 6)
+        {
+            std::cout
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+6].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--( \\ \hline)--" << '\n';
+        }
+        
+        else
+        {
+            std::cout
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>()
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>()
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>()
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>()
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>()
+            << " & " << std::setprecision(2) << std::fixed << *Totals[i+6].GetResultPtr<ULong64_t>()
+            << R"--( \\ \hline)--" << '\n';
+        }
+        
+        if (i >= 0 && i <= 14) //Z-gamma
         {
             for (int k = 0; k < 6; k++)
             {
-                total_Z_gamma[k] += *Totals[i+k].GetResultPtr<ULong64_t>();
-                total[k] += *Totals[i+k].GetResultPtr<ULong64_t>();
+                total_Z_gamma[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (SFs[i/7] / *Totals[i].GetResultPtr<ULong64_t>());
+                total[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (SFs[i/7] / *Totals[i].GetResultPtr<ULong64_t>());
             }
         }
         
-        else if (i >= 36 && i <= 84) //Z-gamma
+        else if (i >= 42 && i <= 98) //Z-jets
         {
             for (int k = 0; k < 6; k++)
             {
-                total_Z_jets[k] += *Totals[i+k].GetResultPtr<ULong64_t>();
-                total[k] += *Totals[i+k].GetResultPtr<ULong64_t>();
+                total_Z_jets[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i/7 - 6] / *Totals[i].GetResultPtr<ULong64_t>());
+                total[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i/7 - 6] / *Totals[i].GetResultPtr<ULong64_t>());
             }
         }
     }
