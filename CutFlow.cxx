@@ -289,6 +289,11 @@ void Table3()
     << deltaRZJets << " & " << MassZJets << " & " << ptCutZJets
     << R"--( \\ \hline )--" << '\n';
     
+    os << R"--(Total Bkg & )--" << beforePreselecZJets+beforePreselecZGamma << " & " << twoLeptonsZJets+twoLeptonsZGamma
+    << " & " << oppChargeZJets+oppChargeZGamma << " & " << leadingPtZJets+leadingPtZGamma << " & "
+    << deltaRZJets+deltaRZGamma << " & " << MassZJets+MassZGamma << " & " << ptCutZJets+ptCutZGamma
+    << R"--( \\ \hline )--" << '\n';
+    
     os << R"--(\end{tabular}})--" << '\n';
     cutFlows.push_back(os.str());
     for (auto& i: cutFlows)
@@ -551,6 +556,10 @@ void Table8()
     
     os << R"--(Total $Z$ jets & )--" << totalEventsZJets << " & " << resolvedEventsZJets
         << " & " << SBEventsZJets << " & " << SREventsZJets
+        << R"--( \\ \hline )--" << '\n';
+    
+    os << R"--(Total Bkg & )--" << totalEventsZJets+totalEventsZgamma << " & " << resolvedEventsZJets+resolvedEventsZgamma
+        << " & " << SBEventsZJets+SBEventsZgamma << " & " << SREventsZJets+SREventsZgamma
         << R"--( \\ \hline )--" << '\n';
     
     os << R"--(\end{tabular}})--" << '\n';
@@ -859,6 +868,14 @@ void Table11()
         << " & " << srIDCountZjets
         << R"--( \\ \hline )--" << '\n';
     
+    os << R"--(Total Bkg & )--" << totalEventsZjets+totalEventsZgamma
+        << " & " << passPreselectionZjets+passPreselectionZgamma
+        << " & " << photonPtDeltaRCountZjets+photonPtDeltaRCountZgamma
+        << " & " << xWindowZjets+xWindowZgamma
+        << " & " << srCountZjets+srCountZgamma
+        << " & " << srIDCountZjets+srIDCountZgamma
+        << R"--( \\ \hline )--" << '\n';
+    
     os << R"--(\end{tabular}})--" << '\n';
     cutFlows.push_back(os.str());
     for (auto& i: cutFlows)
@@ -871,9 +888,9 @@ void CutFlow()
 {
     auto start_time = Clock::now();
     
-//    Table3();
-//    Table8();
-//    Table11();
+    Table3();
+    Table8();
+    Table11();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "

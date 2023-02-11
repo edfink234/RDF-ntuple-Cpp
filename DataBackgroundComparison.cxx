@@ -83,7 +83,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-/*
+
 void fig27()
 {
     auto hs = new THStack("hs","");
@@ -2676,7 +2676,7 @@ void Table16()
     
     std::cout << "\n\n\n";
 }
-*/
+
 void Table19()
 {
     std::vector<std::vector<std::string>> input_filenames =
