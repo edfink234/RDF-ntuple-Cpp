@@ -4,8 +4,10 @@
 #include <algorithm>
 #include <string>
 #include <sstream>
+#include <iomanip>
 #include <array>
 #include <cstdlib>
+#include <unordered_set>
 
 #include <ROOT/RLogger.hxx>
 #include "Math/VectorUtil.h"
@@ -30,6 +32,8 @@
 using namespace ROOT::VecOps; // RVec, Combinations
 using namespace ROOT::Math::VectorUtil; // DeltaR
 using namespace ROOT::Math; // PtEtaPhiEVector
+using ROOT::RDF::Experimental::RResultMap;
+using ROOT::RDF::Experimental::VariationsFor;
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -105,6 +109,43 @@ void Table3()
     
     std::vector<std::string> cutFlows;
     cutFlows.reserve(input_filenames.size());
+    Event::systematics =
+    {
+//        "PH_EFF_ISO_Uncertainty",
+//        "PH_EFF_ISO_Uncertainty",
+//        "EL_EFF_ID_TOTAL_1NPCOR_PLUS_UNCOR",
+//        "PRW_DATASF",
+//        "MUON_EFF_RECO_SYS",
+//        "MUON_EFF_ISO_SYS",
+//        "MUON_EFF_TrigSystUncertainty",
+//        "EL_EFF_Reco_TOTAL_1NPCOR_PLUS_UNCOR",
+//        "MUON_EFF_TrigStatUncertainty",
+//        "MUON_EFF_RECO_STAT",
+//        "MUON_EFF_TTVA_STAT",
+//        "EL_EFF_Iso_TOTAL_1NPCOR_PLUS_UNCOR",
+//        "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR",
+//        "MUON_EFF_TTVA_SYS",
+//        "MUON_EFF_ISO_STAT",
+//        "MUON_SAGITTA_RHO",
+//        "EG_RESOLUTION_ALL",
+//        "EG_SCALE_ALL",
+//        "MUON_MS",
+//        "MUON_ID",
+//        "EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR",
+//        "MUON_SAGITTA_RESBIAS",
+//        "MUON_SCALE",
+        
+//        "PH_EFF_ISO_Uncertainty__1down",
+//        "PH_EFF_ID_Uncertainty__1up",
+//        "PH_EFF_TRIGGER_Uncertainty__1up",
+        "EG_SCALE_ALL__1down",
+        "EG_SCALE_ALL__1up",
+//        "PH_EFF_ID_Uncertainty__1down",
+//        "PH_EFF_TRIGGER_Uncertainty__1down",
+//        "PH_EFF_ISO_Uncertainty__1up",
+        "EG_RESOLUTION_ALL__1up",
+        "EG_RESOLUTION_ALL__1down",
+    };
     
     std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
     std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
@@ -117,89 +158,108 @@ void Table3()
     os << R"--(\begin{tabular}{|c|c|c|c|c|c|c|c|})--" << '\n';
     os << R"--(\hline)--" << '\n';
     os << R"--(Sample & Before Preselection & 2 leptons
-          & Opposite Charge & $p_{T}^{\text{leading}} > 27$ GeV, \; $p_{T}^{\text{sub-leading}} > 20$ GeV & $\Delta R > 0.01$ & dilep mass cut & dilep $p_{T}$ cut \\ \hline )--" << '\n';
+          & Opposite Charge & $p_{T}^{\text{leading}} > 27$ GeV, \; $p_{T}^{\text{sub-leading}} > 20$ GeV & Same flavour & dilep mass cut & dilep $p_{T}$ cut \\ \hline )--" << '\n';
     
     double beforePreselecZGamma = 0, twoLeptonsZGamma = 0, oppChargeZGamma = 0, leadingPtZGamma = 0, deltaRZGamma = 0, MassZGamma = 0, ptCutZGamma = 0;
 
     double beforePreselecZJets = 0, twoLeptonsZJets = 0, oppChargeZJets = 0, leadingPtZJets = 0, deltaRZJets = 0, MassZJets = 0, ptCutZJets = 0;
     
     std::vector<ROOT::RDF::RResultHandle> Nodes;
+//    std::vector<ROOT::RDF::RResultHandle> tempNodes;
+    
+    std::vector<RResultMap<ULong64_t>> resultmaps;
     
     for (auto& file: input_filenames)
     {
         SchottDataFrame df(MakeRDF(file, 8));
         
-        auto two_leptons = df.Filter(
-        [](RVec<Muon>& muons, RVec<Electron> electrons)
-        {
-            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
-            [](Electron& ep)
-            {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
-                          && (ep.electron_id_medium == 1)));
-                
-            }), electrons.end());
-            
-            return (electrons.size()==2 && muons.empty());
-            
-        }, {"muons", "electrons"});
+//        df.Describe().Print();
+//        exit(1);
         
-        auto opp_charge = two_leptons.Define("di_electrons",
+        auto two_leptons = df.Define("di_electrons",
         [](RVec<Electron> electrons)
         {
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
                 return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
-                && (ep.electron_id_medium == 1)));
+                                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                                          && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
-            
+
             return electrons;
-            
-        },{"electrons"})
-        .Filter([](RVec<Electron> electrons)
+
+        },{"electrons"}).Filter([](RVec<Muon>& muons, RVec<Electron> di_electrons)
         {
-            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+            return (di_electrons.size()==2 && muons.empty() && DeltaR(di_electrons[0].Vector(), di_electrons[1].Vector()) > 0.01);
+            
+        }, {"muons", "di_electrons"});
+        
+        auto opp_charge = two_leptons.Filter([](RVec<Electron> di_electrons)
+        {
+            return (di_electrons[0].electron_charge*di_electrons[1].electron_charge < 0);
             
         }, {"di_electrons"});
         
         auto leading_pt = opp_charge.Filter([](RVec<Electron>& electrons)
         {
-            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+            return ((electrons[0].electron_pt >= 20e3 && electrons[1].electron_pt >= 27e3) || (electrons[1].electron_pt >= 20e3 && electrons[0].electron_pt >= 27e3));
         }, {"di_electrons"});
         
-        auto delta_R = leading_pt.Filter([] (RVec<Electron>& electrons)
+//        auto delta_R = leading_pt.Filter([] (RVec<Electron>& electrons)
+//        {
+//            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+//        }, {"di_electrons"});
+        
+        auto same_flavour = leading_pt.Filter([] (RVec<Electron>& electrons)
         {
-            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+            return true; //abs(electrons[0].electron_pdg_id) == abs(electrons[1].electron_pdg_id) == 11;
         }, {"di_electrons"});
         
-        auto mass = delta_R.Filter([] (RVec<Electron>& electrons)
+        auto dilep = same_flavour.Define("dilep",[] (RVec<Electron>& electrons)
         {
-            auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+            return (electrons[0].Vector() + electrons[1].Vector());
+        }, {"di_electrons"});
+        
+        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+        {
+            auto mass = dilep.M()/1e3;
             return ((mass >= 81) && (mass <= 101));
-        }, {"di_electrons"});
+        }, {"dilep"});
         
-        auto pt_cut = mass.Filter([] (RVec<Electron>& electrons)
+        auto pt_cut = mass.Filter([] (PtEtaPhiEVector& dilep)
         {
-            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+            auto pT = dilep.Pt()/1e3;
             return pT > 10;
-        }, {"di_electrons"});
+        }, {"dilep"});
         
         Nodes.push_back(df.Count());
         Nodes.push_back(two_leptons.Count());
         Nodes.push_back(opp_charge.Count());
         Nodes.push_back(leading_pt.Count());
-        Nodes.push_back(delta_R.Count());
+        Nodes.push_back(same_flavour.Count());
         Nodes.push_back(mass.Count());
         Nodes.push_back(pt_cut.Count());
+        
+        resultmaps.push_back(VariationsFor(df.Count()));
+        resultmaps.push_back(VariationsFor(two_leptons.Count()));
+        resultmaps.push_back(VariationsFor(opp_charge.Count()));
+        resultmaps.push_back(VariationsFor(leading_pt.Count()));
+        resultmaps.push_back(VariationsFor(same_flavour.Count()));
+        resultmaps.push_back(VariationsFor(mass.Count()));
+        resultmaps.push_back(VariationsFor(pt_cut.Count()));
+        
+//        tempNodes.push_back(df.Take<RVec<std::vector<std::string>>, RVec<RVec<std::vector<std::string>>>>("electron_syst_name"));
+//        tempNodes.push_back(df.Take<RVec<std::vector<std::string>>, RVec<RVec<std::vector<std::string>>>>("photon_syst_name"));
     }
+    
+    
+    
+    constexpr std::array<const char*,7> Cuts = {"total", "two leptons", "opposite charge", "leading pt", "same flavour", "mass", "pt cut"};
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
-  
 //     0      1    2     3     4     5     6      Z-gamma
 //     7      8    9     10    11    12    13     Z-gamma
 //     14    15    16    17    18    19    20     Z-gamma
@@ -215,8 +275,51 @@ void Table3()
 //     84    85    86    87    88    89    90     Z-jets
 //     91    92    93    94    95    96    97     Z-jets
 //     98    99    100   101   102   103   104    Z-jets
-     
-     
+    
+//    std::unordered_set<std::string> uniqueSystematics;
+//
+//    for (auto& i: tempNodes)
+//    {
+//        for (auto& j: *i.GetResultPtr<RVec<RVec<std::vector<std::string>>>>())
+//        {
+//            for (auto& k: j)
+//            {
+//                for (auto& l: k)
+//                {
+//                    uniqueSystematics.insert(l);
+//                }
+//            }
+//        }
+//    }
+//
+//    for (auto& i: uniqueSystematics)
+//    {
+//        std::cout << '"' << i << "\",\n";
+//    }
+//
+//    std::cout << "\n\n";
+    std::cout << resultmaps.size() << '\n';
+    for (auto i = 0; i < resultmaps.size(); i++)
+    {
+        if (i % 7 == 0)
+        {
+            std::cout << Samples[i/7] << "\n============================\n\n";
+        }
+        std::cout << Cuts[i%7] << "\n===============\n";
+        for (auto& var: resultmaps[i].GetKeys())
+        {
+            std::cout << std::setw(44) << var <<
+            std::setw(44) << resultmaps[i][var] << '\n';
+        }
+        std::cout << '\n';
+    }
+    
+    std::cout << R"--(\section*{Table 3 Signal Ratios})--" << '\n';
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    std::cout << R"--(Sample & $\frac{\text{2 leptons}}{\text{2 leptons}}$
+          & $\frac{\text{Opposite Charge}}{\text{2 leptons}}$ & $\frac{p_{T}^{\text{leading}} > 27\text{ GeV, } \, p_{T}^{\text{sub-leading}} > 20 \text{ GeV }}{\text{2 leptons}}$ & $\frac{\text{Same flavour}}{\text{2 leptons}}$ & $\frac{\text{dilep mass cut}}{\text{2 leptons}}$ & $\frac{\text{dilep }p_{T} \text{ cut}}{\text{2 leptons}}$ \\ \hline )--" << '\n';
     
     for (int i=0, j=0; (i<15 && j <= 98); i++, j+=7)
     {
@@ -254,8 +357,64 @@ void Table3()
                 << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
                 << " & " << *Nodes[j+6].GetResultPtr<ULong64_t>()
                 << R"--( \\ \hline )--" << '\n';
+            
+            if (i==3) //1 GeV
+            {
+                std::cout << Samples[i] << " (Me) & " << 1 << " & " <<
+                static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+6].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+                
+                std::cout << Samples[i] << " (Paper) & " << 1 << " & " <<
+                21505.03 / 21606.75
+                << " & " <<
+                21375.48 / 21606.75
+                << " & " <<
+                21375.33 / 21606.75
+                << " & " <<
+                20543.06 / 21606.75
+                << " & " <<
+                19516.87 / 21606.75
+                << R"--( \\ \hline )--" << '\n';
+            }
+            
+            if (i==4) //5 GeV
+            {
+                std::cout << Samples[i] << " (Me) & " << 1 << " & " <<
+                static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+6].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+                
+                std::cout << Samples[i] << " (Paper) & " << 1 << " & " <<
+                21556.03 / 21655.38
+                << " & " <<
+                21424.29 / 21655.38
+                << " & " <<
+                21424.28 / 21655.38
+                << " & " <<
+                20585.09 / 21655.38
+                << " & " <<
+                19536.68 / 21655.38
+                << R"--( \\ \hline )--" << '\n';
+            }
         }
     }
+    
+    std::cout << R"--(\end{tabular}})--" << "\n\n\n";
     
     for (int i = 0, j = 0; (i <= 14 && j <= 2); i += 7, j++)
     {
@@ -301,7 +460,7 @@ void Table3()
         std::cout << i << "\n\n";
     }
 }
-
+/*
 void Table8()
 {
     std::vector<std::vector<std::string>> input_filenames = {
@@ -614,68 +773,113 @@ void Table11()
     os << R"--(\hline)--" << '\n';
     os << R"--(Sample & Total Events & pass preselection (PS) & photon $p_T$ + $\Delta R_{\gamma\gamma}$ cut & $X$ window & SR & SR-ID
            \\ \hline )--" << '\n';
+    
+    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+    {
+        RVec<TruthParticle> truthSelected;
+        bool foundParent;
+        if (truthChain.size() >= 1)
+        {
+            TruthParticle tp;
+            for (auto& tpe: startParticles)
+            {
+                tp = tpe;
+                while (true)
+                {
+                    if (tp.mc_parent_barcode == targetBarcode)
+                    {
+                        truthSelected.push_back(tp);
+                        break;
+                    }
+                    else
+                    {
+                        foundParent = false;
+                        for (auto& tmp: truthChain)
+                        {
+                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+                            {
+                                tp = tmp;
+                                foundParent = true;
+                                break;
+                            }
+                        }
+                        if (foundParent == false)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return truthSelected;
+    };
+    
+    auto TruthMatching = [](SchottDataFrame df)
+    {
+        
+    };
+    
     for (auto& file: input_filenames)
     {
         SchottDataFrame df(MakeRDF(file, 8));
         
-        auto two_leptons = df.Filter(
-        [](RVec<Muon>& muons, RVec<Electron> electrons)
-        {
-            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
-            [](Electron& ep)
-            {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
-                          && (ep.electron_id_medium == 1)));
-                
-            }), electrons.end());
-            
-            return (electrons.size()==2 && muons.empty());
-            
-        }, {"muons", "electrons"});
-        
-        auto opp_charge = two_leptons.Define("di_electrons",
+        auto two_leptons = df.Define("di_electrons",
         [](RVec<Electron> electrons)
         {
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
                 return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
-                && (ep.electron_id_medium == 1)));
+                                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                                          && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
-            
+
             return electrons;
+
+        },{"electrons"}).Filter([](RVec<Muon>& muons, RVec<Electron> di_electrons)
+        {
+            return (di_electrons.size()==2 && muons.empty() && DeltaR(di_electrons[0].Vector(), di_electrons[1].Vector()) > 0.01);
             
-        },{"electrons"})
-        .Filter([](RVec<Electron> electrons)
+        }, {"muons", "di_electrons"});
+        
+        auto opp_charge = two_leptons.Filter([](RVec<Electron> di_electrons)
         {
-            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+            return (di_electrons[0].electron_charge*di_electrons[1].electron_charge < 0);
             
         }, {"di_electrons"});
         
-        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+        auto leading_pt = opp_charge.Filter([](RVec<Electron>& electrons)
         {
-            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+            return ((electrons[0].electron_pt >= 20e3 && electrons[1].electron_pt >= 27e3) || (electrons[1].electron_pt >= 20e3 && electrons[0].electron_pt >= 27e3));
         }, {"di_electrons"});
         
-        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+//        auto delta_R = leading_pt.Filter([] (RVec<Electron>& electrons)
+//        {
+//            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+//        }, {"di_electrons"});
+        
+        auto same_flavour = leading_pt.Filter([] (RVec<Electron>& electrons)
         {
-            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+            return true; //abs(electrons[0].electron_pdg_id) == abs(electrons[1].electron_pdg_id) == 11;
         }, {"di_electrons"});
         
-        auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
+        auto dilep = same_flavour.Define("dilep",[] (RVec<Electron>& electrons)
         {
-            auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+            return (electrons[0].Vector() + electrons[1].Vector());
+        }, {"di_electrons"});
+        
+        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+        {
+            auto mass = dilep.M()/1e3;
             return ((mass >= 81) && (mass <= 101));
-        }, {"di_electrons"});
+        }, {"dilep"});
         
-        auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
+        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
         {
-            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+            auto pT = dilep.Pt()/1e3;
             return pT > 10;
-        }, {"di_electrons"});
+        }, {"dilep"});
         
         auto photonPtDeltaR = ptCut.Define("photonPtDeltaR",
         [&](RVec<Photon> photons)
@@ -684,7 +888,7 @@ void Table11()
             [](Photon& x)
             {
                 return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
-
+                
             }), photons.end());
             return photons;
         }, {"photons"}).Filter(
@@ -694,19 +898,27 @@ void Table11()
            {
                return false;
            }
+           RVec<Photon> x;
            auto combs = Combinations(reco_photons_matched, 2);
            size_t length = combs[0].size();
-           double delta_r;
+           double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
            for (size_t i=0; i<length; i++)
            {
                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
-               if ((delta_r < 1.5))
+               m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+               pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+               X = delta_r*(pt/(2.0*m));
+               if (i==0 || abs(1-X) < abs(1-best_X))
                {
-                   return true;
+                   best_X = X;
+                   pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                   pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                   chosen_delta_r = delta_r;
+                   x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
                }
            }
-           return false;
+           return (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3);
 
        }, {"photonPtDeltaR"});
                 
@@ -720,7 +932,7 @@ void Table11()
             }
             auto combs = Combinations(reco_photons_matched, 2);
             size_t length = combs[0].size();
-            double delta_r, m, pt, X;
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
             for (size_t i=0; i<length; i++)
             {
@@ -728,12 +940,20 @@ void Table11()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if ((X > 0.96) && (X < 1.2))
+                if (i==0 || abs(1-X) < abs(1-best_X))
                 {
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
                     x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
-                    return x;
                 }
             }
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+            {
+                return x;
+            }
+            x.clear();
             return x;
         }, {"photonPtDeltaR"}).Filter(
         [&](RVec<Photon>& reco_photons_matched)
@@ -795,7 +1015,14 @@ void Table11()
 //    78   79   80   81   82   83     Z-jets
 //
 //    84   85   86   87   88   89     Z-jets
-//
+
+    std::cout << R"--(\section*{Table 11 Signal Ratios})--" << '\n';
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    std::cout << R"--(Sample & $\frac{\text{pass preselection (PS)}}{\text{pass preselection (PS)}}$ & $\frac{\text{photon } p_T \text{ + } \Delta R_{\gamma\gamma} \text{ cut }}{\text{pass preselection (PS)}}$ & $\frac{X \text{ window}}{\text{pass preselection (PS)}}$ & $\frac{\text{SR}}{\text{pass preselection (PS)}}$ & $\frac{\text{SR-ID}}{\text{pass preselection (PS)}}$
+           \\ \hline )--" << '\n';
+    
     for (int i=0, j=0; (i<15 && j <= 84); i++, j+=6)
     {
         os << Samples[i];
@@ -829,8 +1056,56 @@ void Table11()
                 << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>()
                 << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
                 << R"--( \\ \hline )--" << '\n';
+            
+            if (i==3) //1 GeV
+            {
+                std::cout << Samples[i] << " (Me) & " << 1 << " & " <<
+                static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+                
+                std::cout << Samples[i] << " (Paper) & " << 1 << " & " <<
+                2343.65 / 19516.87
+                << " & " <<
+                2204.22 / 19516.87
+                << " & " <<
+                2076.73 / 19516.87
+                << " & " <<
+                333.21 / 19516.87
+                << R"--( \\ \hline )--" << '\n';
+            }
+            
+            if (i==4) //5 GeV
+            {
+                std::cout << Samples[i] << " (Me) & " << 1 << " & " <<
+                static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+                
+                std::cout << Samples[i] << " (Paper) & " << 1 << " & " <<
+                3245.86 / 19536.68
+                << " & " <<
+                3052.81 / 19536.68
+                << " & " <<
+                2941.28 / 19536.68
+                << " & " <<
+                1959.68 / 19536.68
+                << R"--( \\ \hline )--" << '\n';
+            }
         }
     }
+    
+    std::cout << R"--(\end{tabular}})--" << "\n\n\n";
     
     for (int i = 0, j = 0; (i <= 12 && j <= 2); i += 6, j++)
     {
@@ -883,18 +1158,18 @@ void Table11()
         std::cout << i << "\n\n";
     }
 }
-
+*/
 void CutFlow()
 {
     auto start_time = Clock::now();
     
     Table3();
-    Table8();
-    Table11();
+//    Table8();
+//    Table11();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "
-       << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " nanoseconds" << std::endl;
+       << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " seconds" << std::endl;
     
 }
 

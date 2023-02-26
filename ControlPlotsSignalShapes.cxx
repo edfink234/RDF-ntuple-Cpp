@@ -6,6 +6,7 @@
 #include <array>
 #include <cstdlib>
 #include <iomanip>
+#include <set>
 
 #include <ROOT/RLogger.hxx>
 #include "Math/VectorUtil.h"
@@ -31,6 +32,8 @@
 using namespace ROOT::VecOps; // RVec
 using namespace ROOT::Math::VectorUtil; // DeltaR
 using namespace ROOT::Math; // PtEtaPhiEVector
+using ROOT::RDF::Experimental::RResultMap;
+using ROOT::RDF::Experimental::VariationsFor;
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -82,7 +85,7 @@ constexpr std::array<const char*,35> triggers =
 //Other mA5 file: /Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root
 
 void fig1A()
-{
+{    
     std::vector<std::vector<std::string>> input_filenames =
     {
         //Z gamma background
@@ -104,6 +107,45 @@ void fig1A()
         {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
     
+    Event::systematics =
+    {
+//        "PH_EFF_ISO_Uncertainty",
+//        "PH_EFF_ISO_Uncertainty",
+//        "EL_EFF_ID_TOTAL_1NPCOR_PLUS_UNCOR",
+//        "PRW_DATASF",
+//        "MUON_EFF_RECO_SYS",
+//        "MUON_EFF_ISO_SYS",
+//        "MUON_EFF_TrigSystUncertainty",
+//        "EL_EFF_Reco_TOTAL_1NPCOR_PLUS_UNCOR",
+//        "MUON_EFF_TrigStatUncertainty",
+//        "MUON_EFF_RECO_STAT",
+//        "MUON_EFF_TTVA_STAT",
+//        "EL_EFF_Iso_TOTAL_1NPCOR_PLUS_UNCOR",
+//        "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR",
+//        "MUON_EFF_TTVA_SYS",
+//        "MUON_EFF_ISO_STAT",
+//        "MUON_SAGITTA_RHO",
+//        "EG_RESOLUTION_ALL",
+//        "EG_SCALE_ALL",
+//        "MUON_MS",
+//        "MUON_ID",
+//        "EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR",
+//        "MUON_SAGITTA_RESBIAS",
+//        "MUON_SCALE",
+        
+//        "PH_EFF_ISO_Uncertainty__1down",
+//        "PH_EFF_ID_Uncertainty__1up",
+//        "PH_EFF_TRIGGER_Uncertainty__1up",
+        "EG_SCALE_ALL__1down",
+        "EG_SCALE_ALL__1up",
+//        "PH_EFF_ID_Uncertainty__1down",
+//        "PH_EFF_TRIGGER_Uncertainty__1down",
+//        "PH_EFF_ISO_Uncertainty__1up",
+        "EG_RESOLUTION_ALL__1up",
+        "EG_RESOLUTION_ALL__1down",
+    };
+    std::vector<RResultMap<TH1D>> resultmaps; //store varied histos
+    
     std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
     
     std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
@@ -115,12 +157,20 @@ void fig1A()
     TLegend* legend = new TLegend(0.625, 0.25, 0.9, 0.65);
     int count = 0;
     std::vector<ROOT::RDF::RResultHandle> Nodes;
+    std::vector<ROOT::RDF::RResultHandle> VaryNodes;
+    
+    std::set<std::pair<std::string,std::string>> columns;
     
     for (auto& file: input_filenames)
     {
         SchottDataFrame df(MakeRDF(file, 8));
 //        df.Describe().Print();
 //        exit(1);
+//        for (auto& i: df.GetColumnNames())
+//        {
+//            columns.insert(std::make_pair(i, df.GetColumnType(i)));
+//        }
+        
         auto trigger_selection = df.Filter(
         [](const RVec<std::string>& trigger_passed_triggers)
         {
@@ -201,7 +251,7 @@ void fig1A()
             return four_momentum.M()/1e3;
             
         }, {"electrons"});
-            
+        
         if (count <= 2) //Z gamma
         {
             Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 60u, 60, 120}, "dilep_mass"));
@@ -220,6 +270,12 @@ void fig1A()
             Nodes.push_back(dilep_mass.Count());
             Nodes.push_back(df.Count());
         }
+    }
+    
+    for (auto& i: columns)
+    {
+        std::cout << std::setw(60) << i.second << std::setw(60) << i.first;
+        std::cout << '\n';
     }
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
@@ -381,7 +437,7 @@ void fig1A()
     c1->SaveAs("Fig1A.png");
 }
 
-
+/*
 void fig5()
 {
     std::vector<std::string> input_filenames = { "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
@@ -2780,7 +2836,7 @@ void fig54()
     legend->Draw();
     c1->SaveAs("Fig54B.png");
 }
-
+*/
 
 void ControlPlotsSignalShapes()
 {

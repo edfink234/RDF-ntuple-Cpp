@@ -6,6 +6,7 @@
 #include "TH1F.h"
 #include "TBranch.h"
 #include "TInterpreter.h"
+#include "ROOT/RDFHelpers.hxx"
 
 //#include "RDFObjects.h"
 //#include "MakeRDF.h"
@@ -32,7 +33,6 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         ROOT::EnableImplicitMT(numThreads);
     }
     static bool loaded = false;
-    
     if (!loaded)
     {
         //load objects
@@ -60,7 +60,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
     RDFTree::__chain->AddFriend(RDFTree::__event_info_chain);
 
     ROOT::RDataFrame df(*RDFTree::__chain);
-    
+
     auto NewDf = df.Define("truth_particles",[&](RVec<int>& mc_pdg_id, RVec<int>& mc_barcode, RVec<int>& mc_parent_barcode, RVec<int>& mc_status, RVec<float>& mc_pt, RVec<float>& mc_charge, RVec<float>& mc_eta, RVec<float>& mc_phi, RVec<float>& mc_e, RVec<float>& mc_mass)
     {
         RVec<TruthParticle> x;
@@ -242,15 +242,13 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
                 temp.electron_pt = electron_syst_pt[i][index];
                 temp.electron_e = electron_syst_e[i][index];
                 temp.electron_charge =  electrons[i].electron_charge;
-                temp.electron_pt =  electrons[i].electron_pt;
-                temp.electron_e =  electrons[i].electron_e;
                 temp.electron_eta =  electrons[i].electron_eta;
                 temp.electron_phi =  electrons[i].electron_phi;
     //            temp.electron_id =  electrons[i].electron_id;
                 temp.electron_isolation =  electrons[i].electron_isolation;
                 temp.electron_d0 =  electrons[i].electron_d0;
                 temp.electron_z0 =  electrons[i].electron_z0;
-    //            temp.electron_id_medium =  electrons[i].electron_id_medium;
+                temp.electron_id_medium =  electrons[i].electron_id_medium;
                 
                 x.push_back(temp);
             }
@@ -262,6 +260,8 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         
     }, {"electrons", "electron_pt", "electron_syst_name", "electron_syst_pt", "electron_syst_e"}, Event::systematics);
     
+//    std::cout << ROOT::RDF::SaveGraph(df) << '\n';
+
     return NewDf;
 }
 
