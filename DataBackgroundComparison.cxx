@@ -2582,7 +2582,7 @@ void Table16()
 //    84   85   86   87   88   89     Z-jets
         
     
-    ROOT::RDF::RunGraphs(Totals);
+    ROOT::RDF::RunGraphs(Totals); // running all computation nodes concurrently
     
     std::cout << R"--(\section*{Table 16})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
