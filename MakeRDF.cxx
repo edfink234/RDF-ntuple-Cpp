@@ -177,7 +177,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         }
         return x;
     }, {"track_type", "track_pt", "track_eta", "track_phi", /*"track_e",*/ "track_charge", "track_num_pixel_hits", "track_num_sct_hits"})
-    .Vary("photons",[&](RVec<Photon>& photons, RVec<float>& photon_pt, RVec<std::vector<std::string>>& photon_syst_name, RVec<std::vector<float>>& photon_syst_pt, RVec<std::vector<float>>& photon_syst_e)
+    .Vary("photons",[&](const RVec<Photon>& photons, const RVec<float>& photon_pt, const RVec<std::vector<std::string>>& photon_syst_name, const RVec<std::vector<float>>& photon_syst_pt, const RVec<std::vector<float>>& photon_syst_e)
     {
         int index;
         RVec<RVec<Photon>> variedPhotons;
@@ -218,7 +218,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         return variedPhotons;
         
     }, {"photons", "photon_pt", "photon_syst_name", "photon_syst_pt", "photon_syst_e"}, Event::systematics)
-    .Vary("electrons",[&](RVec<Electron>& electrons, RVec<float>& electron_pt, RVec<std::vector<std::string>>& electron_syst_name, RVec<std::vector<float>>& electron_syst_pt, RVec<std::vector<float>>& electron_syst_e)
+    .Vary("electrons",[&](const RVec<Electron>& electrons, const RVec<float>& electron_pt, const RVec<std::vector<std::string>>& electron_syst_name, const RVec<std::vector<float>>& electron_syst_pt, const RVec<std::vector<float>>& electron_syst_e)
     {
         int index;
         RVec<RVec<Electron>> variedElectrons;
@@ -233,7 +233,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
             for (size_t i = 0; i < electron_pt.size(); i++)
             {
                 auto it = std::find(electron_syst_name[i].begin(), electron_syst_name[i].end(), systematic);
-                if (it == electron_syst_name[i].end())
+                if (it == electron_syst_name[i].end()) //not found
                 {
                     continue;
                 }
@@ -258,7 +258,94 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         
         return variedElectrons;
         
-    }, {"electrons", "electron_pt", "electron_syst_name", "electron_syst_pt", "electron_syst_e"}, Event::systematics);
+    }, {"electrons", "electron_pt", "electron_syst_name", "electron_syst_pt", "electron_syst_e"}, Event::systematics)
+    .Vary("photon_id_eff",[&](const RVec<float>& photon_id_eff, const RVec<std::vector<std::string>>& photon_syst_name, const RVec<std::vector<float>>& photon_syst_id_eff)
+    {
+        RVec<RVec<float>> varied_photon_id_eff;
+        int index;
+        varied_photon_id_eff.reserve(Event::systematics.size());
+        RVec<float> x;
+        auto length = photon_id_eff.size();
+        x.reserve(length);
+        float temp;
+        
+        for (auto& systematic: Event::systematics)
+        {
+            for (size_t i = 0; i < photon_id_eff.size(); i++)
+            {
+                auto it = std::find(photon_syst_name[i].begin(), photon_syst_name[i].end(), systematic);
+                if (it == photon_syst_name[i].end())
+                {
+                    continue;
+                }
+                
+                index = it - photon_syst_name[i].begin();
+                temp = photon_syst_id_eff[i][index];
+                x.push_back(temp);
+            }
+            varied_photon_id_eff.push_back(x);
+            x.clear();
+        }
+        return varied_photon_id_eff;
+    }, {"photon_id_eff", "photon_syst_name", "photon_syst_id_eff"}, Event::systematics)
+    .Vary("photon_iso_eff",[&](const RVec<float>& photon_iso_eff, const RVec<std::vector<std::string>>& photon_syst_name, const RVec<std::vector<float>>& photon_syst_iso_eff)
+    {
+        RVec<RVec<float>> varied_photon_iso_eff;
+        int index;
+        varied_photon_iso_eff.reserve(Event::systematics.size());
+        RVec<float> x;
+        auto length = photon_iso_eff.size();
+        x.reserve(length);
+        float temp;
+        
+        for (auto& systematic: Event::systematics)
+        {
+            for (size_t i = 0; i < photon_iso_eff.size(); i++)
+            {
+                auto it = std::find(photon_syst_name[i].begin(), photon_syst_name[i].end(), systematic);
+                if (it == photon_syst_name[i].end())
+                {
+                    continue;
+                }
+                
+                index = it - photon_syst_name[i].begin();
+                temp = photon_syst_iso_eff[i][index];
+                x.push_back(temp);
+            }
+            varied_photon_iso_eff.push_back(x);
+            x.clear();
+        }
+        return varied_photon_iso_eff;
+    }, {"photon_iso_eff", "photon_syst_name", "photon_syst_iso_eff"}, Event::systematics)
+    .Vary("photon_trg_eff",[&](const RVec<float>& photon_trg_eff, const RVec<std::vector<std::string>>& photon_syst_name, const RVec<std::vector<float>>& photon_syst_trg_eff)
+    {
+        RVec<RVec<float>> varied_photon_trg_eff;
+        int index;
+        varied_photon_trg_eff.reserve(Event::systematics.size());
+        RVec<float> x;
+        auto length = photon_trg_eff.size();
+        x.reserve(length);
+        float temp;
+        
+        for (auto& systematic: Event::systematics)
+        {
+            for (size_t i = 0; i < photon_trg_eff.size(); i++)
+            {
+                auto it = std::find(photon_syst_name[i].begin(), photon_syst_name[i].end(), systematic);
+                if (it == photon_syst_name[i].end())
+                {
+                    continue;
+                }
+                
+                index = it - photon_syst_name[i].begin();
+                temp = photon_syst_trg_eff[i][index];
+                x.push_back(temp);
+            }
+            varied_photon_trg_eff.push_back(x);
+            x.clear();
+        }
+        return varied_photon_trg_eff;
+    }, {"photon_trg_eff", "photon_syst_name", "photon_syst_trg_eff"}, Event::systematics);
     
 //    std::cout << ROOT::RDF::SaveGraph(df) << '\n';
 

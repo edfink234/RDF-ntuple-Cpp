@@ -165,7 +165,7 @@ void Table3()
     double beforePreselecZJets = 0, twoLeptonsZJets = 0, oppChargeZJets = 0, leadingPtZJets = 0, deltaRZJets = 0, MassZJets = 0, ptCutZJets = 0;
     
     std::vector<ROOT::RDF::RResultHandle> Nodes;
-//    std::vector<ROOT::RDF::RResultHandle> tempNodes;
+    std::vector<ROOT::RDF::RResultHandle> tempNodes;
     
     std::vector<RResultMap<ULong64_t>> resultmaps;
     
@@ -250,12 +250,10 @@ void Table3()
         resultmaps.push_back(VariationsFor(mass.Count()));
         resultmaps.push_back(VariationsFor(pt_cut.Count()));
         
-//        tempNodes.push_back(df.Take<RVec<std::vector<std::string>>, RVec<RVec<std::vector<std::string>>>>("electron_syst_name"));
-//        tempNodes.push_back(df.Take<RVec<std::vector<std::string>>, RVec<RVec<std::vector<std::string>>>>("photon_syst_name"));
+        tempNodes.push_back(df.Take<RVec<std::vector<std::string>>, RVec<RVec<std::vector<std::string>>>>("electron_syst_name"));
+        tempNodes.push_back(df.Take<RVec<std::vector<std::string>>, RVec<RVec<std::vector<std::string>>>>("photon_syst_name"));
     }
-    
-    
-    
+
     constexpr std::array<const char*,7> Cuts = {"total", "two leptons", "opposite charge", "leading pt", "same flavour", "mass", "pt cut"};
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
@@ -276,43 +274,102 @@ void Table3()
 //     91    92    93    94    95    96    97     Z-jets
 //     98    99    100   101   102   103   104    Z-jets
     
-//    std::unordered_set<std::string> uniqueSystematics;
+    std::unordered_set<std::string> uniqueSystematics;
+    std::unordered_set<std::string> ZGammaSystematics;
+    std::unordered_set<std::string> SignalSystematics;
+    std::unordered_set<std::string> DataSystematics;
+    std::unordered_set<std::string> ZJetsSystematics;
 //
-//    for (auto& i: tempNodes)
-//    {
-//        for (auto& j: *i.GetResultPtr<RVec<RVec<std::vector<std::string>>>>())
-//        {
-//            for (auto& k: j)
-//            {
-//                for (auto& l: k)
-//                {
-//                    uniqueSystematics.insert(l);
-//                }
-//            }
-//        }
-//    }
+    for (auto& i: tempNodes)
+    {
+        for (auto& j: *i.GetResultPtr<RVec<RVec<std::vector<std::string>>>>())
+        {
+            for (auto& k: j)
+            {
+                for (auto& l: k)
+                {
+                    uniqueSystematics.insert(l);
+                }
+            }
+        }
+    }
+    
+    int counter = 0;
+    for (auto& i: tempNodes)
+    {
+        for (auto& j: (*i.GetResultPtr<RVec<RVec<std::vector<std::string>>>>())[0])
+        {
+            for (auto& k: j)
+            {
+                if (counter >= 0 && counter <= 5) //Z-gamma
+                {
+                    ZGammaSystematics.insert(k);
+                }
+            
+                else if (counter >= 6 && counter <= 9) //Signal
+                {
+                    SignalSystematics.insert(k);
+                }
+                
+                else if (counter == 10) //Data
+                {
+                    DataSystematics.insert(k);
+                }
+                
+                else
+                {
+                    ZJetsSystematics.insert(k);
+                }
+            }
+        }
+        counter++;
+    }
 //
-//    for (auto& i: uniqueSystematics)
-//    {
-//        std::cout << '"' << i << "\",\n";
-//    }
+    std::cout << "ZGammaSystematics\n=================\n";
+    for (auto& i: ZGammaSystematics)
+    {
+        std::cout << i << '\n';
+    }
+    std::cout << "\n\n\n\n";
+    
+    std::cout << "SignalSystematics\n=================\n";
+    for (auto& i: SignalSystematics)
+    {
+        std::cout << i << '\n';
+    }
+    std::cout << "\n\n\n\n";
+    
+    std::cout << "DataSystematics\n===============\n";
+    for (auto& i: DataSystematics)
+    {
+        std::cout << i << '\n';
+    }
+    std::cout << "\n\n\n\n";
+    
+    std::cout << "ZJetsSystematics\n================\n";
+    for (auto& i: ZJetsSystematics)
+    {
+        std::cout << i << '\n';
+    }
+    std::cout << "\n\n\n\n";
+    
 //
 //    std::cout << "\n\n";
-    std::cout << resultmaps.size() << '\n';
-    for (auto i = 0; i < resultmaps.size(); i++)
-    {
-        if (i % 7 == 0)
-        {
-            std::cout << Samples[i/7] << "\n============================\n\n";
-        }
-        std::cout << Cuts[i%7] << "\n===============\n";
-        for (auto& var: resultmaps[i].GetKeys())
-        {
-            std::cout << std::setw(44) << var <<
-            std::setw(44) << resultmaps[i][var] << '\n';
-        }
-        std::cout << '\n';
-    }
+//    std::cout << resultmaps.size() << '\n';
+//    for (auto i = 0; i < resultmaps.size(); i++)
+//    {
+//        if (i % 7 == 0)
+//        {
+//            std::cout << Samples[i/7] << "\n============================\n\n";
+//        }
+//        std::cout << Cuts[i%7] << "\n===============\n";
+//        for (auto& var: resultmaps[i].GetKeys())
+//        {
+//            std::cout << std::setw(44) << var <<
+//            std::setw(44) << resultmaps[i][var] << '\n';
+//        }
+//        std::cout << '\n';
+//    }
     
     std::cout << R"--(\section*{Table 3 Signal Ratios})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';

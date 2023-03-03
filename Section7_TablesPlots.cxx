@@ -126,7 +126,8 @@ void Table21()
     std::vector<std::vector<std::string>> input_filenames =
     {
         //Z-gamma
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"}, {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
         //data
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
@@ -151,12 +152,37 @@ void Table21()
     std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", "data", R"--($\text{Sig } m_{A}$ = 5 GeV)--", R"--($\text{Sig } m_{A}$ = 1 GeV)--", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
             
     std::vector<ROOT::RDF::RResultHandle> Totals;
-    std::vector<RResultMap<ULong64_t>> resultmaps;
+//    std::vector<RResultMap<ULong64_t>> resultmaps;
+    std::vector<RResultMap<float>> resultmaps;
+    std::vector<RResultMap<float>> PH_EFF_resultmaps;
+    std::stringstream ss;
     
     for (auto& i: input_filenames)
     {
         SchottDataFrame df(MakeRDF(i,8));
 //        std::cout << *df.Count() << '\n';
+//        df.Describe().Print();
+//        exit(1);
+        
+//        auto EventWeight = df.Define("EventWeight",
+//        [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff, RVec<float> ei_event_weights_generator)
+//        {
+//            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+//            photon_id_eff.resize(ResizeVal,1);
+//            photon_iso_eff.resize(ResizeVal,1);
+//            photon_trg_eff.resize(ResizeVal,1);
+//            ei_event_weights_generator.resize(ResizeVal,1);
+//
+//            return (photon_id_eff*photon_iso_eff*photon_trg_eff*ei_event_weights_generator) / ei_event_weights_generator[0];
+//
+//        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff", "ei_event_weights_generator"});
+        
+        auto EventWeight = df.Define("EventWeight",
+        [](RVec<float>& ei_event_weights_generator)
+        {
+            return  ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
+
+        }, {"ei_event_weights_generator"});
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -286,7 +312,6 @@ void Table21()
                     return p;
                 }
             }
-            
             return reco_photons_matched[0]; //jic the compiler complains
             
         }, {"photons_pass_cuts"});
@@ -324,22 +349,58 @@ void Table21()
             return (!Any(Eratio <= 0.8));
         }, {"photon_shower_shape_e_ratio"});
         
-        Totals.push_back(df.Count());
-        resultmaps.push_back(VariationsFor(merged_reco_photons_matched.Count()));
+        auto totEventWeight = merged_reco_photons_matched
+        .Define("totEventWeight", [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff, RVec<float> ei_event_weights_generator)
+        {
+            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+            photon_id_eff.resize(ResizeVal,1);
+            photon_iso_eff.resize(ResizeVal,1);
+            photon_trg_eff.resize(ResizeVal,1);
+            ei_event_weights_generator.resize(ResizeVal,1);
+            
+            return photon_id_eff*photon_iso_eff*photon_trg_eff*ei_event_weights_generator;
+            
+        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff", "ei_event_weights_generator"});
+        
+//        Totals.push_back(df.Count()); //*
+//        Totals.push_back(EventWeight.Sum<RVec<float>>("EventWeight")); //*
+        Totals.push_back(EventWeight.Sum<float>("EventWeight"));
+//        resultmaps.push_back(VariationsFor(merged_reco_photons_matched.Count())); //*
+        resultmaps.push_back(VariationsFor(totEventWeight.Sum<RVec<float>>("totEventWeight")));
+        
+        PH_EFF_resultmaps.push_back(VariationsFor(totEventWeight.Sum<RVec<float>>("totEventWeight")));
+        
+        //*TODO: Weight these events first!
+
 //        Totals.push_back(pSB.Count());
 //        Totals.push_back(pSR.Count());
 //        Totals.push_back(SB.Count());
 //        Totals.push_back(SR.Count());
     }
     
+        
+//EG_RESOLUTION_ALL__1down:           42864.7 ID 1.00524  ISO 1.02283  TRIG 1.04157
+//EG_RESOLUTION_ALL__1up:             42751.5 ID 1.00524  ISO 1.02283  TRIG 1.04157
+//EG_SCALE_ALL__1down:                42521.1 ID 1.00524  ISO 1.02283  TRIG 1.04157
+//EG_SCALE_ALL__1up:                  43059.8 ID 1.00524  ISO 1.02283  TRIG 1.04157
+//PH_EFF_ID_Uncertainty__1down:       42790.4 ID 0.992328 ISO 1.02283  TRIG 1.04157
+//PH_EFF_ID_Uncertainty__1up:         42790.4 ID 1.01816  ISO 1.02283  TRIG 1.04157
+//PH_EFF_ISO_Uncertainty__1down:      42790.4 ID 1.00524  ISO 1.00971  TRIG 1.04157
+//PH_EFF_ISO_Uncertainty__1up:        42790.4 ID 1.00524  ISO 1.03595  TRIG 1.04157
+//PH_EFF_TRIGGER_Uncertainty__1down:  42790.4 ID 1.00524  ISO 1.02283  TRIG 1.01646
+//PH_EFF_TRIGGER_Uncertainty__1up:    42790.4 ID 1.00524  ISO 1.02283  TRIG 1.06668
+    
     ROOT::RDF::RunGraphs(Totals); // running all computation nodes concurrently
     
+//    int count = 0;
 //    for (auto& i: resultmaps)
 //    {
+//        std::cout << count++ << "\n==\n";
 //        for (auto& j: i.GetKeys())
 //        {
 //            std::cout << j << '\n';
 //        }
+//        std::cout << '\n';
 //    }
 //          resultmaps
 //          ----------
@@ -358,128 +419,160 @@ void Table21()
 //    24   25   Z-jets
 //    26   27   Z-jets
 //    28   29   Z-jets
-//
 
-    std::cout << R"--(\section*{Table 21})--" << '\n';
-    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
-    std::cout << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
-    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|})--" << '\n';
-    std::cout << R"--(\hline)--" << '\n';
+    ss << R"--(\section*{Table 21})--" << '\n';
+    ss << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    ss << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
+    ss << R"--(\begin{tabular}{|c|c|c|c|c|c|})--" << '\n';
+    ss << R"--(\hline)--" << '\n';
     
+        ss << R"--(\multicolumn{6}{|c|}{\parbox{\linewidth}{\centering Merged Photon Category: Up Variations \\ (\% difference from nominal)}}\\[5 pt])--" << '\n';
+    ss << R"--(\hline)--" << '\n';
     
-    std::cout << R"--(\multicolumn{6}{|c|}{\parbox{\linewidth}{\centering Merged Photon Category: Up Variations \\ (\% difference from nominal)}}\\[5 pt])--" << '\n';
-    std::cout << R"--(\hline)--" << '\n';
-    
-    std::cout << R"--({Sample} & EG\_RESOLUTION\_ALL & EG\_SCALE\_ALL & PH\_EFF\_ISO\_Uncertainty & PH\_EFF\_ID\_Uncertainty & PH\_EFF\_TRIGGER\_Uncertainty \\ \hline)--" << '\n';
+    ss << R"--({Sample} & EG\_RESOLUTION\_ALL & EG\_SCALE\_ALL & PH\_EFF\_ISO\_Uncertainty & PH\_EFF\_ID\_Uncertainty & PH\_EFF\_TRIGGER\_Uncertainty \\ \hline)--" << '\n';
     
     double finalScaleVal;
     
-    //TODO: Calculate Total Zgamma, Zjets, and total backgrounds for the above systematics and fix problem with systematics thereafter
+    //TODO: fix problem with systematics thereafter
     
     double ZgammaNominal = 0, ZgammaEG_RESOLUTION_ALL = 0,
     ZgammaEG_SCALE_ALL = 0, ZgammaPH_EFF_ISO_Uncertainty = 0,
-    ZgammaPH_EFF_ID_Uncertainty = 0, ZgammaPH_EFF_TRIGGER_Uncertainty = 0;
+    ZgammaPH_EFF_ID_Uncertainty = 0, ZgammaPH_EFF_TRIGGER_Uncertainty = 0,
+    Zgamma_PH_EFF_Nominal = 0;
     
     double ZjetsNominal = 0, ZjetsEG_RESOLUTION_ALL = 0,
     ZjetsEG_SCALE_ALL = 0, ZjetsPH_EFF_ISO_Uncertainty = 0,
-    ZjetsPH_EFF_ID_Uncertainty = 0, ZjetsPH_EFF_TRIGGER_Uncertainty = 0;
+    ZjetsPH_EFF_ID_Uncertainty = 0, ZjetsPH_EFF_TRIGGER_Uncertainty = 0,
+    Zjets_PH_EFF_Nominal = 0;
     
     double totbkgNominal = 0, totbkgEG_RESOLUTION_ALL = 0,
     totbkgEG_SCALE_ALL = 0, totbkgPH_EFF_ISO_Uncertainty = 0,
-    totbkgPH_EFF_ID_Uncertainty = 0, totbkgPH_EFF_TRIGGER_Uncertainty = 0;
+    totbkgPH_EFF_ID_Uncertainty = 0, totbkgPH_EFF_TRIGGER_Uncertainty = 0,
+    totbkg_PH_EFF_Nominal = 0;
     
-    for (auto i = 0; i < resultmaps.size(); i++)
+    for (auto i = 0; (i < PH_EFF_resultmaps.size()); i++)
     {
         double nominalVal = static_cast<double>(resultmaps[i]["nominal"]);
-        auto denominator = *Totals[i].GetResultPtr<ULong64_t>();
-//
+        double PH_EFF_nominalVal = static_cast<double>(PH_EFF_resultmaps[i]["nominal"]);
+        
+//        auto denominator = *Totals[i].GetResultPtr<ULong64_t>();
+        auto denominator = *Totals[i].GetResultPtr<float>();
+
         if (i >= 0 && i <= 2)
         {
             finalScaleVal = SFs[i]/denominator;
-            ZgammaNominal += finalScaleVal*resultmaps[i]["nominal"];
+            ZgammaNominal += finalScaleVal*nominalVal;
+            Zgamma_PH_EFF_Nominal += finalScaleVal*PH_EFF_nominalVal;
             ZgammaEG_RESOLUTION_ALL += finalScaleVal*resultmaps[i]["electrons:EG_RESOLUTION_ALL__1up"];
             ZgammaEG_SCALE_ALL += finalScaleVal*resultmaps[i]["electrons:EG_SCALE_ALL__1up"];
-            ZgammaPH_EFF_ISO_Uncertainty += finalScaleVal*resultmaps[i]["photons:PH_EFF_ISO_Uncertainty__1up"];
-            ZgammaPH_EFF_ID_Uncertainty += finalScaleVal*resultmaps[i]["photons:PH_EFF_ID_Uncertainty__1up"];
-            ZgammaPH_EFF_TRIGGER_Uncertainty += finalScaleVal*resultmaps[i]["photons:PH_EFF_TRIGGER_Uncertainty__1up"];
+            ZgammaPH_EFF_ISO_Uncertainty += finalScaleVal*PH_EFF_resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"];
+            ZgammaPH_EFF_ID_Uncertainty += finalScaleVal*PH_EFF_resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"];
+            ZgammaPH_EFF_TRIGGER_Uncertainty += finalScaleVal*PH_EFF_resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"];
         }
         
         else if (i >= 6)
         {
             finalScaleVal = JetNumeratorSFs[i-6]/denominator;
-            ZjetsNominal += finalScaleVal*resultmaps[i]["nominal"];
+            ZjetsNominal += finalScaleVal*nominalVal;
+            Zjets_PH_EFF_Nominal += finalScaleVal*PH_EFF_nominalVal;
             ZjetsEG_RESOLUTION_ALL += finalScaleVal*resultmaps[i]["electrons:EG_RESOLUTION_ALL__1up"];
             ZjetsEG_SCALE_ALL += finalScaleVal*resultmaps[i]["electrons:EG_SCALE_ALL__1up"];
-            ZjetsPH_EFF_ISO_Uncertainty += finalScaleVal*resultmaps[i]["photons:PH_EFF_ISO_Uncertainty__1up"];
-            ZjetsPH_EFF_ID_Uncertainty += finalScaleVal*resultmaps[i]["photons:PH_EFF_ID_Uncertainty__1up"];
-            ZjetsPH_EFF_TRIGGER_Uncertainty += finalScaleVal*resultmaps[i]["photons:PH_EFF_TRIGGER_Uncertainty__1up"];
+            ZjetsPH_EFF_ISO_Uncertainty += finalScaleVal*PH_EFF_resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"];
+            ZjetsPH_EFF_ID_Uncertainty += finalScaleVal*PH_EFF_resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"];
+            ZjetsPH_EFF_TRIGGER_Uncertainty += finalScaleVal*PH_EFF_resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"];
         }
         
-        std::cout << prefixes[i] << " & ";
-        std::cout << std::setprecision(4) << std::fixed
+        ss << prefixes[i] << " & ";
+        ss << std::setprecision(4) << std::fixed
         << ( (nominalVal && resultmaps[i]["electrons:EG_RESOLUTION_ALL__1up"]) ? ((resultmaps[i]["electrons:EG_RESOLUTION_ALL__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
         << " & " << std::setprecision(4) << std::fixed
         << ( (nominalVal && resultmaps[i]["electrons:EG_SCALE_ALL__1up"]) ? ((resultmaps[i]["electrons:EG_SCALE_ALL__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
         << " & " << std::setprecision(4) << std::fixed
-        << ( (nominalVal && resultmaps[i]["photons:PH_EFF_ISO_Uncertainty__1up"]) ? ((resultmaps[i]["photons:PH_EFF_ISO_Uncertainty__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
+        << ( (PH_EFF_nominalVal && PH_EFF_resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"]) ? ((PH_EFF_resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"]-PH_EFF_nominalVal)/PH_EFF_nominalVal)*100.0 : 0.0)
         << " & " << std::setprecision(4) << std::fixed
-        << ( (nominalVal && resultmaps[i]["photons:PH_EFF_ID_Uncertainty__1up"]) ? ((resultmaps[i]["photons:PH_EFF_ID_Uncertainty__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
+        << ( (PH_EFF_nominalVal && PH_EFF_resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"]) ? ((PH_EFF_resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"]-PH_EFF_nominalVal)/PH_EFF_nominalVal)*100.0 : 0.0)
         << " & " << std::setprecision(4) << std::fixed
-        << ( (nominalVal && resultmaps[i]["photons:PH_EFF_TRIGGER_Uncertainty__1up"]) ? ((resultmaps[i]["photons:PH_EFF_TRIGGER_Uncertainty__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
+        << ( (PH_EFF_nominalVal && PH_EFF_resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"]) ? ((PH_EFF_resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"]-PH_EFF_nominalVal)/PH_EFF_nominalVal)*100.0 : 0.0)
         << R"--( \\ \hline)--" << '\n';
+        
+        if (!PH_EFF_resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"])
+        {
+            std::cout << i << ": photon_iso_eff:PH_EFF_ISO_Uncertainty__1up not found\n";
+        }
+        else
+        {
+            std::cout << i << ':' << ' ' << PH_EFF_resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"] << ' ' << PH_EFF_nominalVal << '\n';
+        }
+        if (!PH_EFF_resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"])
+        {
+            std::cout << i << ": photon_id_eff:PH_EFF_ID_Uncertainty__1up not found\n";
+        }
+        else
+        {
+            std::cout << i << ':' << ' ' << PH_EFF_resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"] << ' ' << PH_EFF_nominalVal << '\n';
+        }
+        if (!PH_EFF_resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"])
+        {
+            std::cout << i << ": photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up not found\n";
+        }
+        else
+        {
+            std::cout << i << ':' << ' ' << PH_EFF_resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"] << ' ' << PH_EFF_nominalVal << '\n';
+        }
     }
     
-    std::cout << R"--(Total $Z\gamma$ & )--";
-    std::cout << std::setprecision(4) << std::fixed
+    ss << R"--(Total $Z\gamma$ & )--";
+    ss << std::setprecision(4) << std::fixed
     << ( (ZgammaNominal && ZgammaEG_RESOLUTION_ALL) ? ((ZgammaEG_RESOLUTION_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
     << ( (ZgammaNominal && ZgammaEG_SCALE_ALL) ? ((ZgammaEG_SCALE_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
-    << ( (ZgammaNominal && ZgammaPH_EFF_ISO_Uncertainty) ? ((ZgammaPH_EFF_ISO_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+    << ( (Zgamma_PH_EFF_Nominal && ZgammaPH_EFF_ISO_Uncertainty) ? ((ZgammaPH_EFF_ISO_Uncertainty-Zgamma_PH_EFF_Nominal)/Zgamma_PH_EFF_Nominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
-    << ( (ZgammaNominal && ZgammaPH_EFF_ID_Uncertainty) ? ((ZgammaPH_EFF_ID_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+    << ( (Zgamma_PH_EFF_Nominal && ZgammaPH_EFF_ID_Uncertainty) ? ((ZgammaPH_EFF_ID_Uncertainty-Zgamma_PH_EFF_Nominal)/Zgamma_PH_EFF_Nominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
-    << ( (ZgammaNominal && ZgammaPH_EFF_TRIGGER_Uncertainty) ? ((ZgammaPH_EFF_TRIGGER_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+    << ( (Zgamma_PH_EFF_Nominal && ZgammaPH_EFF_TRIGGER_Uncertainty) ? ((ZgammaPH_EFF_TRIGGER_Uncertainty-Zgamma_PH_EFF_Nominal)/Zgamma_PH_EFF_Nominal)*100.0 : 0.0)
     << R"--( \\ \hline)--" << '\n';
     
-    std::cout << R"--(Total $Z$ jets & )--";
-    std::cout << std::setprecision(4) << std::fixed
+    ss << R"--(Total $Z$ jets & )--";
+    ss << std::setprecision(4) << std::fixed
     << ( (ZjetsNominal && ZjetsEG_RESOLUTION_ALL) ? ((ZjetsEG_RESOLUTION_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
     << ( (ZjetsNominal && ZjetsEG_SCALE_ALL) ? ((ZjetsEG_SCALE_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
-    << ( (ZjetsNominal && ZjetsPH_EFF_ISO_Uncertainty) ? ((ZjetsPH_EFF_ISO_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+    << ( (Zjets_PH_EFF_Nominal && ZjetsPH_EFF_ISO_Uncertainty) ? ((ZjetsPH_EFF_ISO_Uncertainty-Zjets_PH_EFF_Nominal)/Zjets_PH_EFF_Nominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
-    << ( (ZjetsNominal && ZjetsPH_EFF_ID_Uncertainty) ? ((ZjetsPH_EFF_ID_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+    << ( (Zjets_PH_EFF_Nominal && ZjetsPH_EFF_ID_Uncertainty) ? ((ZjetsPH_EFF_ID_Uncertainty-Zjets_PH_EFF_Nominal)/Zjets_PH_EFF_Nominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
-    << ( (ZjetsNominal && ZjetsPH_EFF_TRIGGER_Uncertainty) ? ((ZjetsPH_EFF_TRIGGER_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+    << ( (Zjets_PH_EFF_Nominal && ZjetsPH_EFF_TRIGGER_Uncertainty) ? ((ZjetsPH_EFF_TRIGGER_Uncertainty-Zjets_PH_EFF_Nominal)/Zjets_PH_EFF_Nominal)*100.0 : 0.0)
     << R"--( \\ \hline)--" << '\n';
     
     totbkgNominal = ZgammaNominal + ZjetsNominal;
+    totbkg_PH_EFF_Nominal = Zgamma_PH_EFF_Nominal + Zjets_PH_EFF_Nominal;
     totbkgEG_RESOLUTION_ALL = ZgammaEG_RESOLUTION_ALL + ZjetsEG_RESOLUTION_ALL;
     totbkgEG_SCALE_ALL = ZgammaEG_SCALE_ALL + ZjetsEG_SCALE_ALL;
     totbkgPH_EFF_ISO_Uncertainty = ZgammaPH_EFF_ISO_Uncertainty + ZjetsPH_EFF_ISO_Uncertainty;
     totbkgPH_EFF_ID_Uncertainty = ZgammaPH_EFF_ID_Uncertainty + ZjetsPH_EFF_ID_Uncertainty;
     totbkgPH_EFF_TRIGGER_Uncertainty = ZgammaPH_EFF_TRIGGER_Uncertainty + ZjetsPH_EFF_TRIGGER_Uncertainty;
     
-    std::cout << R"--(Total Bkg & )--";
-    std::cout << std::setprecision(4) << std::fixed
+    ss << R"--(Total Bkg & )--";
+    ss << std::setprecision(4) << std::fixed
     << ( (totbkgNominal && totbkgEG_RESOLUTION_ALL) ? ((totbkgEG_RESOLUTION_ALL-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
     << ( (totbkgNominal && totbkgEG_SCALE_ALL) ? ((totbkgEG_SCALE_ALL-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
-    << ( (totbkgNominal && totbkgPH_EFF_ISO_Uncertainty) ? ((totbkgPH_EFF_ISO_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+    << ( (totbkg_PH_EFF_Nominal && totbkgPH_EFF_ISO_Uncertainty) ? ((totbkgPH_EFF_ISO_Uncertainty-totbkg_PH_EFF_Nominal)/totbkg_PH_EFF_Nominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
-    << ( (totbkgNominal && totbkgPH_EFF_ID_Uncertainty) ? ((totbkgPH_EFF_ID_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+    << ( (totbkg_PH_EFF_Nominal && totbkgPH_EFF_ID_Uncertainty) ? ((totbkgPH_EFF_ID_Uncertainty-totbkg_PH_EFF_Nominal)/totbkg_PH_EFF_Nominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
-    << ( (totbkgNominal && totbkgPH_EFF_TRIGGER_Uncertainty) ? ((totbkgPH_EFF_TRIGGER_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+    << ( (totbkg_PH_EFF_Nominal && totbkgPH_EFF_TRIGGER_Uncertainty) ? ((totbkgPH_EFF_TRIGGER_Uncertainty-totbkg_PH_EFF_Nominal)/totbkg_PH_EFF_Nominal)*100.0 : 0.0)
     << R"--( \\ \hline)--" << '\n';
     
+    ss << R"--(\end{tabular}})--" << '\n';
     
-    std::cout << R"--(\end{tabular}})--" << '\n';
+    ss << "\n\n\n";
     
-    std::cout << "\n\n\n";
-    
+    std::cout << ss.str();
 }
 
 void Section7_TablesPlots()
