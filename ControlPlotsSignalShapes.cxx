@@ -83,7 +83,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_mu18_mu8noL1",
 };
 //Other mA5 file: /Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root
-
+/*
 void fig1A()
 {    
     std::vector<std::vector<std::string>> input_filenames =
@@ -437,7 +437,6 @@ void fig1A()
     c1->SaveAs("Fig1A.png");
 }
 
-/*
 void fig5()
 {
     std::vector<std::string> input_filenames = { "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
@@ -2837,11 +2836,216 @@ void fig54()
     c1->SaveAs("Fig54B.png");
 }
 */
+void fig29()
+{
+    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+    {
+        RVec<TruthParticle> truthSelected;
+        bool foundParent;
+        if (truthChain.size() >= 1)
+        {
+            TruthParticle tp;
+            for (auto& tpe: startParticles)
+            {
+                tp = tpe;
+                while (true)
+                {
+                    if (tp.mc_parent_barcode == targetBarcode)
+                    {
+                        truthSelected.push_back(tp);
+                        break;
+                    }
+                    else
+                    {
+                        foundParent = false;
+                        for (auto& tmp: truthChain)
+                        {
+                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+                            {
+                                tp = tmp;
+                                foundParent = true;
+                                break;
+                            }
+                        }
+                        if (foundParent == false)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return truthSelected;
+    };
+    
+    std::vector<std::string> input_filenames = { "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Test_oneMassPoint.root",
+    };
+    
+    TCanvas* c1 = new TCanvas();
+    TLegend* legend = new TLegend(0.4, 0.2, 0.8, 0.525);
+    
+    SchottDataFrame df(MakeRDF(input_filenames, 8));
+    
+    df.Describe().Print();
+    
+    std::cout << '\n';
+    
+    /*auto preselection = df.Filter(
+    [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
+    {
+        bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+        if (!trigger_found)
+        {
+            return false;
+        }
+        
+        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+        [](TruthParticle& x)
+        {
+            return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
+                    abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
+                    abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+            
+        }), truth_particles.end());
+        
+        if (truth_particles.size() != 2)
+        {
+            return false;
+        }
+        
+        if (DeltaR(truth_particles[0].Vector(), truth_particles[1].Vector()) <= 0.01)
+        {
+            return false;
+        }
+        
+        if (truth_particles[0].mc_charge*truth_particles[1].mc_charge >= 0)
+        {
+            return false;
+        }
+        
+        if (!((truth_particles[0].mc_pt > 27e3 && truth_particles[1].mc_pt > 20e3)
+                                               ||
+              (truth_particles[1].mc_pt > 27e3 && truth_particles[0].mc_pt > 20e3)))
+        {
+            return false;
+        }
+        
+        PtEtaPhiEVector dilepton = truth_particles[0].Vector() + truth_particles[1].Vector();
+        
+        if ((dilepton.M() < 81e3) || (dilepton.M() > 101e3))
+        {
+            return false;
+        }
+        
+        if ((truth_particles[0].Vector() + truth_particles[1].Vector()).Pt() <= 10e3)
+        {
+            return false;
+        }
+        
+        return true;
+        
+    }, {"trigger_passed_triggers", "truth_particles"});*/
+    
+    auto truth_photons_from_axions = df.Define("truth_photons",[&](RVec<TruthParticle> truth_particles)
+    {
+        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+        [](TruthParticle& x)
+        {
+            return (abs(x.mc_pdg_id) != 22);
+
+        }), truth_particles.end());
+
+        return truth_particles;
+        
+    }, {"truth_particles"})
+//    .Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
+//    {
+//        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+//        [](TruthParticle& x)
+//        {
+//            return (abs(x.mc_pdg_id) != 35);
+//
+//        }), truth_particles.end());
+//
+//        return truth_particles;
+//
+//    }, {"truth_particles"}).Define("truth_photons_from_axions",
+//    [&](RVec<TruthParticle>& truth_photons, RVec<TruthParticle>& truth_axions)
+//    {
+//        return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
+//
+//        truth_photons.erase(std::remove_if(truth_photons.begin(),truth_photons.end(),
+//        [&](TruthParticle& x)
+//        {
+//            return (x.mc_barcode != truth_axions[0].mc_parent_barcode);
+//
+//        }), truth_photons.end());
+//
+//        return truth_photons;
+//
+//    }, {"truth_photons", "truth_axions"})
+//    .Filter([&] (RVec<TruthParticle>& truth_photons_from_axions)
+//    {
+////        R__ASSERT(!truth_photons_from_axions.empty());
+//        return truth_photons_from_axions.size()==2;
+//    }, {"truth_photons_from_axions"})
+    .Define("diphoton_inv_mass", [&](RVec<TruthParticle> truth_photons_from_axions)
+    {
+        auto four_momentum = truth_photons_from_axions[0].Vector() + truth_photons_from_axions[1].Vector();
+        return four_momentum.M()/1e3;
+    }, {"truth_photons"});
+    
+    ROOT::RDF::RResultPtr<ULong64_t> Count = truth_photons_from_axions.Count();
+    ROOT::RDF::RResultPtr<TH1D> histo = truth_photons_from_axions.Histo1D<double>({"Diphoton Invariant Mass", "Diphoton Invariant Mass", 60u, 0, 10}, "diphoton_inv_mass");
+    
+    ROOT::RDF::RResultPtr<TH1D> mc_decay_time_histo = truth_photons_from_axions.Histo1D<RVec<float>>({"MC decay times", "MC decay times", 60u, 0, 0}, "mc_decay_time");
+    
+    std::cout << *Count << '\n';
+    
+    histo->SetLineColor(kGreen);
+    legend->AddEntry(&(*histo), histo->GetTitle(), "l");
+    histo->SetTitleOffset(1.2);
+    histo->GetYaxis()->CenterTitle(true);
+    histo->SetTitle(";m_{#gamma#gamma}  [GeV]; Events");
+    histo->Draw("HIST");
+    
+    gStyle->SetOptStat(0);
+    TLatex Tl;
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = ? GeV");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Fig29.png");
+    
+    c1 = new TCanvas();
+    legend = new TLegend(0.6, 0.2, 0.85, 0.525);
+    
+    mc_decay_time_histo->SetLineColor(kOrange);
+    legend->AddEntry(&(*mc_decay_time_histo), mc_decay_time_histo->GetTitle(), "l");
+    mc_decay_time_histo->SetTitle(";Decay times (wonder what the units are?);Events");
+    mc_decay_time_histo->SetTitleOffset(1.2);
+    mc_decay_time_histo->GetYaxis()->CenterTitle(true);
+    mc_decay_time_histo->SetAxisRange(0., 25e3, "X");
+    
+    mc_decay_time_histo->Draw("HIST");
+    
+    gStyle->SetOptStat(0);
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = ? GeV");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Decay_Times.png");
+    
+}
 
 void ControlPlotsSignalShapes()
 {
     auto start_time = Clock::now();
-    fig1A();
+//    fig1A();
 //    fig5();
 //    fig6();
 //    fig8();
@@ -2849,6 +3053,7 @@ void ControlPlotsSignalShapes()
 //    fig18();
 //    fig24();
 //    fig54();
+    fig29();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "

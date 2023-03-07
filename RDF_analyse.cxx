@@ -449,8 +449,8 @@ void RDF_analyse()
     
 //    df.Describe().Print();
     auto end_time = Clock::now();
-    std::cout << "\nTime difference:"
-       << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count() << " nanoseconds" << std::endl;
+    std::cout << "\nTime difference: "
+       << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " seconds" << std::endl;
     
     
 }

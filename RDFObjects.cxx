@@ -15,6 +15,9 @@ const int Electron::PDG_ID = 11;
 const int Muon::PDG_ID = 13;
 const int Photon::PDG_ID = 22;
 
+//Functions that describe how to print the objects. Used in
+//RDF::Display if one specifies a column with objects
+
 std::string cling::printValue(TruthParticle *p)
 {
     std::ostringstream os;

@@ -155,6 +155,8 @@ void Table21()
 //    std::vector<RResultMap<ULong64_t>> resultmaps;
     std::vector<RResultMap<float>> resultmaps;
     std::vector<RResultMap<float>> PH_EFF_resultmaps;
+//    std::vector<ROOT::RDF::RResultPtr<float>> GeneratorWeightCounts;
+    
     std::stringstream ss;
     
     for (auto& i: input_filenames)
@@ -163,19 +165,6 @@ void Table21()
 //        std::cout << *df.Count() << '\n';
 //        df.Describe().Print();
 //        exit(1);
-        
-//        auto EventWeight = df.Define("EventWeight",
-//        [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff, RVec<float> ei_event_weights_generator)
-//        {
-//            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
-//            photon_id_eff.resize(ResizeVal,1);
-//            photon_iso_eff.resize(ResizeVal,1);
-//            photon_trg_eff.resize(ResizeVal,1);
-//            ei_event_weights_generator.resize(ResizeVal,1);
-//
-//            return (photon_id_eff*photon_iso_eff*photon_trg_eff*ei_event_weights_generator) / ei_event_weights_generator[0];
-//
-//        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff", "ei_event_weights_generator"});
         
         auto EventWeight = df.Define("EventWeight",
         [](RVec<float>& ei_event_weights_generator)
@@ -350,17 +339,16 @@ void Table21()
         }, {"photon_shower_shape_e_ratio"});
         
         auto totEventWeight = merged_reco_photons_matched
-        .Define("totEventWeight", [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff, RVec<float> ei_event_weights_generator)
+        .Define("totEventWeight", [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
         {
             auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
             photon_id_eff.resize(ResizeVal,1);
             photon_iso_eff.resize(ResizeVal,1);
             photon_trg_eff.resize(ResizeVal,1);
-            ei_event_weights_generator.resize(ResizeVal,1);
             
-            return photon_id_eff*photon_iso_eff*photon_trg_eff*ei_event_weights_generator;
+            return photon_id_eff*photon_iso_eff*photon_trg_eff;//*ei_event_weights_generator[0];
             
-        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff", "ei_event_weights_generator"});
+        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
         
 //        Totals.push_back(df.Count()); //*
 //        Totals.push_back(EventWeight.Sum<RVec<float>>("EventWeight")); //*
@@ -372,13 +360,13 @@ void Table21()
         
         //*TODO: Weight these events first!
 
+//        GeneratorWeightCounts.push_back(df.Define("GenWeight",[](RVec<float>& ei_event_weights_generator){return ei_event_weights_generator[0];}, {"ei_event_weights_generator"}).Sum<float>("GenWeight"));
 //        Totals.push_back(pSB.Count());
 //        Totals.push_back(pSR.Count());
 //        Totals.push_back(SB.Count());
 //        Totals.push_back(SR.Count());
     }
     
-        
 //EG_RESOLUTION_ALL__1down:           42864.7 ID 1.00524  ISO 1.02283  TRIG 1.04157
 //EG_RESOLUTION_ALL__1up:             42751.5 ID 1.00524  ISO 1.02283  TRIG 1.04157
 //EG_SCALE_ALL__1down:                42521.1 ID 1.00524  ISO 1.02283  TRIG 1.04157
@@ -392,6 +380,10 @@ void Table21()
     
     ROOT::RDF::RunGraphs(Totals); // running all computation nodes concurrently
     
+//    for (auto& i: GeneratorWeightCounts)
+//    {
+//        std::cout << *i << '\n';
+//    }
 //    int count = 0;
 //    for (auto& i: resultmaps)
 //    {
@@ -458,7 +450,7 @@ void Table21()
 //        auto denominator = *Totals[i].GetResultPtr<ULong64_t>();
         auto denominator = *Totals[i].GetResultPtr<float>();
 
-        if (i >= 0 && i <= 2)
+        if (i >= 0 && i <= 2) //Zgamma
         {
             finalScaleVal = SFs[i]/denominator;
             ZgammaNominal += finalScaleVal*nominalVal;
