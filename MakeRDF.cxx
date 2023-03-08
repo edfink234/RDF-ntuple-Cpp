@@ -8,14 +8,17 @@
 #include "TInterpreter.h"
 #include "ROOT/RDFHelpers.hxx"
 
+//Uncomment These #include statements!
 //#include "RDFObjects.h"
 //#include "MakeRDF.h"
 //#include "RDFevent.h"
 
+//Delete These #include statements!
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFevent.h"
 
+//TChains used to build the RDF in MakeRDF
 TChain* RDFTree::__chain;
 TChain* RDFTree::__event_info_chain;
 
@@ -28,17 +31,20 @@ using namespace ROOT::VecOps;
 */
 SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
 {
-    if (numThreads > 0) //Enabling Multi-threading 
+    if (numThreads > 0) //Enabling Multi-threading if specified
     {
         ROOT::EnableImplicitMT(numThreads);
     }
     static bool loaded = false;
-    if (!loaded)
+    if (!loaded) //Only load objects once, or else an error occurs
     {
-        //load objects
+//        Uncomment the following line!
 //        gInterpreter->LoadMacro("RDFObjects.h");
+        
+//        Delete the following line!
         gInterpreter->LoadMacro("/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h");
-        //then load printValue overloads so objects can be printed
+
+//        Then load printValue overloads so objects can be printed
         gInterpreter->Declare("std::string cling::printValue(TruthParticle *);");
         gInterpreter->Declare("std::string cling::printValue(Electron *);");
         gInterpreter->Declare("std::string cling::printValue(Muon *);");
@@ -47,20 +53,29 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         gInterpreter->Declare("std::string cling::printValue(Track *);");
         loaded = true;
     }
+//    Reinitializing TChains to hold info for "physics" and "full_event_info"
+//    TTree's respectively
     RDFTree::__chain = new TChain("physics");
     RDFTree::__event_info_chain = new TChain("full_event_info");
-    
+//    Just a precaution
     RDFTree::__chain->Reset();
     RDFTree::__event_info_chain->Reset();
+//    Add files supplied by user
     for (const auto& f: files)
     {
         RDFTree::__chain->Add(f.c_str());
         RDFTree::__event_info_chain->Add(f.c_str());
     }
+//    Horizontally append __event_info_chain to __chain
     RDFTree::__chain->AddFriend(RDFTree::__event_info_chain);
 
+//    Finally, construct the RDataFrame with the columns in both
+//    the "physics" and "full_event_info" TTrees
     ROOT::RDataFrame df(*RDFTree::__chain);
 
+//    Now, create a new RDF representation that also holds the columns
+//    for the objects, as well as Variations (if we choose to use them),
+//    that are created using Define and Vary respectively
     auto NewDf = df.Define("truth_particles",[&](RVec<int>& mc_pdg_id, RVec<int>& mc_barcode, RVec<int>& mc_parent_barcode, RVec<int>& mc_status, RVec<float>& mc_pt, RVec<float>& mc_charge, RVec<float>& mc_eta, RVec<float>& mc_phi, RVec<float>& mc_e, RVec<float>& mc_mass)
     {
         RVec<TruthParticle> x;
@@ -347,8 +362,6 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         return varied_photon_trg_eff;
     }, {"photon_trg_eff", "photon_syst_name", "photon_syst_trg_eff"}, Event::systematics);
     
-//    std::cout << ROOT::RDF::SaveGraph(df) << '\n';
-
-    return NewDf;
+    return NewDf; //Return the RDF with all the info we want!
 }
 
