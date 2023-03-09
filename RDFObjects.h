@@ -129,6 +129,41 @@ struct Track final
     }
 };
 
+struct AbstractParticle final
+{
+    float electron_charge;
+    float electron_pt;
+    float electron_e;
+    float electron_eta;
+    float electron_phi;
+//    int   electron_id;
+    float electron_isolation;
+    float electron_d0;
+    float electron_z0;
+    int   electron_id_medium;
+    
+    PtEtaPhiEVector ElectronVector()
+    {
+        return PtEtaPhiEVector(electron_pt, electron_eta, electron_phi, electron_e);
+    }
+    
+    float photon_pt;
+    float photon_e;
+    float photon_eta;
+    float photon_phi;
+    float photon_etcone40;
+    int   photon_id;
+    int   photon_id_loose;
+    int   photon_id_tight;
+    float photon_cluster_eta_be_2;
+    int   photon_id_nn;
+    
+    PtEtaPhiEVector PhotonVector()
+    {
+        return PtEtaPhiEVector(photon_pt, photon_eta, photon_phi, photon_e);
+    }
+};
+
 //Namespace for pretty-printing functions for objects
 namespace cling
 {
