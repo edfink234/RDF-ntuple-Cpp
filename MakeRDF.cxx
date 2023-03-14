@@ -8,17 +8,10 @@
 #include "TInterpreter.h"
 #include "ROOT/RDFHelpers.hxx"
 
-//Uncomment These #include statements!
-//#include "RDFObjects.h"
-//#include "MakeRDF.h"
-//#include "RDFevent.h"
+#include "RDFObjects.h"
+#include "MakeRDF.h"
+#include "RDFevent.h"
 
-//Delete These #include statements!
-#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
-#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
-#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFevent.h"
-
-//TChains used to build the RDF in MakeRDF
 TChain* RDFTree::__chain;
 TChain* RDFTree::__event_info_chain;
 
@@ -180,7 +173,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
 //        gInterpreter->LoadMacro("RDFObjects.h");
         
 //        Delete the following line!
-        gInterpreter->LoadMacro("/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h");
+        gInterpreter->LoadMacro("RDFObjects.h");
 
 //        Then load printValue overloads so objects can be printed
         gInterpreter->Declare("std::string cling::printValue(TruthParticle *);");
