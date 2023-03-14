@@ -167,14 +167,14 @@ void Table21()
 //        exit(1);
 
         auto EventWeight = df.Define("EventWeight",
-        [](RVec<float>& ei_event_weights_generator)
+        [](const RVec<float>& ei_event_weights_generator)
         {
             return  ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
 
         }, {"ei_event_weights_generator"});
 
         auto two_leptons = df.Filter(
-        [](RVec<Muon>& muons, RVec<AbstractParticle> electrons)
+        [](const RVec<Muon>& muons, RVec<AbstractParticle> electrons)
         {
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](AbstractParticle& ep)
@@ -204,29 +204,29 @@ void Table21()
             return electrons;
 
         },{"abstract_electrons"})
-        .Filter([](RVec<AbstractParticle> electrons)
+        .Filter([](const RVec<AbstractParticle>& electrons)
         {
             return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
 
         }, {"di_electrons"});
 
-        auto leadingPt = opp_charge.Filter([](RVec<AbstractParticle>& electrons)
+        auto leadingPt = opp_charge.Filter([](const RVec<AbstractParticle>& electrons)
         {
             return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
         }, {"di_electrons"});
 
-        auto deltaR = leadingPt.Filter([] (RVec<AbstractParticle>& electrons)
+        auto deltaR = leadingPt.Filter([] (const RVec<AbstractParticle>& electrons)
         {
             return (DeltaR(electrons[0].ElectronVector(), electrons[1].ElectronVector()) > 0.01);
         }, {"di_electrons"});
 
-        auto mass = deltaR.Filter([] (RVec<AbstractParticle>& electrons)
+        auto mass = deltaR.Filter([] (const RVec<AbstractParticle>& electrons)
         {
             auto mass = (electrons[0].ElectronVector() + electrons[1].ElectronVector()).M()/1e3;
             return ((mass >= 81) && (mass <= 101));
         }, {"di_electrons"});
 
-        auto ptCut = mass.Filter([] (RVec<AbstractParticle>& electrons)
+        auto ptCut = mass.Filter([] (const RVec<AbstractParticle>& electrons)
         {
             auto pT = (electrons[0].ElectronVector() + electrons[1].ElectronVector()).Pt()/1e3;
             return pT > 10;
@@ -246,9 +246,9 @@ void Table21()
         }, {"abstract_photons"});
 
         auto merged_reco_photons_matched = photon_passes_cuts.Filter(
-        [&](RVec<AbstractParticle>& reco_photons_test)
+        [&](const RVec<AbstractParticle>& reco_photons_matched)
         {
-            RVec<AbstractParticle> reco_photons_matched = reco_photons_test;
+//            RVec<AbstractParticle> reco_photons_matched = reco_photons_test;
             if (reco_photons_matched.size() == 1)
             {
                 return reco_photons_matched[0].photon_pt > 20e3;
@@ -292,7 +292,7 @@ void Table21()
 
         }, {"photons_pass_cuts"})
         .Define("merged_photon",
-        [&](RVec<AbstractParticle>& reco_photons_matched)
+        [&](const RVec<AbstractParticle>& reco_photons_matched)
         {
             for (auto& p: reco_photons_matched)
             {
@@ -306,7 +306,7 @@ void Table21()
         }, {"photons_pass_cuts"});
 
         auto dilepton_and_photon = merged_reco_photons_matched
-        .Define("reconstructed_mass",[&](RVec<AbstractParticle>& di_electrons, AbstractParticle& merged_photon)
+        .Define("reconstructed_mass",[&](const RVec<AbstractParticle>& di_electrons, const AbstractParticle& merged_photon)
         {
             auto four_momentum = di_electrons[0].ElectronVector() + di_electrons[1].ElectronVector();
 
@@ -315,25 +315,25 @@ void Table21()
         }, {"di_electrons", "merged_photon"});
 
         auto pSB = dilepton_and_photon.Filter(
-        [](double reconstructed_mass)
+        [](const double reconstructed_mass)
         {
             return (reconstructed_mass < 110) || (reconstructed_mass > 130);
         }, {"reconstructed_mass"});
 
         auto pSR = dilepton_and_photon.Filter(
-        [](double reconstructed_mass)
+        [](const double reconstructed_mass)
         {
             return (reconstructed_mass >= 110) && (reconstructed_mass <= 130);
         }, {"reconstructed_mass"});
 
         auto SB = pSB.Filter(
-        [](RVec<float>& Eratio)
+        [](const RVec<float>& Eratio)
         {
             return (!Any(Eratio <= 0.8));
         }, {"photon_shower_shape_e_ratio"});
 
         auto SR = pSR.Filter(
-        [](RVec<float>& Eratio)
+        [](const RVec<float>& Eratio)
         {
             return (!Any(Eratio <= 0.8));
         }, {"photon_shower_shape_e_ratio"});
@@ -350,21 +350,12 @@ void Table21()
 
         }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
 
-//        Totals.push_back(df.Count()); //*
-//        Totals.push_back(EventWeight.Sum<RVec<float>>("EventWeight")); //*
+//        Totals.push_back(df.Count());
+//        Totals.push_back(EventWeight.Sum<RVec<float>>("EventWeight"));
         Totals.push_back(EventWeight.Sum<float>("EventWeight"));
-//        resultmaps.push_back(VariationsFor(merged_reco_photons_matched.Count())); //*
+//        resultmaps.push_back(VariationsFor(merged_reco_photons_matched.Count()));
         resultmaps.push_back(VariationsFor(totEventWeight.Sum<RVec<float>>("totEventWeight")));
-
         PH_EFF_resultmaps.push_back(VariationsFor(totEventWeight.Sum<RVec<float>>("totEventWeight")));
-
-        //*TODO: Weight these events first!
-
-//        GeneratorWeightCounts.push_back(df.Define("GenWeight",[](RVec<float>& ei_event_weights_generator){return ei_event_weights_generator[0];}, {"ei_event_weights_generator"}).Sum<float>("GenWeight"));
-//        Totals.push_back(pSB.Count());
-//        Totals.push_back(pSR.Count());
-//        Totals.push_back(SB.Count());
-//        Totals.push_back(SR.Count());
     }
 
 //EG_RESOLUTION_ALL__1down:           42864.7 ID 1.00524  ISO 1.02283  TRIG 1.04157
@@ -424,8 +415,6 @@ void Table21()
     ss << R"--({Sample} & EG\_RESOLUTION\_ALL & EG\_SCALE\_ALL & PH\_EFF\_ISO\_Uncertainty & PH\_EFF\_ID\_Uncertainty & PH\_EFF\_TRIGGER\_Uncertainty \\ \hline)--" << '\n';
 
     double finalScaleVal;
-
-    //TODO: fix problem with systematics thereafter
 
     double ZgammaNominal = 0, ZgammaEG_RESOLUTION_ALL = 0,
     ZgammaEG_SCALE_ALL = 0, ZgammaPH_EFF_ISO_Uncertainty = 0,
@@ -585,3 +574,13 @@ int main()
 {
     Section7_TablesPlots();
 }
+
+//using Clock = std::chrono::high_resolution_clock;
+//std::vector<double> times;
+//using ROOT::RDF::Experimental::VariationsFor;
+//std::vector<std::string> tags;
+//for (int i = 0; i <= 10; i++){auto start_time = Clock::now(); ROOT::RDataFrame d(1e6); auto d1 = d.Define("x", [](){return ROOT::VecOps::RVec<double>(10, gRandom->Rndm());}); if (i==0){auto v1 = d1.Sum<ROOT::VecOps::RVec<double>>("x");std::cout << *v1 << '\n';auto end_time = Clock::now();times.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9);continue;} tags.push_back(std::string(i,static_cast<char>(i+64))); auto v1 = d1.Vary("x", [&]{ROOT::VecOps::RVec<ROOT::VecOps::RVec<double>> x;for (int j = 1; j <= i; j++) {x.push_back(ROOT::VecOps::RVec<double>(10, gRandom->Rndm()));} return x;}, {}, tags).Sum<ROOT::VecOps::RVec<double>>("x"); auto sums = VariationsFor(v1);for (auto& i: sums.GetKeys()){std::cout << sums[i] << '\t';} std::cout << '\n'; auto end_time = Clock::now(); times.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9);}
+//for (int i = 0; i <= 10; i++){if (i==0){std::cout << std::setw(25) << std::fixed << "# of Variations" << std::setw(25) << std::fixed << "Time (s)" << '\n';}std::cout << std::setw(25) << std::fixed << i << std::setw(25) << std::fixed << times[i] << '\n';}
+
+
+

@@ -82,7 +82,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-
+/*
 void Table3()
 {
     std::vector<std::vector<std::string>> input_filenames = {
@@ -517,7 +517,7 @@ void Table3()
         std::cout << i << "\n\n";
     }
 }
-/*
+
 void Table8()
 {
     std::vector<std::vector<std::string>> input_filenames = {
@@ -785,7 +785,7 @@ void Table8()
         std::cout << i << "\n\n";
     }
 }
-
+*/
 void Table11()
 {
     std::vector<std::vector<std::string>> input_filenames = {
@@ -795,7 +795,8 @@ void Table11()
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
         //Signal
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/sample.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/sample2.root"},
         //Data
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
         //Jets
@@ -823,7 +824,7 @@ void Table11()
         srCountZjets = 0, srIDCountZjets = 0;
     std::vector<ROOT::RDF::RResultHandle> Nodes;
 
-    std::ostringstream os;
+    std::ostringstream os, ss;
     os << R"--(\section*{Table 11})--" << '\n';
     os << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
     os << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
@@ -870,12 +871,7 @@ void Table11()
         }
         return truthSelected;
     };
-    
-    auto TruthMatching = [](SchottDataFrame df)
-    {
-        
-    };
-    
+
     for (auto& file: input_filenames)
     {
         SchottDataFrame df(MakeRDF(file, 8));
@@ -951,31 +947,30 @@ void Table11()
         }, {"photons"}).Filter(
        [&](RVec<Photon>& reco_photons_matched)
        {
-           if (reco_photons_matched.size() < 2)
-           {
-               return false;
-           }
-           RVec<Photon> x;
-           auto combs = Combinations(reco_photons_matched, 2);
-           size_t length = combs[0].size();
-           double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
-
-           for (size_t i=0; i<length; i++)
-           {
-               delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
-               m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
-               pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
-               X = delta_r*(pt/(2.0*m));
-               if (i==0 || abs(1-X) < abs(1-best_X))
-               {
-                   best_X = X;
-                   pt1 = reco_photons_matched[combs[0][i]].photon_pt;
-                   pt2 = reco_photons_matched[combs[1][i]].photon_pt;
-                   chosen_delta_r = delta_r;
-                   x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
-               }
-           }
-           return (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3);
+            if (reco_photons_matched.size() < 2)
+            {
+              return false;
+            }
+            RVec<Photon> x;
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if (i==0 || abs(1-X) < abs(1-best_X))
+                {
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
+                    x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                }
+            }
+            return (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3);
 
        }, {"photonPtDeltaR"});
                 
@@ -1080,6 +1075,13 @@ void Table11()
     std::cout << R"--(Sample & $\frac{\text{pass preselection (PS)}}{\text{pass preselection (PS)}}$ & $\frac{\text{photon } p_T \text{ + } \Delta R_{\gamma\gamma} \text{ cut }}{\text{pass preselection (PS)}}$ & $\frac{X \text{ window}}{\text{pass preselection (PS)}}$ & $\frac{\text{SR}}{\text{pass preselection (PS)}}$ & $\frac{\text{SR-ID}}{\text{pass preselection (PS)}}$
            \\ \hline )--" << '\n';
     
+    ss << R"--(\section*{Table 11 Signal Ratios})--" << '\n';
+    ss << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    ss << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
+    ss << R"--(\hline)--" << '\n';
+    ss << R"--(Sample & $\frac{\text{pass preselection (PS)}}{\text{pass preselection (PS)}}$ & $\frac{\text{photon } p_T \text{ + } \Delta R_{\gamma\gamma} \text{ cut }}{\text{pass preselection (PS)}}$ & $\frac{X \text{ window}}{\text{photon } p_T \text{ + } \Delta R_{\gamma\gamma} \text{ cut }}$ & $\frac{\text{SR}}{X \text{ window}}$ & $\frac{\text{SR-ID}}{\text{SR}}$
+           \\ \hline )--" << '\n';
+    
     for (int i=0, j=0; (i<15 && j <= 84); i++, j+=6)
     {
         os << Samples[i];
@@ -1135,6 +1137,27 @@ void Table11()
                 << " & " <<
                 333.21 / 19516.87
                 << R"--( \\ \hline )--" << '\n';
+                
+                ss << Samples[i] << " (Me) & " << 1 << " & " <<
+                static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+2].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+3].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+4].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+                
+                ss << Samples[i] << " (Paper) & " << 1 << " & " <<
+                2343.65 / 19516.87
+                << " & " <<
+                2204.22 / 2343.65
+                << " & " <<
+                2076.73 / 2204.22
+                << " & " <<
+                333.21 / 2076.73
+                << R"--( \\ \hline )--" << '\n';
+                
             }
             
             if (i==4) //5 GeV
@@ -1158,11 +1181,34 @@ void Table11()
                 << " & " <<
                 1959.68 / 19536.68
                 << R"--( \\ \hline )--" << '\n';
+                
+                ss << Samples[i] << " (Me) & " << 1 << " & " <<
+                static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+2].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+3].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+4].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+                
+                ss << Samples[i] << " (Paper) & " << 1 << " & " <<
+                3245.86 / 19536.68
+                << " & " <<
+                3052.81 / 3245.86
+                << " & " <<
+                2941.28 / 3052.81
+                << " & " <<
+                1959.68 / 2941.28
+                << R"--( \\ \hline )--" << '\n';
             }
         }
     }
     
     std::cout << R"--(\end{tabular}})--" << "\n\n\n";
+    
+    ss << R"--(\end{tabular}})--" << "\n\n\n";
+    std::cout << ss.str() << '\n';
     
     for (int i = 0, j = 0; (i <= 12 && j <= 2); i += 6, j++)
     {
@@ -1215,14 +1261,14 @@ void Table11()
         std::cout << i << "\n\n";
     }
 }
-*/
+
 void CutFlow()
 {
     auto start_time = Clock::now();
     
-    Table3();
+//    Table3();
 //    Table8();
-//    Table11();
+    Table11();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "

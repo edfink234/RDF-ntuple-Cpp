@@ -27,7 +27,7 @@ using namespace ROOT::VecOps;
 //Function to make an RVec of photons. We define it outside the call
 //to Define because we want to use it more than once
 template <typename T>
-RVec<T> MakePhotons (RVec<float>& photon_pt, RVec<float>& photon_e, RVec<float>& photon_eta, RVec<float>& photon_phi,  RVec<float>& photon_etcone40, RVec<int>& photon_id, RVec<int>& photon_id_loose, RVec<int>& photon_id_tight, RVec<float>& photon_cluster_eta_be_2 /*, RVec<int>& photon_id_nn */)
+RVec<T> MakePhotons (const RVec<float>& photon_pt, const RVec<float>& photon_e, const RVec<float>& photon_eta, const RVec<float>& photon_phi, const RVec<float>& photon_etcone40, const RVec<int>& photon_id, const RVec<int>& photon_id_loose, const RVec<int>& photon_id_tight, const RVec<float>& photon_cluster_eta_be_2 /*, const RVec<int>& photon_id_nn */)
 {
     RVec<T> x;
     x.reserve(photon_pt.size());
@@ -52,7 +52,7 @@ RVec<T> MakePhotons (RVec<float>& photon_pt, RVec<float>& photon_e, RVec<float>&
 //Function to make an RVec of electrons. We define it outside the call
 //to Define because we want to use it more than once
 template <typename T>
-RVec<T> MakeElectrons (RVec<float>& electron_charge, RVec<float>& electron_pt, RVec<float>& electron_e, RVec<float>& electron_eta, RVec<float>& electron_phi, /*RVec<float>& electron_id,*/ RVec<float>& electron_isolation, RVec<float>& electron_d0, RVec<float>& electron_z0 , RVec<int>& electron_id_medium)
+RVec<T> MakeElectrons (const RVec<float>& electron_charge, const RVec<float>& electron_pt, const RVec<float>& electron_e, const RVec<float>& electron_eta, const RVec<float>& electron_phi, /*const RVec<float>& electron_id,*/ const RVec<float>& electron_isolation, const RVec<float>& electron_d0, const RVec<float>& electron_z0 , const RVec<int>& electron_id_medium)
 {
     RVec<T> x;
     x.reserve(electron_pt.size());
@@ -206,7 +206,6 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
     }
 //    Horizontally append __event_info_chain to __chain
     RDFTree::__chain->AddFriend(RDFTree::__event_info_chain);
-
 //    Finally, construct the RDataFrame with the columns in both
 //    the "physics" and "full_event_info" TTrees
     ROOT::RDataFrame df(*RDFTree::__chain);
@@ -214,7 +213,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
 //    Now, create a new RDF representation that also holds the columns
 //    for the objects, as well as Variations (if we choose to use them),
 //    that are created using Define and Vary respectively
-    auto NewDf = df.Define("truth_particles",[&](RVec<int>& mc_pdg_id, RVec<int>& mc_barcode, RVec<int>& mc_parent_barcode, RVec<int>& mc_status, RVec<float>& mc_pt, RVec<float>& mc_charge, RVec<float>& mc_eta, RVec<float>& mc_phi, RVec<float>& mc_e, RVec<float>& mc_mass)
+    auto NewDf = df.Define("truth_particles",[&](const RVec<int>& mc_pdg_id, const RVec<int>& mc_barcode, const RVec<int>& mc_parent_barcode, const RVec<int>& mc_status, const RVec<float>& mc_pt, const RVec<float>& mc_charge, const RVec<float>& mc_eta, const RVec<float>& mc_phi, const RVec<float>& mc_e, const RVec<float>& mc_mass)
     {
         RVec<TruthParticle> x;
         x.reserve(mc_pt.size());
@@ -236,7 +235,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         return x;
     }, {"mc_pdg_id", "mc_barcode", "mc_parent_barcode", "mc_status", "mc_pt", "mc_charge", "mc_eta", "mc_phi", "mc_e", "mc_mass"})
     .Define("electrons",MakeElectrons<Electron>, {"electron_charge", "electron_pt", "electron_e", "electron_eta", "electron_phi", /*"electron_id",*/ "electron_isolation", "electron_d0", "electron_z0", "electron_id_medium",})
-    .Define("muons",[&](RVec<int>& muon_charge, RVec<float>& muon_pt, RVec<float>& muon_e, RVec<float>& muon_eta, RVec<float>& muon_phi)
+    .Define("muons",[&](const RVec<int>& muon_charge, const RVec<float>& muon_pt, const RVec<float>& muon_e, const RVec<float>& muon_eta, const RVec<float>& muon_phi)
     {
         RVec<Muon> x;
         x.reserve(muon_pt.size());
@@ -253,7 +252,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         return x;
     }, {"muon_charge", "muon_pt", "muon_e", "muon_eta", "muon_phi"})
     .Define("photons",MakePhotons<Photon>, {"photon_pt", "photon_e", "photon_eta", "photon_phi", "photon_etcone40", "photon_id", "photon_id_loose", "photon_id_tight", "photon_cluster_eta_be_2", /*"photon_id_nn"*/})
-    .Define("clusters",[&](RVec<float>& cluster_pt, RVec<float>& cluster_phi, RVec<float>& cluster_e, RVec<float>& cluster_eta)
+    .Define("clusters",[&](const RVec<float>& cluster_pt, const RVec<float>& cluster_phi, const RVec<float>& cluster_e, const RVec<float>& cluster_eta)
     {
         RVec<Cluster> x;
         x.reserve(cluster_pt.size());
@@ -268,7 +267,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         }
         return x;
     }, {"cluster_pt", "cluster_phi", "cluster_e", "cluster_eta"})
-    .Define("tracks",[&](RVec<int>& track_type, RVec<float>& track_pt, RVec<float>& track_eta, RVec<float>& track_phi, /*RVec<float>& track_e,*/ RVec<float>& track_charge, RVec<int>& track_num_pixel_hits, RVec<int>& track_num_sct_hits)
+    .Define("tracks",[&](const RVec<int>& track_type, const RVec<float>& track_pt, const RVec<float>& track_eta, const RVec<float>& track_phi, /*const RVec<float>& track_e,*/ const RVec<float>& track_charge, const RVec<int>& track_num_pixel_hits, const RVec<int>& track_num_sct_hits)
     {
         RVec<Track> x;
         x.reserve(track_pt.size());
@@ -393,33 +392,3 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
     
     return NewDf; //Return the RDF with all the info we want!
 }
-
-/*
-.Vary({"photons","electrons"}, [](const RVec<Photon>& photons, const RVec<float>& photon_pt, const RVec<std::vector<std::string>>& photon_syst_name, const RVec<std::vector<float>>& photon_syst_pt, const RVec<std::vector<float>>& photon_syst_e, const RVec<Electron>& electrons, const RVec<float>& electron_pt, const RVec<std::vector<std::string>>& electron_syst_name, const RVec<std::vector<float>>& electron_syst_pt, const RVec<std::vector<float>>& electron_syst_e)
-{
-    
-}
-
-
-ROOT::RDataFrame d(10);
-auto d1 = d.Define("x", [](){return 1.1;}, {}).Define("y", [](){return ROOT::VecOps::RVec<int>{1,2,3};}, {});
-auto d2 = d1.Vary({"x","y"}, [] (double x, ROOT::VecOps::RVec<int> y){return ROOT::VecOps::RVec<std::tuple<ROOT::VecOps::RVec<double>, ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>>>>{std::make_tuple(ROOT::VecOps::RVec<double>{x+0.5, x-0.5},ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>>{y + 1, y - 1})};}, {"x", "y"}, {"up", "down"}, "x_and_y");
-
-
-
-
-auto d2 = d1.Vary({"x","y"}, [] (double x, ROOT::VecOps::RVec<int> y)
-{
-    return std::make_tuple(ROOT::VecOps::RVec<double>{x+0.5, x-0.5}, ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>>{y + 1, y - 1});
-}, {"up", "down"}, "x_and_y");
-    
-    
-//    std::tuple<ROOT::VecOps::RVec<double>, ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>>
-*/
-//ROOT::RDataFrame d(10);
-//auto df = d.Define("x",[](){return 1;}).Define("y",[](){return 3;});
-//ROOT::RDF::RResultPtr<::TH1D> nominal_hx = df.Vary({"x", "y"}, "ROOT::RVec<ROOT::RVecD>{{x*0.9, x*1.1}, {y*0.9, y*1.1}}", {"down", "up"}, "xy").Histo1D("x", "y");
-//using ROOT::RDF::Experimental::VariationsFor;
-//auto hx = VariationsFor(nominal_hx);
-////hx["nominal"].Draw();
-//hx["xy:down"].Draw("SAME");

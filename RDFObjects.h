@@ -142,7 +142,7 @@ struct AbstractParticle final
     float electron_z0;
     int   electron_id_medium;
     
-    PtEtaPhiEVector ElectronVector()
+    PtEtaPhiEVector ElectronVector() const
     {
         return PtEtaPhiEVector(electron_pt, electron_eta, electron_phi, electron_e);
     }
@@ -158,7 +158,7 @@ struct AbstractParticle final
     float photon_cluster_eta_be_2;
     int   photon_id_nn;
     
-    PtEtaPhiEVector PhotonVector()
+    PtEtaPhiEVector PhotonVector() const
     {
         return PtEtaPhiEVector(photon_pt, photon_eta, photon_phi, photon_e);
     }
