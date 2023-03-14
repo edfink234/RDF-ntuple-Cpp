@@ -25,3 +25,5 @@ And run
 
 `./RDF_analyse_h_Za`
 
+
+You can replace `RDF_analyse_h_Za` with `RDF_analyse.cxx`, `ControlPlotsSignalShapes.cxx`, `CutFlow.cxx`, `DataBackgroundComparison.cxx`, `Categorization.cxx`, `Figs_34_52.cxx`, or `Section7_TablesPlots.cxx`.
