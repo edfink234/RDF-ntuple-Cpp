@@ -1348,7 +1348,7 @@ void Fig19()
     Tl.DrawLatexNDC(0.5, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
     legend->SetBorderSize(0);
     legend->Draw();
-    c1->SaveAs("Fig19.png");
+    c1->SaveAs("Fig19.pdf");
 }
 
 void Categorization()
@@ -1357,8 +1357,8 @@ void Categorization()
 //    Table4();
 //    Table5();
 //    Table14();
-    Table15();
-//    Fig19();
+//    Table15();
+    Fig19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " seconds" << std::endl;
