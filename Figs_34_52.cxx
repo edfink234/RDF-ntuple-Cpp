@@ -82,14 +82,14 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-/*
+
 void Fig34()
 {
     std::vector<std::vector<std::string>> input_filenames = {
         {"/home/common/Za/NTuples/Ntuple_data_test.root"}
     };
     
-    SchottDataFrame df(MakeRDF(input_filenames[0], 8));
+    SchottDataFrame df(MakeRDF(input_filenames, 8));
     
     auto two_leptons = df.Filter(
     [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -214,9 +214,18 @@ void Fig34()
     {
         PtEtaPhiEVector gg = chosen_two[0].Vector()+chosen_two[1].Vector();
         return gg.M()/1e3;
-    }, {"chosen_two"});
+    }, {"chosen_two"}).Define("totEventWeight", [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
+    {
+      auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+      photon_id_eff.resize(ResizeVal,1);
+      photon_iso_eff.resize(ResizeVal,1);
+      photon_trg_eff.resize(ResizeVal,1);
+
+      return photon_id_eff*photon_iso_eff*photon_trg_eff;//*ei_event_weights_generator[0];
+
+    }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
     
-    auto di_ph_mm = resolved.Histo1D<double>({"data", "data", 10u, 0.6, 7.2}, "m_gg");
+    auto di_ph_mm = resolved.Histo1D<double>({"data", "data", 10u, 0.6, 7.2}, "m_gg", "totEventWeight");
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.65, 0.4, 0.75, 0.6);
     di_ph_mm->SetLineColor(kBlue);
@@ -224,7 +233,7 @@ void Fig34()
     di_ph_mm->SetTitle(";m_{#gamma#gamma} [GeV];Events");
     di_ph_mm->GetYaxis()->CenterTitle(true);
     di_ph_mm->GetXaxis()->SetTitleOffset(1.2);
-    di_ph_mm->Draw("same");
+    di_ph_mm->Draw("HISTsame");
     gStyle->SetOptStat(0);
     TLatex Tl;
     Tl.SetTextSize(0.03);
@@ -232,9 +241,9 @@ void Fig34()
     Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
     legend->SetBorderSize(0);
     legend->Draw();
-    c1->SaveAs("Fig34.png");
+    c1->SaveAs("Fig34.pdf");
     
-}*/
+}
 
 void Fig52()
 {
@@ -343,6 +352,13 @@ void Fig52()
     for (auto& i: input_filenames)
     {
         SchottDataFrame df(MakeRDF(i, 8));
+        
+        auto EventWeight = df.Define("EventWeight",
+        [](const RVec<float>& ei_event_weights_generator)
+        {
+            return  ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
+
+        }, {"ei_event_weights_generator"});
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -490,15 +506,24 @@ void Fig52()
         [](double reconstructed_mass, RVec<float>& Eratio)
         {
             return ((!Any(Eratio <= 0.8)) && ((reconstructed_mass < 110) || (reconstructed_mass > 130)));
-        }, {"reconstructed_mass", "photon_shower_shape_e_ratio"});
+        }, {"reconstructed_mass", "photon_shower_shape_e_ratio"}).Define("totEventWeight", [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
+        {
+            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+            photon_id_eff.resize(ResizeVal,1);
+            photon_iso_eff.resize(ResizeVal,1);
+            photon_trg_eff.resize(ResizeVal,1);
+
+            return photon_id_eff*photon_iso_eff*photon_trg_eff;//*ei_event_weights_generator[0];
+
+        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
 
         if (count <= 2 || count >= 4)
         {
-            Nodes.push_back(merged_reco_photons_matched.Count());
-            Nodes.push_back(df.Count());
+            Nodes.push_back(merged_reco_photons_matched.Sum<RVec<float>>("totEventWeight"));
+            Nodes.push_back(EventWeight.Sum<float>("EventWeight"));
         }
         
-        Nodes.push_back(merged_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count++], 60u, 0, 165}, "merged_photon_pt"));
+        Nodes.push_back(merged_reco_photons_matched.Histo1D<double>({prefixes[count], prefixes[count++], 60u, 0, 165}, "merged_photon_pt", "totEventWeight"));
     }
     
 //    0   1   2   Z-gamma
@@ -521,12 +546,12 @@ void Fig52()
     count = 0;
     for (auto& i: {0,3,6}) //Z-gamma
     {
-        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*(SFs[count++] / *Nodes[i+1].GetResultPtr<ULong64_t>());
+        factor += (*Nodes[i].GetResultPtr<float>())*(SFs[count++] / *Nodes[i+1].GetResultPtr<float>());
     }
     
     for (int i = 10, j = 0; (i <= 34 && j <= 8); i += 3, j++) //Z-jets
     {
-        factor += (*Nodes[i].GetResultPtr<ULong64_t>())*(JetNumeratorSFs[j] / *Nodes[i+1].GetResultPtr<ULong64_t>());
+        factor += (*Nodes[i].GetResultPtr<float>())*(JetNumeratorSFs[j] / *Nodes[i+1].GetResultPtr<float>());
     }
     
     auto hs = new THStack("hs3","");
@@ -537,7 +562,7 @@ void Fig52()
     {
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 9)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count] / *Nodes[i-1].GetResultPtr<ULong64_t>());
+            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count] / *Nodes[i-1].GetResultPtr<float>());
         }
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
@@ -552,7 +577,7 @@ void Fig52()
     {
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
         {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / *Nodes[i-1].GetResultPtr<ULong64_t>());
+            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / *Nodes[i-1].GetResultPtr<float>());
         }
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
@@ -572,7 +597,7 @@ void Fig52()
     Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
     legend->SetBorderSize(0);
     legend->Draw("same");
-    c1->SaveAs("Fig52A.png");
+    c1->SaveAs("Fig52A.pdf");
 }
 
 void Figs_34_52()
