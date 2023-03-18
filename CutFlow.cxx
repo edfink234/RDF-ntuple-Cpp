@@ -175,9 +175,6 @@ void Table3()
         },
     };
     
-    std::vector<std::string> cutFlows;
-    cutFlows.reserve(input_filenames.size());
-    
     std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
     std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
     
@@ -185,93 +182,125 @@ void Table3()
     
     std::ostringstream os;
     os << R"--(\section*{Table 3})--" << '\n';
-    os << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    os << R"--(\hspace{-3cm}\scalebox{0.45}{)--" << '\n';
     os << R"--(\begin{tabular}{|c|c|c|c|c|c|c|c|})--" << '\n';
     os << R"--(\hline)--" << '\n';
     os << R"--(Sample & Before Preselection & 2 leptons
-          & Opposite Charge & $p_{T}^{\text{leading}} > 27$ GeV, \; $p_{T}^{\text{sub-leading}} > 20$ GeV & $\Delta R > 0.01$ & dilep mass cut & dilep $p_{T}$ cut \\ \hline )--" << '\n';
+          & Opposite Charge & $p_{T}^{\text{leading}} > 27$ GeV, \; $p_{T}^{\text{sub-leading}} > 20$ GeV & Same flavour & dilep mass cut & dilep $p_{T}$ cut \\ \hline )--" << '\n';
     
     double beforePreselecZGamma = 0, twoLeptonsZGamma = 0, oppChargeZGamma = 0, leadingPtZGamma = 0, deltaRZGamma = 0, MassZGamma = 0, ptCutZGamma = 0;
+    double beforePreselecZGammaStatUnc = 0, twoLeptonsZGammaStatUnc = 0, oppChargeZGammaStatUnc = 0, leadingPtZGammaStatUnc = 0, deltaRZGammaStatUnc = 0, MassZGammaStatUnc = 0, ptCutZGammaStatUnc = 0;
 
     double beforePreselecZJets = 0, twoLeptonsZJets = 0, oppChargeZJets = 0, leadingPtZJets = 0, deltaRZJets = 0, MassZJets = 0, ptCutZJets = 0;
+    double beforePreselecZJetsStatUnc = 0, twoLeptonsZJetsStatUnc = 0, oppChargeZJetsStatUnc = 0, leadingPtZJetsStatUnc = 0, deltaRZJetsStatUnc = 0, MassZJetsStatUnc = 0, ptCutZJetsStatUnc = 0;
     
     std::vector<ROOT::RDF::RResultHandle> Nodes;
+//    std::vector<ROOT::RDF::RResultHandle> tempNodes;
+//
+//    std::vector<RResultMap<ULong64_t>> resultmaps;
     
     for (auto& file: input_filenames)
     {
         SchottDataFrame df(MakeRDF(file, 8));
         
-        auto two_leptons = df.Filter(
-        [](RVec<Muon>& muons, RVec<Electron> electrons)
+//        df.Describe().Print();
+//        exit(1);
+ 
+        auto trigger_selection = df.Filter(
+        [](const RVec<std::string>& trigger_passed_triggers)
         {
-            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
-            [](Electron& ep)
+            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+
+            if (!trigger_found)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
-                          && (ep.electron_id_medium == 1)));
-                
-            }), electrons.end());
-            
-            return (electrons.size()==2 && muons.empty());
-            
-        }, {"muons", "electrons"});
+              return false;
+            }
+            return true;
+
+        }, {"trigger_passed_triggers"});
         
-        auto opp_charge = two_leptons.Define("di_electrons",
+        auto two_leptons = df.Define("di_electrons",
         [](RVec<Electron> electrons)
         {
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
                 return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
-                && (ep.electron_id_medium == 1)));
+                                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                                          && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
-            
+
             return electrons;
-            
-        },{"electrons"})
-        .Filter([](RVec<Electron> electrons)
+
+        },{"electrons"}).Filter([](RVec<Muon>& muons, RVec<Electron> di_electrons)
         {
-            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+            return (di_electrons.size()==2 && muons.empty() && DeltaR(di_electrons[0].Vector(), di_electrons[1].Vector()) > 0.01);
+            
+        }, {"muons", "di_electrons"});
+        
+        auto opp_charge = two_leptons.Filter([](RVec<Electron> di_electrons)
+        {
+            return (di_electrons[0].electron_charge*di_electrons[1].electron_charge < 0);
             
         }, {"di_electrons"});
         
         auto leading_pt = opp_charge.Filter([](RVec<Electron>& electrons)
         {
-            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+            return ((electrons[0].electron_pt >= 20e3 && electrons[1].electron_pt >= 27e3) || (electrons[1].electron_pt >= 20e3 && electrons[0].electron_pt >= 27e3));
         }, {"di_electrons"});
         
-        auto delta_R = leading_pt.Filter([] (RVec<Electron>& electrons)
+//        auto delta_R = leading_pt.Filter([] (RVec<Electron>& electrons)
+//        {
+//            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+//        }, {"di_electrons"});
+        
+        auto same_flavour = leading_pt.Filter([] (RVec<Electron>& electrons)
         {
-            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+            return true; //abs(electrons[0].electron_pdg_id) == abs(electrons[1].electron_pdg_id) == 11;
         }, {"di_electrons"});
         
-        auto mass = delta_R.Filter([] (RVec<Electron>& electrons)
+        auto dilep = same_flavour.Define("dilep",[] (RVec<Electron>& electrons)
         {
-            auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+            return (electrons[0].Vector() + electrons[1].Vector());
+        }, {"di_electrons"});
+        
+        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+        {
+            auto mass = dilep.M()/1e3;
             return ((mass >= 81) && (mass <= 101));
-        }, {"di_electrons"});
+        }, {"dilep"});
         
-        auto pt_cut = mass.Filter([] (RVec<Electron>& electrons)
+        auto pt_cut = mass.Filter([] (PtEtaPhiEVector& dilep)
         {
-            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+            auto pT = dilep.Pt()/1e3;
             return pT > 10;
-        }, {"di_electrons"});
+        }, {"dilep"});
         
         Nodes.push_back(df.Count());
         Nodes.push_back(two_leptons.Count());
         Nodes.push_back(opp_charge.Count());
         Nodes.push_back(leading_pt.Count());
-        Nodes.push_back(delta_R.Count());
+        Nodes.push_back(same_flavour.Count());
         Nodes.push_back(mass.Count());
         Nodes.push_back(pt_cut.Count());
+        
+//        resultmaps.push_back(VariationsFor(df.Count()));
+//        resultmaps.push_back(VariationsFor(two_leptons.Count()));
+//        resultmaps.push_back(VariationsFor(opp_charge.Count()));
+//        resultmaps.push_back(VariationsFor(leading_pt.Count()));
+//        resultmaps.push_back(VariationsFor(same_flavour.Count()));
+//        resultmaps.push_back(VariationsFor(mass.Count()));
+//        resultmaps.push_back(VariationsFor(pt_cut.Count()));
+//
+//        tempNodes.push_back(df.Take<RVec<std::vector<std::string>>, RVec<RVec<std::vector<std::string>>>>("electron_syst_name"));
+//        tempNodes.push_back(df.Take<RVec<std::vector<std::string>>, RVec<RVec<std::vector<std::string>>>>("photon_syst_name"));
     }
+
+    constexpr std::array<const char*,7> Cuts = {"total", "two leptons", "opposite charge", "leading pt", "same flavour", "mass", "pt cut"};
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     
-  
 //     0      1    2     3     4     5     6      Z-gamma
 //     7      8    9     10    11    12    13     Z-gamma
 //     14    15    16    17    18    19    20     Z-gamma
@@ -287,8 +316,113 @@ void Table3()
 //     84    85    86    87    88    89    90     Z-jets
 //     91    92    93    94    95    96    97     Z-jets
 //     98    99    100   101   102   103   104    Z-jets
-     
-     
+    
+//    std::unordered_set<std::string> uniqueSystematics;
+//    std::unordered_set<std::string> ZGammaSystematics;
+//    std::unordered_set<std::string> SignalSystematics;
+//    std::unordered_set<std::string> DataSystematics;
+//    std::unordered_set<std::string> ZJetsSystematics;
+//
+//    for (auto& i: tempNodes)
+//    {
+//        for (auto& j: *i.GetResultPtr<RVec<RVec<std::vector<std::string>>>>())
+//        {
+//            for (auto& k: j)
+//            {
+//                for (auto& l: k)
+//                {
+//                    uniqueSystematics.insert(l);
+//                }
+//            }
+//        }
+//    }
+//
+//    int counter = 0;
+//    for (auto& i: tempNodes)
+//    {
+//        for (auto& j: (*i.GetResultPtr<RVec<RVec<std::vector<std::string>>>>())[0])
+//        {
+//            for (auto& k: j)
+//            {
+//                if (counter >= 0 && counter <= 5) //Z-gamma
+//                {
+//                    ZGammaSystematics.insert(k);
+//                }
+//
+//                else if (counter >= 6 && counter <= 9) //Signal
+//                {
+//                    SignalSystematics.insert(k);
+//                }
+//
+//                else if (counter == 10) //Data
+//                {
+//                    DataSystematics.insert(k);
+//                }
+//
+//                else
+//                {
+//                    ZJetsSystematics.insert(k);
+//                }
+//            }
+//        }
+//        counter++;
+//    }
+////
+//    std::cout << "ZGammaSystematics\n=================\n";
+//    for (auto& i: ZGammaSystematics)
+//    {
+//        std::cout << i << '\n';
+//    }
+//    std::cout << "\n\n\n\n";
+//
+//    std::cout << "SignalSystematics\n=================\n";
+//    for (auto& i: SignalSystematics)
+//    {
+//        std::cout << i << '\n';
+//    }
+//    std::cout << "\n\n\n\n";
+//
+//    std::cout << "DataSystematics\n===============\n";
+//    for (auto& i: DataSystematics)
+//    {
+//        std::cout << i << '\n';
+//    }
+//    std::cout << "\n\n\n\n";
+//
+//    std::cout << "ZJetsSystematics\n================\n";
+//    for (auto& i: ZJetsSystematics)
+//    {
+//        std::cout << i << '\n';
+//    }
+//    std::cout << "\n\n\n\n";
+    
+//
+//    std::cout << "\n\n";
+//    std::cout << resultmaps.size() << '\n';
+//    for (auto i = 0; i < resultmaps.size(); i++)
+//    {
+//        if (i % 7 == 0)
+//        {
+//            std::cout << Samples[i/7] << "\n============================\n\n";
+//        }
+//        std::cout << Cuts[i%7] << "\n===============\n";
+//        for (auto& var: resultmaps[i].GetKeys())
+//        {
+//            std::cout << std::setw(44) << var <<
+//            std::setw(44) << resultmaps[i][var] << '\n';
+//        }
+//        std::cout << '\n';
+//    }
+    
+    std::cout << R"--(\section*{Table 3 Signal Ratios})--" << '\n';
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    std::cout << R"--(Sample & $\frac{\text{2 leptons}}{\text{2 leptons}}$
+          & $\frac{\text{Opposite Charge}}{\text{2 leptons}}$ & $\frac{p_{T}^{\text{leading}} > 27\text{ GeV, } \, p_{T}^{\text{sub-leading}} > 20 \text{ GeV }}{\text{2 leptons}}$ & $\frac{\text{Same flavour}}{\text{2 leptons}}$ & $\frac{\text{dilep mass cut}}{\text{2 leptons}}$ & $\frac{\text{dilep }p_{T} \text{ cut}}{\text{2 leptons}}$ \\ \hline )--" << '\n';
+    
+    os.setf(std::ios::fixed);
+    os.precision(2);
     
     for (int i=0, j=0; (i<15 && j <= 98); i++, j+=7)
     {
@@ -296,38 +430,115 @@ void Table3()
         if (i >= 0 && i <= 2) //Z-gamma
         {
             os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+1].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+2].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+3].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+4].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+5].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+6].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+6].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << R"--( \\ \hline )--" << '\n';
         }
         
         else if (i >= 6) //Z-jets
         {
             os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+2].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+3].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+4].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+5].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+6].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+6].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << R"--( \\ \hline )--" << '\n';
         }
         else
         {
             os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
-                << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
-                << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
-                << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
-                << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>()
-                << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
-                << " & " << *Nodes[j+6].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+1].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+2].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+3].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+4].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+5].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+6].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+6].GetResultPtr<ULong64_t>())
+            << R"--( \\ \hline )--" << '\n';
+            
+            if (i==3) //1 GeV
+            {
+                std::cout << Samples[i] << " (Me) & " << 1 << " & " <<
+                static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+6].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
                 << R"--( \\ \hline )--" << '\n';
+                
+                std::cout << Samples[i] << " (Paper) & " << 1 << " & " <<
+                21505.03 / 21606.75
+                << " & " <<
+                21375.48 / 21606.75
+                << " & " <<
+                21375.33 / 21606.75
+                << " & " <<
+                20543.06 / 21606.75
+                << " & " <<
+                19516.87 / 21606.75
+                << R"--( \\ \hline )--" << '\n';
+            }
+            
+            if (i==4) //5 GeV
+            {
+                std::cout << Samples[i] << " (Me) & " << 1 << " & " <<
+                static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+6].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+                
+                std::cout << Samples[i] << " (Paper) & " << 1 << " & " <<
+                21556.03 / 21655.38
+                << " & " <<
+                21424.29 / 21655.38
+                << " & " <<
+                21424.28 / 21655.38
+                << " & " <<
+                20585.09 / 21655.38
+                << " & " <<
+                19536.68 / 21655.38
+                << R"--( \\ \hline )--" << '\n';
+            }
         }
     }
+    
+    std::cout << R"--(\end{tabular}})--" << "\n\n\n";
     
     for (int i = 0, j = 0; (i <= 14 && j <= 2); i += 7, j++)
     {
@@ -338,6 +549,14 @@ void Table3()
         deltaRZGamma += *Nodes[i+4].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
         MassZGamma += *Nodes[i+5].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
         ptCutZGamma += *Nodes[i+6].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        
+        beforePreselecZGammaStatUnc += pow(sqrt(*Nodes[i].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        twoLeptonsZGammaStatUnc += pow(sqrt(*Nodes[i+1].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        oppChargeZGammaStatUnc += pow(sqrt(*Nodes[i+2].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        leadingPtZGammaStatUnc += pow(sqrt(*Nodes[i+3].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        deltaRZGammaStatUnc += pow(sqrt(*Nodes[i+4].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        MassZGammaStatUnc += pow(sqrt(*Nodes[i+5].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        ptCutZGammaStatUnc += pow(sqrt(*Nodes[i+6].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
     }
     
     for (int i = 42, j = 0; (i <= 98 && j <= 8); i += 7, j++)
@@ -349,29 +568,54 @@ void Table3()
         deltaRZJets += *Nodes[i+4].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
         MassZJets += *Nodes[i+5].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
         ptCutZJets += *Nodes[i+6].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        
+        beforePreselecZJetsStatUnc += pow(sqrt(*Nodes[i].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        twoLeptonsZJetsStatUnc += pow(sqrt(*Nodes[i+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        oppChargeZJetsStatUnc += pow(sqrt(*Nodes[i+2].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        leadingPtZJetsStatUnc += pow(sqrt(*Nodes[i+3].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        deltaRZJetsStatUnc += pow(sqrt(*Nodes[i+4].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        MassZJetsStatUnc += pow(sqrt(*Nodes[i+5].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        ptCutZJetsStatUnc += pow(sqrt(*Nodes[i+6].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
     }
 
-    os << R"--(Total $Z\gamma$ & )--" << beforePreselecZGamma << " & " << twoLeptonsZGamma
-    << " & " << oppChargeZGamma << " & " << leadingPtZGamma << " & "
-    << deltaRZGamma << " & " << MassZGamma << " & " << ptCutZGamma
+    os << R"--(Total $Z\gamma$ & )--"
+    << beforePreselecZGamma << R"--($\, \pm \,$)--" << sqrt(beforePreselecZGammaStatUnc) << " & "
+    << twoLeptonsZGamma << R"--($\, \pm \,$)--" << sqrt(twoLeptonsZGammaStatUnc) << " & "
+    << oppChargeZGamma << R"--($\, \pm \,$)--" << sqrt(oppChargeZGammaStatUnc) << " & "
+    << leadingPtZGamma << R"--($\, \pm \,$)--" << sqrt(leadingPtZGammaStatUnc) << " & "
+    << deltaRZGamma << R"--($\, \pm \,$)--" << sqrt(deltaRZGammaStatUnc) << " & "
+    << MassZGamma << R"--($\, \pm \,$)--" << sqrt(MassZGammaStatUnc) << " & "
+    << ptCutZGamma << R"--($\, \pm \,$)--" << sqrt(ptCutZGammaStatUnc)
     << R"--( \\ \hline )--" << '\n';
     
-    os << R"--(Total $Z$ jets & )--" << beforePreselecZJets << " & " << twoLeptonsZJets
-    << " & " << oppChargeZJets << " & " << leadingPtZJets << " & "
-    << deltaRZJets << " & " << MassZJets << " & " << ptCutZJets
+    os << R"--(Total $Z$ jets & )--"
+    << beforePreselecZJets << R"--($\, \pm \,$)--" << sqrt(beforePreselecZJetsStatUnc) << " & "
+    << twoLeptonsZJets << R"--($\, \pm \,$)--" << sqrt(twoLeptonsZJetsStatUnc) << " & "
+    << oppChargeZJets << R"--($\, \pm \,$)--" << sqrt(oppChargeZJetsStatUnc) << " & "
+    << leadingPtZJets << R"--($\, \pm \,$)--" << sqrt(leadingPtZJetsStatUnc) << " & "
+    << deltaRZJets << R"--($\, \pm \,$)--" << sqrt(deltaRZJetsStatUnc) << " & "
+    << MassZJets << R"--($\, \pm \,$)--" << sqrt(MassZJetsStatUnc) << " & "
+    << ptCutZJets << R"--($\, \pm \,$)--" << sqrt(ptCutZJetsStatUnc)
     << R"--( \\ \hline )--" << '\n';
     
-    os << R"--(Total Bkg & )--" << beforePreselecZJets+beforePreselecZGamma << " & " << twoLeptonsZJets+twoLeptonsZGamma
-    << " & " << oppChargeZJets+oppChargeZGamma << " & " << leadingPtZJets+leadingPtZGamma << " & "
-    << deltaRZJets+deltaRZGamma << " & " << MassZJets+MassZGamma << " & " << ptCutZJets+ptCutZGamma
-    << R"--( \\ \hline )--" << '\n';
+    os << R"--(Total Bkg & )--"
+    << beforePreselecZJets+beforePreselecZGamma << R"--($\, \pm \,$)--" <<
+    sqrt(beforePreselecZJetsStatUnc+beforePreselecZGammaStatUnc) << " & "
+    << twoLeptonsZJets+twoLeptonsZGamma << R"--($\, \pm \,$)--" <<
+    sqrt(twoLeptonsZJetsStatUnc+twoLeptonsZGammaStatUnc) << " & "
+    << oppChargeZJets+oppChargeZGamma << R"--($\, \pm \,$)--" <<
+    sqrt(oppChargeZJetsStatUnc+oppChargeZGammaStatUnc) << " & "
+    << leadingPtZJets+leadingPtZGamma << R"--($\, \pm \,$)--" <<
+    sqrt(leadingPtZJetsStatUnc+leadingPtZGammaStatUnc) << " & "
+    << deltaRZJets+deltaRZGamma << R"--($\, \pm \,$)--" <<
+    sqrt(deltaRZJetsStatUnc+deltaRZGammaStatUnc) << " & "
+    << MassZJets+MassZGamma << R"--($\, \pm \,$)--" <<
+    sqrt(MassZJetsStatUnc+MassZGammaStatUnc) << " & "
+    << ptCutZJets+ptCutZGamma << R"--($\, \pm \,$)--" <<
+    sqrt(ptCutZJetsStatUnc+ptCutZGammaStatUnc) << R"--( \\ \hline )--" << '\n';
     
     os << R"--(\end{tabular}})--" << '\n';
-    cutFlows.push_back(os.str());
-    for (auto& i: cutFlows)
-    {
-        std::cout << i << "\n\n";
-    }
+    std::cout << os.str() << '\n';
 }
 
 void Table8()
@@ -472,9 +716,9 @@ void Table8()
     constexpr std::array<const char*,15> Samples = {R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Signal $m_{\text{A}}$ = 5 GeV)--", "Data", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
     
     double totalEventsZgamma = 0, resolvedEventsZgamma = 0, SREventsZgamma = 0, SBEventsZgamma = 0;
+    double totalEventsZgammaStatUnc = 0, resolvedEventsZgammaStatUnc = 0, SREventsZgammaStatUnc = 0, SBEventsZgammaStatUnc = 0;
     double totalEventsZJets = 0, resolvedEventsZJets = 0, SREventsZJets = 0, SBEventsZJets = 0;
-    std::vector<std::string> cutFlows;
-    cutFlows.reserve(input_filenames.size());
+    double totalEventsZJetsStatUnc = 0, resolvedEventsZJetsStatUnc = 0, SREventsZJetsStatUnc = 0, SBEventsZJetsStatUnc = 0;
     
     std::vector<ROOT::RDF::RResultHandle> Nodes;
     
@@ -489,7 +733,20 @@ void Table8()
     {
         SchottDataFrame df(MakeRDF(file, 8));
         
-        auto two_leptons = df.Filter(
+        auto trigger_selection = df.Filter(
+        [](const RVec<std::string>& trigger_passed_triggers)
+        {
+            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+
+            if (!trigger_found)
+            {
+             return false;
+            }
+            return true;
+
+        }, {"trigger_passed_triggers"});
+ 
+        auto two_leptons = trigger_selection.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
         {
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
@@ -642,6 +899,8 @@ void Table8()
 //     52   53   54   55  Z-jets
 //
 //     56   57   58   59  Z-jets
+    os.setf(std::ios::fixed);
+    os.precision(2);
  
     for (int i=0, j=0; (i<15 && j <= 56); i++, j+=4)
     {
@@ -649,27 +908,39 @@ void Table8()
         if (i >= 0 && i <= 2)
         {
             os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+1].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+2].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+3].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << R"--( \\ \hline )--" << '\n';
         }
         
         else if (i >= 6)
         {
             os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+2].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+3].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << R"--( \\ \hline )--" << '\n';
         }
         
         else
         {
             os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+1].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+2].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+3].GetResultPtr<ULong64_t>())
                 << R"--( \\ \hline )--" << '\n';
         }
     }
@@ -680,6 +951,11 @@ void Table8()
         resolvedEventsZgamma += *Nodes[i+1].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
         SBEventsZgamma += *Nodes[i+2].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
         SREventsZgamma += *Nodes[i+3].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        
+        totalEventsZgammaStatUnc += pow(sqrt(*Nodes[i].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        resolvedEventsZgammaStatUnc += pow(sqrt(*Nodes[i+1].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        SBEventsZgammaStatUnc += pow(sqrt(*Nodes[i+2].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        SREventsZgammaStatUnc += pow(sqrt(*Nodes[i+3].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
     }
     
     for (int i = 24, j = 0; (i <= 56 && j <= 8); i += 4, j++)
@@ -688,26 +964,45 @@ void Table8()
         resolvedEventsZJets += *Nodes[i+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
         SBEventsZJets += *Nodes[i+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
         SREventsZJets += *Nodes[i+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        
+        totalEventsZJetsStatUnc += pow(sqrt(*Nodes[i].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        resolvedEventsZJetsStatUnc += pow(sqrt(*Nodes[i+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        SBEventsZJetsStatUnc += pow(sqrt(*Nodes[i+2].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        SREventsZJetsStatUnc += pow(sqrt(*Nodes[i+3].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
     }
     
-    os << R"--(Total $Z\gamma$ & )--" << totalEventsZgamma << " & " << resolvedEventsZgamma
-    << " & " << SBEventsZgamma << " & " << SREventsZgamma
+    os << R"--(Total $Z\gamma$ & )--" << totalEventsZgamma
+    << R"--($\, \pm \,$)--" << sqrt(totalEventsZgammaStatUnc)
+    << " & " << resolvedEventsZgamma
+    << R"--($\, \pm \,$)--" << sqrt(resolvedEventsZgammaStatUnc)
+    << " & " << SBEventsZgamma
+    << R"--($\, \pm \,$)--" << sqrt(SBEventsZgammaStatUnc)
+    << " & " << SREventsZgamma
+    << R"--($\, \pm \,$)--" << sqrt(SREventsZgammaStatUnc)
     << R"--( \\ \hline )--" << '\n';
     
-    os << R"--(Total $Z$ jets & )--" << totalEventsZJets << " & " << resolvedEventsZJets
-        << " & " << SBEventsZJets << " & " << SREventsZJets
-        << R"--( \\ \hline )--" << '\n';
+    os << R"--(Total $Z$ jets & )--" << totalEventsZJets
+    << R"--($\, \pm \,$)--" << sqrt(totalEventsZJetsStatUnc)
+    << " & " << resolvedEventsZJets
+    << R"--($\, \pm \,$)--" << sqrt(resolvedEventsZJetsStatUnc)
+    << " & " << SBEventsZJets
+    << R"--($\, \pm \,$)--" << sqrt(SBEventsZJetsStatUnc)
+    << " & " << SREventsZJets
+    << R"--($\, \pm \,$)--" << sqrt(SREventsZJetsStatUnc)
+    << R"--( \\ \hline )--" << '\n';
     
-    os << R"--(Total Bkg & )--" << totalEventsZJets+totalEventsZgamma << " & " << resolvedEventsZJets+resolvedEventsZgamma
-        << " & " << SBEventsZJets+SBEventsZgamma << " & " << SREventsZJets+SREventsZgamma
-        << R"--( \\ \hline )--" << '\n';
+    os << R"--(Total Bkg & )--" << totalEventsZJets+totalEventsZgamma
+    << R"--($\, \pm \,$)--" << sqrt(totalEventsZJetsStatUnc+totalEventsZgammaStatUnc)
+    << " & " << resolvedEventsZJets+resolvedEventsZgamma
+    << R"--($\, \pm \,$)--" << sqrt(resolvedEventsZJetsStatUnc+resolvedEventsZgammaStatUnc)
+    << " & " << SBEventsZJets+SBEventsZgamma
+    << R"--($\, \pm \,$)--" << sqrt(SBEventsZJetsStatUnc+SBEventsZgammaStatUnc)
+    << " & " << SREventsZJets+SREventsZgamma
+    << R"--($\, \pm \,$)--" << sqrt(SREventsZJetsStatUnc+SREventsZgammaStatUnc)
+    << R"--( \\ \hline )--" << '\n';
     
     os << R"--(\end{tabular}})--" << '\n';
-    cutFlows.push_back(os.str());
-    for (auto& i: cutFlows)
-    {
-        std::cout << i << "\n\n";
-    }
+    std::cout << os.str() << '\n';
 }
 
 void Table11()
@@ -811,83 +1106,143 @@ void Table11()
     std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
     std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
     
-    std::vector<std::string> cutFlows;
-    cutFlows.reserve(input_filenames.size());
     double totalEventsZgamma = 0, passPreselectionZgamma = 0, photonPtDeltaRCountZgamma = 0, xWindowZgamma = 0,
     srCountZgamma = 0, srIDCountZgamma = 0;
+    double totalEventsZgammaStatUnc = 0, passPreselectionZgammaStatUnc = 0, photonPtDeltaRCountZgammaStatUnc = 0, xWindowZgammaStatUnc = 0, srCountZgammaStatUnc = 0, srIDCountZgammaStatUnc = 0;
+    
     double totalEventsZjets = 0, passPreselectionZjets = 0, photonPtDeltaRCountZjets = 0, xWindowZjets = 0,
         srCountZjets = 0, srIDCountZjets = 0;
+    double totalEventsZjetsStatUnc = 0, passPreselectionZjetsStatUnc = 0, photonPtDeltaRCountZjetsStatUnc = 0, xWindowZjetsStatUnc = 0, srCountZjetsStatUnc = 0, srIDCountZjetsStatUnc = 0;
+    
     std::vector<ROOT::RDF::RResultHandle> Nodes;
 
-    std::ostringstream os;
+    std::ostringstream os, ss;
+    
+    os.setf(std::ios::fixed);
+    os.precision(2);
+    
     os << R"--(\section*{Table 11})--" << '\n';
-    os << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    os << R"--(\hspace{-3cm}\scalebox{0.55}{)--" << '\n';
     os << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
     os << R"--(\hline)--" << '\n';
     os << R"--(Sample & Total Events & pass preselection (PS) & photon $p_T$ + $\Delta R_{\gamma\gamma}$ cut & $X$ window & SR & SR-ID
            \\ \hline )--" << '\n';
+    
+    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+    {
+        RVec<TruthParticle> truthSelected;
+        bool foundParent;
+        if (truthChain.size() >= 1)
+        {
+            TruthParticle tp;
+            for (auto& tpe: startParticles)
+            {
+                tp = tpe;
+                while (true)
+                {
+                    if (tp.mc_parent_barcode == targetBarcode)
+                    {
+                        truthSelected.push_back(tp);
+                        break;
+                    }
+                    else
+                    {
+                        foundParent = false;
+                        for (auto& tmp: truthChain)
+                        {
+                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+                            {
+                                tp = tmp;
+                                foundParent = true;
+                                break;
+                            }
+                        }
+                        if (foundParent == false)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return truthSelected;
+    };
+
     for (auto& file: input_filenames)
     {
         SchottDataFrame df(MakeRDF(file, 8));
         
-        auto two_leptons = df.Filter(
-        [](RVec<Muon>& muons, RVec<Electron> electrons)
+        auto trigger_selection = df.Filter(
+        [](const RVec<std::string>& trigger_passed_triggers)
         {
-            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
-            [](Electron& ep)
+            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+
+            if (!trigger_found)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
-                          && (ep.electron_id_medium == 1)));
-                
-            }), electrons.end());
-            
-            return (electrons.size()==2 && muons.empty());
-            
-        }, {"muons", "electrons"});
+                return false;
+            }
+            return true;
+
+        }, {"trigger_passed_triggers"});
         
-        auto opp_charge = two_leptons.Define("di_electrons",
+        auto two_leptons = trigger_selection.Define("di_electrons",
         [](RVec<Electron> electrons)
         {
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
-                && (ep.electron_id_medium == 1)));
+                return ((ep.electron_pt/1e3 <= 20) || (abs(ep.electron_eta) >= 2.37)
+                        || ((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52))
+                        || (ep.electron_id_medium != 1));
+                
 
             }), electrons.end());
-            
+
             return electrons;
+
+        },{"electrons"}).Filter([](RVec<Muon>& muons, RVec<Electron> di_electrons)
+        {
+            return (di_electrons.size()==2 && muons.empty() && DeltaR(di_electrons[0].Vector(), di_electrons[1].Vector()) > 0.01);
             
-        },{"electrons"})
-        .Filter([](RVec<Electron> electrons)
+        }, {"muons", "di_electrons"});
+        
+        auto opp_charge = two_leptons.Filter([](RVec<Electron> di_electrons)
         {
-            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+            return (di_electrons[0].electron_charge*di_electrons[1].electron_charge < 0);
             
         }, {"di_electrons"});
         
-        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+        auto leading_pt = opp_charge.Filter([](RVec<Electron>& electrons)
         {
-            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+            return ((electrons[0].electron_pt >= 20e3 && electrons[1].electron_pt >= 27e3) || (electrons[1].electron_pt >= 20e3 && electrons[0].electron_pt >= 27e3));
         }, {"di_electrons"});
         
-        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+//        auto delta_R = leading_pt.Filter([] (RVec<Electron>& electrons)
+//        {
+//            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+//        }, {"di_electrons"});
+        
+        auto same_flavour = leading_pt.Filter([] (RVec<Electron>& electrons)
         {
-            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+            return true; //abs(electrons[0].electron_pdg_id) == abs(electrons[1].electron_pdg_id) == 11;
         }, {"di_electrons"});
         
-        auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
+        auto dilep = same_flavour.Define("dilep",[] (RVec<Electron>& electrons)
         {
-            auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+            return (electrons[0].Vector() + electrons[1].Vector());
+        }, {"di_electrons"});
+        
+        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+        {
+            auto mass = dilep.M()/1e3;
             return ((mass >= 81) && (mass <= 101));
-        }, {"di_electrons"});
+        }, {"dilep"});
         
-        auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
+        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
         {
-            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+            auto pT = dilep.Pt()/1e3;
             return pT > 10;
-        }, {"di_electrons"});
+        }, {"dilep"});
         
         auto photonPtDeltaR = ptCut.Define("photonPtDeltaR",
         [&](RVec<Photon> photons)
@@ -896,29 +1251,36 @@ void Table11()
             [](Photon& x)
             {
                 return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
-
+                
             }), photons.end());
             return photons;
         }, {"photons"}).Filter(
        [&](RVec<Photon>& reco_photons_matched)
        {
-           if (reco_photons_matched.size() < 2)
-           {
-               return false;
-           }
-           auto combs = Combinations(reco_photons_matched, 2);
-           size_t length = combs[0].size();
-           double delta_r;
-
-           for (size_t i=0; i<length; i++)
-           {
-               delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
-               if ((delta_r < 1.5))
-               {
-                   return true;
-               }
-           }
-           return false;
+            if (reco_photons_matched.size() < 2)
+            {
+              return false;
+            }
+            RVec<Photon> x;
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if (i==0 || abs(1-X) < abs(1-best_X))
+                {
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
+                    x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                }
+            }
+            return (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3);
 
        }, {"photonPtDeltaR"});
                 
@@ -932,7 +1294,7 @@ void Table11()
             }
             auto combs = Combinations(reco_photons_matched, 2);
             size_t length = combs[0].size();
-            double delta_r, m, pt, X;
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
             for (size_t i=0; i<length; i++)
             {
@@ -940,12 +1302,20 @@ void Table11()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if ((X > 0.96) && (X < 1.2))
+                if (i==0 || abs(1-X) < abs(1-best_X))
                 {
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
                     x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
-                    return x;
                 }
             }
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+            {
+                return x;
+            }
+            x.clear();
             return x;
         }, {"photonPtDeltaR"}).Filter(
         [&](RVec<Photon>& reco_photons_matched)
@@ -1007,7 +1377,21 @@ void Table11()
 //    78   79   80   81   82   83     Z-jets
 //
 //    84   85   86   87   88   89     Z-jets
-//
+
+    std::cout << R"--(\section*{Table 11 Signal Ratios})--" << '\n';
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    std::cout << R"--(Sample & $\frac{\text{pass preselection (PS)}}{\text{pass preselection (PS)}}$ & $\frac{\text{photon } p_T \text{ + } \Delta R_{\gamma\gamma} \text{ cut }}{\text{pass preselection (PS)}}$ & $\frac{X \text{ window}}{\text{pass preselection (PS)}}$ & $\frac{\text{SR}}{\text{pass preselection (PS)}}$ & $\frac{\text{SR-ID}}{\text{pass preselection (PS)}}$
+           \\ \hline )--" << '\n';
+    
+    ss << R"--(\section*{Table 11 Signal Ratios})--" << '\n';
+    ss << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    ss << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
+    ss << R"--(\hline)--" << '\n';
+    ss << R"--(Sample & $\frac{\text{pass preselection (PS)}}{\text{pass preselection (PS)}}$ & $\frac{\text{photon } p_T \text{ + } \Delta R_{\gamma\gamma} \text{ cut }}{\text{pass preselection (PS)}}$ & $\frac{X \text{ window}}{\text{photon } p_T \text{ + } \Delta R_{\gamma\gamma} \text{ cut }}$ & $\frac{\text{SR}}{X \text{ window}}$ & $\frac{\text{SR-ID}}{\text{SR}}$
+           \\ \hline )--" << '\n';
+    
     for (int i=0, j=0; (i<15 && j <= 84); i++, j+=6)
     {
         os << Samples[i];
@@ -1015,34 +1399,144 @@ void Table11()
         if (i >= 0 && i <= 2)
         {
             os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" <<  sqrt(*Nodes[j].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" <<  sqrt(*Nodes[j+1].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" <<  sqrt(*Nodes[j+2].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" <<  sqrt(*Nodes[j+3].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" <<  sqrt(*Nodes[j+4].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>() * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" <<  sqrt(*Nodes[j+5].GetResultPtr<ULong64_t>()) * (SFs[i] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << R"--( \\ \hline )--" << '\n';
         }
         else if (i >= 6)
         {
             os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+2].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+3].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+4].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+5].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i-6] / *Nodes[j].GetResultPtr<ULong64_t>())
                 << R"--( \\ \hline )--" << '\n';
         }
         else
         {
             os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+1].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+2].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+3].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>()
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+4].GetResultPtr<ULong64_t>())
                 << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
+                << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+5].GetResultPtr<ULong64_t>())
                 << R"--( \\ \hline )--" << '\n';
+            
+            if (i==3) //1 GeV
+            {
+                std::cout << Samples[i] << " (Me) & " << 1 << " & " <<
+                static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+                
+                std::cout << Samples[i] << " (Paper) & " << 1 << " & " <<
+                2343.65 / 19516.87
+                << " & " <<
+                2204.22 / 19516.87
+                << " & " <<
+                2076.73 / 19516.87
+                << " & " <<
+                333.21 / 19516.87
+                << R"--( \\ \hline )--" << '\n';
+                
+                ss << Samples[i] << " (Me) & " << 1 << " & " <<
+                static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+2].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+3].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+4].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+                
+                ss << Samples[i] << " (Paper) & " << 1 << " & " <<
+                2343.65 / 19516.87
+                << " & " <<
+                2204.22 / 2343.65
+                << " & " <<
+                2076.73 / 2204.22
+                << " & " <<
+                333.21 / 2076.73
+                << R"--( \\ \hline )--" << '\n';
+                
+            }
+            
+            if (i==4) //5 GeV
+            {
+                std::cout << Samples[i] << " (Me) & " << 1 << " & " <<
+                static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+                
+                std::cout << Samples[i] << " (Paper) & " << 1 << " & " <<
+                3245.86 / 19536.68
+                << " & " <<
+                3052.81 / 19536.68
+                << " & " <<
+                2941.28 / 19536.68
+                << " & " <<
+                1959.68 / 19536.68
+                << R"--( \\ \hline )--" << '\n';
+                
+                ss << Samples[i] << " (Me) & " << 1 << " & " <<
+                static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+2].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+3].GetResultPtr<ULong64_t>()
+                << " & " <<
+                static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+4].GetResultPtr<ULong64_t>()
+                << R"--( \\ \hline )--" << '\n';
+                
+                ss << Samples[i] << " (Paper) & " << 1 << " & " <<
+                3245.86 / 19536.68
+                << " & " <<
+                3052.81 / 3245.86
+                << " & " <<
+                2941.28 / 3052.81
+                << " & " <<
+                1959.68 / 2941.28
+                << R"--( \\ \hline )--" << '\n';
+            }
         }
     }
+    
+    std::cout << R"--(\end{tabular}})--" << "\n\n\n";
+    
+    ss << R"--(\end{tabular}})--" << "\n\n\n";
+    std::cout << ss.str() << '\n';
     
     for (int i = 0, j = 0; (i <= 12 && j <= 2); i += 6, j++)
     {
@@ -1052,6 +1546,13 @@ void Table11()
         xWindowZgamma += *Nodes[i+3].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
         srCountZgamma += *Nodes[i+4].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
         srIDCountZgamma += *Nodes[i+5].GetResultPtr<ULong64_t>() * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        
+        totalEventsZgammaStatUnc += pow(sqrt(*Nodes[i].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        passPreselectionZgammaStatUnc += pow(sqrt(*Nodes[i+1].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        photonPtDeltaRCountZgammaStatUnc += pow(sqrt(*Nodes[i+2].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        xWindowZgammaStatUnc += pow(sqrt(*Nodes[i+3].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        srCountZgammaStatUnc += pow(sqrt(*Nodes[i+4].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        srIDCountZgammaStatUnc += pow(sqrt(*Nodes[i+5].GetResultPtr<ULong64_t>()) * (SFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
     }
     
     for (int i = 36, j = 0; (i <= 84 && j <= 8); i += 6, j++)
@@ -1062,38 +1563,59 @@ void Table11()
         xWindowZjets += *Nodes[i+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
         srCountZjets += *Nodes[i+4].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
         srIDCountZjets += *Nodes[i+5].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>());
+        
+        totalEventsZjetsStatUnc += pow(sqrt(*Nodes[i].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        passPreselectionZjetsStatUnc += pow(sqrt(*Nodes[i+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        photonPtDeltaRCountZjetsStatUnc += pow(sqrt(*Nodes[i+2].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        xWindowZjetsStatUnc += pow(sqrt(*Nodes[i+3].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        srCountZjetsStatUnc += pow(sqrt(*Nodes[i+4].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
+        srIDCountZjetsStatUnc += pow(sqrt(*Nodes[i+5].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j] / *Nodes[i].GetResultPtr<ULong64_t>()),2);
     }
     
     os << R"--(Total $Z\gamma$ & )--" << totalEventsZgamma
-        << " & " << passPreselectionZgamma
-        << " & " << photonPtDeltaRCountZgamma
-        << " & " << xWindowZgamma
-        << " & " << srCountZgamma
-        << " & " << srIDCountZgamma
-        << R"--( \\ \hline )--" << '\n';
+    << R"--($\, \pm \,$)--" << sqrt(totalEventsZgammaStatUnc)
+    << " & " << passPreselectionZgamma
+    << R"--($\, \pm \,$)--" << sqrt(passPreselectionZgammaStatUnc)
+    << " & " << photonPtDeltaRCountZgamma
+    << R"--($\, \pm \,$)--" << sqrt(photonPtDeltaRCountZgammaStatUnc)
+    << " & " << xWindowZgamma
+    << R"--($\, \pm \,$)--" << sqrt(xWindowZgammaStatUnc)
+    << " & " << srCountZgamma
+    << R"--($\, \pm \,$)--" << sqrt(srCountZgammaStatUnc)
+    << " & " << srIDCountZgamma
+    << R"--($\, \pm \,$)--" << sqrt(srIDCountZgammaStatUnc)
+    << R"--( \\ \hline )--" << '\n';
     
     os << R"--(Total $Z$ jets & )--" << totalEventsZjets
-        << " & " << passPreselectionZjets
-        << " & " << photonPtDeltaRCountZjets
-        << " & " << xWindowZjets
-        << " & " << srCountZjets
-        << " & " << srIDCountZjets
-        << R"--( \\ \hline )--" << '\n';
+    << R"--($\, \pm \,$)--" << sqrt(totalEventsZjetsStatUnc)
+    << " & " << passPreselectionZjets
+    << R"--($\, \pm \,$)--" << sqrt(passPreselectionZjetsStatUnc)
+    << " & " << photonPtDeltaRCountZjets
+    << R"--($\, \pm \,$)--" << sqrt(photonPtDeltaRCountZjetsStatUnc)
+    << " & " << xWindowZjets
+    << R"--($\, \pm \,$)--" << sqrt(xWindowZjetsStatUnc)
+    << " & " << srCountZjets
+    << R"--($\, \pm \,$)--" << sqrt(srCountZjetsStatUnc)
+    << " & " << srIDCountZjets
+    << R"--($\, \pm \,$)--" << sqrt(srIDCountZjetsStatUnc)
+    << R"--( \\ \hline )--" << '\n';
     
     os << R"--(Total Bkg & )--" << totalEventsZjets+totalEventsZgamma
-        << " & " << passPreselectionZjets+passPreselectionZgamma
-        << " & " << photonPtDeltaRCountZjets+photonPtDeltaRCountZgamma
-        << " & " << xWindowZjets+xWindowZgamma
-        << " & " << srCountZjets+srCountZgamma
-        << " & " << srIDCountZjets+srIDCountZgamma
+    << R"--($\, \pm \,$)--" << sqrt(totalEventsZjetsStatUnc+totalEventsZgammaStatUnc)
+    << " & " << passPreselectionZjets+passPreselectionZgamma
+    << R"--($\, \pm \,$)--" << sqrt(passPreselectionZjetsStatUnc+passPreselectionZgammaStatUnc)
+    << " & " << photonPtDeltaRCountZjets+photonPtDeltaRCountZgamma
+    << R"--($\, \pm \,$)--" << sqrt(photonPtDeltaRCountZjetsStatUnc+photonPtDeltaRCountZgammaStatUnc)
+    << " & " << xWindowZjets+xWindowZgamma
+    << R"--($\, \pm \,$)--" << sqrt(xWindowZjetsStatUnc+xWindowZgammaStatUnc)
+    << " & " << srCountZjets+srCountZgamma
+    << R"--($\, \pm \,$)--" << sqrt(srCountZjetsStatUnc+srCountZgammaStatUnc)
+    << " & " << srIDCountZjets+srIDCountZgamma
+    << R"--($\, \pm \,$)--" << sqrt(srIDCountZjetsStatUnc+srIDCountZgammaStatUnc)
         << R"--( \\ \hline )--" << '\n';
     
     os << R"--(\end{tabular}})--" << '\n';
-    cutFlows.push_back(os.str());
-    for (auto& i: cutFlows)
-    {
-        std::cout << i << "\n\n";
-    }
+    std::cout << os.str() << '\n';
 }
 
 void CutFlow()

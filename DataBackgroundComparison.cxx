@@ -2940,7 +2940,7 @@ void Table10()
     
     std::cout << "\n\n\n";
 }
-
+*/
 void Table16()
 {
     std::vector<std::vector<std::string>> input_filenames =
@@ -3041,7 +3041,7 @@ void Table16()
     std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
     std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
     
-    std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", "data", R"--($\text{Sig } m_{A}$ = 5 GeV)--", R"--($\text{Sig } m_{A}$ = 1 GeV)--", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
+    std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
             
     std::vector<ROOT::RDF::RResultHandle> Totals;
     
@@ -3242,7 +3242,7 @@ void Table16()
 //    84   85   86   87   88   89     Z-jets
         
     
-    ROOT::RDF::RunGraphs(Totals);
+    ROOT::RDF::RunGraphs(Totals); // running all computation nodes concurrently
     
     std::cout << R"--(\section*{Table 16})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
@@ -3251,6 +3251,8 @@ void Table16()
     std::cout << R"--({} & Full Reg & pSB & pSR & SB & SR \\ \hline)--" << '\n';
     
     double total_Z_gamma[5] = {0}, total_Z_jets[5] = {0}, total[5] = {0};
+    double total_Z_gammaStatUnc[5] = {0}, total_Z_jetsStatUnc[5] = {0}, totalStatUnc[5] = {0};
+    
     for (int i = 0, j = 0; (i <= 84 && j <= 14); i += 6, j++)
     {
         std::cout << prefixes[j];
@@ -3258,10 +3260,15 @@ void Table16()
         {
             std::cout
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+1].GetResultPtr<ULong64_t>()) * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+2].GetResultPtr<ULong64_t>()) * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+3].GetResultPtr<ULong64_t>()) * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+4].GetResultPtr<ULong64_t>()) * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+5].GetResultPtr<ULong64_t>()) * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
             << R"--( \\ \hline)--" << '\n';
         }
         
@@ -3269,10 +3276,15 @@ void Table16()
         {
             std::cout
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+2].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+3].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+4].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+5].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
             << R"--( \\ \hline)--" << '\n';
         }
         
@@ -3280,10 +3292,15 @@ void Table16()
         {
             std::cout
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+1].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+2].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+3].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+4].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+5].GetResultPtr<ULong64_t>())
             << R"--( \\ \hline)--" << '\n';
         }
         
@@ -3293,6 +3310,9 @@ void Table16()
             {
                 total_Z_gamma[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (SFs[i/6] / *Totals[i].GetResultPtr<ULong64_t>());
                 total[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (SFs[i/6] / *Totals[i].GetResultPtr<ULong64_t>());
+                
+                total_Z_gammaStatUnc[k] += pow(sqrt(*Totals[i+k+1].GetResultPtr<ULong64_t>()) * (SFs[i/6] / *Totals[i].GetResultPtr<ULong64_t>()),2);
+                totalStatUnc[k] += pow(sqrt(*Totals[i+k+1].GetResultPtr<ULong64_t>()) * (SFs[i/6] / *Totals[i].GetResultPtr<ULong64_t>()),2);
             }
         }
         
@@ -3302,6 +3322,9 @@ void Table16()
             {
                 total_Z_jets[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i/6 - 6] / *Totals[i].GetResultPtr<ULong64_t>());
                 total[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i/6 - 6] / *Totals[i].GetResultPtr<ULong64_t>());
+                
+                total_Z_jetsStatUnc[k] += pow(sqrt(*Totals[i+k+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i/6 - 6] / *Totals[i].GetResultPtr<ULong64_t>()),2);
+                totalStatUnc[k] += pow(sqrt(*Totals[i+k+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i/6 - 6] / *Totals[i].GetResultPtr<ULong64_t>()),2);
             }
         }
     }
@@ -3309,27 +3332,42 @@ void Table16()
     std::vector<std::string> totalPrefixes = {R"--(Total $Z\gamma$)--", R"--(Total $Z$ jets)--", R"--(Total Bkg)--"};
 
     std::cout << R"--(Total $Z\gamma$)--";
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[0];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[1];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[2];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[3];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[4];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[0]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_gammaStatUnc[0]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[1]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_gammaStatUnc[1]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[2]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_gammaStatUnc[2]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[3]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_gammaStatUnc[3]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[4]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_gammaStatUnc[4]);
     std::cout << R"--( \\ \hline)--" << '\n';
     
     std::cout << R"--(Total $Z$ jets)--";
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[0];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[1];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[2];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[3];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[4];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[0]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_jetsStatUnc[0]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[1]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_jetsStatUnc[1]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[2]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_jetsStatUnc[2]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[3]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_jetsStatUnc[3]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[4]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_jetsStatUnc[4]);
     std::cout << R"--( \\ \hline)--" << '\n';
     
     std::cout << R"--(Total Bkg)--";
-    std::cout << " & " << std::setprecision(2) << std::fixed << total[0];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total[1];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total[2];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total[3];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total[4];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[0]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(totalStatUnc[0]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[1]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(totalStatUnc[1]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[2]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(totalStatUnc[2]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[3]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(totalStatUnc[3]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[4]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(totalStatUnc[4]);
     std::cout << R"--( \\ \hline)--" << '\n';
     
     std::cout << R"--(\end{tabular}})--" << '\n';
@@ -3628,12 +3666,14 @@ void Table19()
 //    98   99   100  101  102  103  104   Z-jets
     
     std::cout << R"--(\section*{Table 19})--" << '\n';
-    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.55}{)--" << '\n';
     std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
     std::cout << R"--(\hline)--" << '\n';
     std::cout << R"--({} & pass preselection & failed resolved category & photon $p_T$ cut & pSR & SR & SR-ID \\ \hline)--" << '\n';
     
     double total_Z_gamma[6] = {0}, total_Z_jets[6] = {0}, total[6] = {0};
+    double total_Z_gammaStatUnc[6] = {0}, total_Z_jetsStatUnc[6] = {0}, totalStatUnc[6] = {0};
+    
     for (int i = 0, j = 0; (i <= 98 && j <= 14); i += 7, j++)
     {
         std::cout << prefixes[j];
@@ -3641,11 +3681,17 @@ void Table19()
         {
             std::cout
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+1].GetResultPtr<ULong64_t>()) * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+2].GetResultPtr<ULong64_t>()) * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+3].GetResultPtr<ULong64_t>()) * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+4].GetResultPtr<ULong64_t>()) * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+5].GetResultPtr<ULong64_t>()) * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+6].GetResultPtr<ULong64_t>() * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+6].GetResultPtr<ULong64_t>()) * (SFs[j] / *Totals[i].GetResultPtr<ULong64_t>())
             << R"--( \\ \hline)--" << '\n';
         }
         
@@ -3653,11 +3699,17 @@ void Table19()
         {
             std::cout
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+2].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+6].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[j-6] / *Totals[i].GetResultPtr<ULong64_t>())
             << R"--( \\ \hline)--" << '\n';
         }
         
@@ -3665,11 +3717,17 @@ void Table19()
         {
             std::cout
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+1].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+1].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+2].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+2].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+3].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+3].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+4].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+4].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+5].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+5].GetResultPtr<ULong64_t>())
             << " & " << std::setprecision(2) << std::fixed << *Totals[i+6].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(*Totals[i+6].GetResultPtr<ULong64_t>())
             << R"--( \\ \hline)--" << '\n';
         }
         
@@ -3679,6 +3737,9 @@ void Table19()
             {
                 total_Z_gamma[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (SFs[i/7] / *Totals[i].GetResultPtr<ULong64_t>());
                 total[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (SFs[i/7] / *Totals[i].GetResultPtr<ULong64_t>());
+                
+                total_Z_gammaStatUnc[k] += pow(sqrt(*Totals[i+k+1].GetResultPtr<ULong64_t>()) * (SFs[i/7] / *Totals[i].GetResultPtr<ULong64_t>()),2);
+                totalStatUnc[k] += pow(sqrt(*Totals[i+k+1].GetResultPtr<ULong64_t>()) * (SFs[i/7] / *Totals[i].GetResultPtr<ULong64_t>()),2);
             }
         }
         
@@ -3688,6 +3749,9 @@ void Table19()
             {
                 total_Z_jets[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i/7 - 6] / *Totals[i].GetResultPtr<ULong64_t>());
                 total[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i/7 - 6] / *Totals[i].GetResultPtr<ULong64_t>());
+                
+                total_Z_jetsStatUnc[k] += pow(sqrt(*Totals[i+k+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i/7 - 6] / *Totals[i].GetResultPtr<ULong64_t>()),2);
+                totalStatUnc[k] += pow(sqrt(*Totals[i+k+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i/7 - 6] / *Totals[i].GetResultPtr<ULong64_t>()),2);
             }
         }
     }
@@ -3695,38 +3759,56 @@ void Table19()
     std::vector<std::string> totalPrefixes = {R"--(Total $Z\gamma$)--", R"--(Total $Z$ jets)--", R"--(Total Bkg)--"};
 
     std::cout << R"--(Total $Z\gamma$)--";
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[0];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[1];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[2];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[3];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[4];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[5];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[0]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_gammaStatUnc[0]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[1]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_gammaStatUnc[1]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[2]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_gammaStatUnc[2]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[3]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_gammaStatUnc[3]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[4]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_gammaStatUnc[4]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_gamma[5]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_gammaStatUnc[5]);
     std::cout << R"--( \\ \hline)--" << '\n';
     
     std::cout << R"--(Total $Z$ jets)--";
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[0];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[1];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[2];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[3];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[4];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[5];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[0]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_jetsStatUnc[0]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[1]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_jetsStatUnc[1]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[2]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_jetsStatUnc[2]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[3]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_jetsStatUnc[3]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[4]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_jetsStatUnc[4]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total_Z_jets[5]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(total_Z_jetsStatUnc[5]);
 
     std::cout << R"--( \\ \hline)--" << '\n';
     
     std::cout << R"--(Total Bkg)--";
-    std::cout << " & " << std::setprecision(2) << std::fixed << total[0];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total[1];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total[2];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total[3];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total[4];
-    std::cout << " & " << std::setprecision(2) << std::fixed << total[5];
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[0]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(totalStatUnc[0]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[1]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(totalStatUnc[1]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[2]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(totalStatUnc[2]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[3]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(totalStatUnc[3]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[4]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(totalStatUnc[4]);
+    std::cout << " & " << std::setprecision(2) << std::fixed << total[5]
+    << R"--($\, \pm \,$)--" << std::setprecision(2) << std::fixed << sqrt(totalStatUnc[5]);
     std::cout << R"--( \\ \hline)--" << '\n';
     
     std::cout << R"--(\end{tabular}})--" << '\n';
     
     std::cout << "\n\n\n";
 }
-*/
+
 void DataBackgroundComparison()
 {
     auto start_time = Clock::now();
@@ -3737,8 +3819,8 @@ void DataBackgroundComparison()
     fig59();
 //    Table9();
 //    Table10();
-//    Table16();
-//    Table19();
+    Table16();
+    Table19();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " seconds" << std::endl;

@@ -615,7 +615,7 @@ void Table5()
     std::cout << R"--(\end{tabular}})--" << '\n';
     
     std::cout << "\n\n\n";
-}*/
+}
 
 void Table14()
 {
@@ -918,7 +918,7 @@ void Table14()
     
     std::cout << R"--(\end{tabular}})--" << "\n\n\n";
 }
-
+ */
 void Table15()
 {
     std::vector<std::vector<std::string>> input_filenames =
@@ -1012,7 +1012,10 @@ void Table15()
         },
     };
     
-    std::vector<ROOT::RDF::RResultHandle> Nodes;
+    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
+    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
+    
+    std::vector<ROOT::RDF::RResultHandle> Totals;
     
     for (auto& i: input_filenames)
     {
@@ -1181,10 +1184,11 @@ void Table15()
             return (!Any(Eratio <= 0.8));
         }, {"photon_shower_shape_e_ratio"});
         
-        Nodes.push_back(pSB.Count());
-        Nodes.push_back(pSR.Count());
-        Nodes.push_back(SB.Count());
-        Nodes.push_back(SR.Count());
+        Totals.push_back(df.Count());
+        Totals.push_back(pSB.Count());
+        Totals.push_back(pSR.Count());
+        Totals.push_back(SB.Count());
+        Totals.push_back(SR.Count());
     }
     
     std::cout << R"--(\section*{Table 15}\flushleft)--" << '\n';
@@ -1194,25 +1198,73 @@ void Table15()
     std::cout << R"--( {} & \multicolumn{1}{|c|}{\parbox{7.5cm}{\centering $Z\gamma$}} & \multicolumn{1}{|c|}{\parbox{7.5cm}{\centering $Z$ jets}} & \multicolumn{1}{|c|}{\parbox{7.5cm}{\centering Total bkg}} \\[5 pt]
         \hline)--" << '\n';
     
-    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    ROOT::RDF::RunGraphs(Totals); // running all computation nodes concurrently
     
-    int pSB_Z_gamma = *Nodes[0].GetResultPtr<ULong64_t>();
-    int pSR_Z_gamma = *Nodes[1].GetResultPtr<ULong64_t>();
-    int SB_Z_gamma  = *Nodes[2].GetResultPtr<ULong64_t>();
-    int SR_Z_gamma  = *Nodes[3].GetResultPtr<ULong64_t>();
-    int pSB_Z_jets  = *Nodes[4].GetResultPtr<ULong64_t>();
-    int pSR_Z_jets  = *Nodes[5].GetResultPtr<ULong64_t>();
-    int SB_Z_jets   = *Nodes[6].GetResultPtr<ULong64_t>();
-    int SR_Z_jets   = *Nodes[7].GetResultPtr<ULong64_t>();
-    int pSB_total   = pSB_Z_gamma + pSB_Z_jets;
-    int pSR_total   = pSR_Z_gamma + pSR_Z_jets;
-    int SB_total    = SB_Z_gamma + SB_Z_jets;
-    int SR_total    = SR_Z_gamma + SR_Z_jets;
+    double total_Z_gamma[4] = {0}, total_Z_jets[4] = {0}, total[4] = {0};
+    double total_Z_gammaStatUnc[4] = {0}, total_Z_jetsStatUnc[4] = {0}, totalStatUnc[4] = {0};
     
-    std::cout << "pSB & " << pSB_Z_gamma << " & " << pSB_Z_jets << " & " << pSB_total <<  R"--(\\ \hline)--" << '\n';
-    std::cout << "pSR & " << pSR_Z_gamma << " & " << pSR_Z_jets << " & " << pSR_total <<  R"--(\\ \hline)--" << '\n';
-    std::cout << "SB & " << SB_Z_gamma << " & " << SB_Z_jets << " & " << SB_total <<  R"--(\\ \hline)--" << '\n';
-    std::cout << "SR & " << SR_Z_gamma << " & " << SR_Z_jets << " & " << SR_total <<  R"--(\\ \hline)--" << '\n';
+    for (int i = 0; i <= 55; i+=5)
+    {
+        if (i >= 0 && i <= 10) //Z-gamma
+        {
+            for (int k = 0; k < 4; k++)
+            {
+                total_Z_gamma[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (SFs[i/5] / *Totals[i].GetResultPtr<ULong64_t>());
+                total[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (SFs[i/5] / *Totals[i].GetResultPtr<ULong64_t>());
+                
+                total_Z_gammaStatUnc[k] += pow(sqrt(*Totals[i+k+1].GetResultPtr<ULong64_t>()) * (SFs[i/5] / *Totals[i].GetResultPtr<ULong64_t>()),2);
+                totalStatUnc[k] += pow(sqrt(*Totals[i+k+1].GetResultPtr<ULong64_t>()) * (SFs[i/5] / *Totals[i].GetResultPtr<ULong64_t>()),2);
+            }
+        }
+        
+        else if (i >= 15) //Z-jets
+        {
+            for (int k = 0; k < 4; k++)
+            {
+                total_Z_jets[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i/5 - 5] / *Totals[i].GetResultPtr<ULong64_t>());
+                total[k] += *Totals[i+k+1].GetResultPtr<ULong64_t>() * (JetNumeratorSFs[i/5 - 5] / *Totals[i].GetResultPtr<ULong64_t>());
+                
+                total_Z_jetsStatUnc[k] += pow(sqrt(*Totals[i+k+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i/5 - 5] / *Totals[i].GetResultPtr<ULong64_t>()),2);
+                totalStatUnc[k] += pow(sqrt(*Totals[i+k+1].GetResultPtr<ULong64_t>()) * (JetNumeratorSFs[i/5 - 5] / *Totals[i].GetResultPtr<ULong64_t>()),2);
+            }
+        }
+    }
+    
+    std::cout.setf(std::ios::fixed);
+    std::cout.precision(2);
+    
+    std::cout << "pSB & " << total_Z_gamma[0]
+    << R"--($\, \pm \,$)--" << sqrt(total_Z_gammaStatUnc[0])
+    << " & " << total_Z_jets[0]
+    << R"--($\, \pm \,$)--" << sqrt(total_Z_jetsStatUnc[0])
+    << " & " << total[0]
+    << R"--($\, \pm \,$)--" << sqrt(totalStatUnc[0])
+    <<  R"--(\\ \hline)--" << '\n';
+    
+    std::cout << "pSR & " << total_Z_gamma[1]
+    << R"--($\, \pm \,$)--" << sqrt(total_Z_gammaStatUnc[1])
+    << " & " << total_Z_jets[1]
+    << R"--($\, \pm \,$)--" << sqrt(total_Z_jetsStatUnc[1])
+    << " & " << total[1]
+    << R"--($\, \pm \,$)--" << sqrt(totalStatUnc[1])
+    <<  R"--(\\ \hline)--" << '\n';
+    
+    std::cout << "SB & " << total_Z_gamma[2]
+    << R"--($\, \pm \,$)--" << sqrt(total_Z_gammaStatUnc[2])
+    << " & " << total_Z_jets[2]
+    << R"--($\, \pm \,$)--" << sqrt(total_Z_jetsStatUnc[2])
+    << " & " << total[2]
+    << R"--($\, \pm \,$)--" << sqrt(totalStatUnc[2])
+    <<  R"--(\\ \hline)--" << '\n';
+    
+    std::cout << "SR & " << total_Z_gamma[3]
+    << R"--($\, \pm \,$)--" << sqrt(total_Z_gammaStatUnc[3])
+    << " & " << total_Z_jets[3]
+    << R"--($\, \pm \,$)--" << sqrt(total_Z_jetsStatUnc[3])
+    << " & " << total[3]
+    << R"--($\, \pm \,$)--" << sqrt(totalStatUnc[3])
+    <<  R"--(\\ \hline)--" << '\n';
+    
     std::cout << R"--(\end{tabular}})--" << "\n\n\n";
 }
 /*
@@ -1502,7 +1554,7 @@ void Categorization()
     auto start_time = Clock::now();
 //    Table4();
 //    Table5();
-    Table14();
+//    Table14();
     Table15();
 //    Fig19();
     auto end_time = Clock::now();

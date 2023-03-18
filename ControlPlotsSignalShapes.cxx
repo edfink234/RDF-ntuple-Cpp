@@ -81,7 +81,7 @@ constexpr std::array<const char*,35> triggers =
 };
 //Other mA5 file: /Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root
 
-
+/*
 void fig1A()
 {
     std::vector<std::vector<std::string>> input_filenames =
@@ -647,7 +647,7 @@ void fig5()
     legend->Draw();
     c1->SaveAs("Fig5B.png");
 }
-
+*/
 void fig6()
 {
     std::vector<std::vector<std::string>> input_filenames = { {"/home/common/Haa/ntuples/Za/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
@@ -657,7 +657,7 @@ void fig6()
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.525);
 
-    SchottDataFrame df(MakeRDF(input_filenames, 8));
+    SchottDataFrame df(MakeRDF(input_filenames[0], 8));
 
     auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
     {
@@ -975,7 +975,7 @@ void fig8()
 
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({file}, 8));
+        SchottDataFrame df(MakeRDF(file, 8));
 
         auto preselection = df.Filter(
         [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -1459,7 +1459,7 @@ void fig10()
 
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({file}, 8));
+        SchottDataFrame df(MakeRDF(file, 8));
 
         auto preselection = df.Filter(
         [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -1767,7 +1767,7 @@ void fig18()
 
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({file}, 8));
+        SchottDataFrame df(MakeRDF(file, 8));
 
         auto preselection = df.Filter(
         [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -2572,7 +2572,7 @@ void fig54()
 
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({file}, 8));
+        SchottDataFrame df(MakeRDF(file, 8));
 
         auto preselection = df.Filter(
         [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -2987,12 +2987,12 @@ void ControlPlotsSignalShapes()
     auto start_time = Clock::now();
 //    fig1A();
 //    fig5();
-//    fig6();
-//    fig8();
-//    fig10();
-//    fig18();
+    fig6();
+    fig8();
+    fig10();
+    fig18();
     fig24();
-//    fig54();
+    fig54();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "
