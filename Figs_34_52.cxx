@@ -89,7 +89,7 @@ void Fig34()
         {"/home/common/Za/NTuples/Ntuple_data_test.root"}
     };
     
-    SchottDataFrame df(MakeRDF(input_filenames, 8));
+    SchottDataFrame df(MakeRDF(input_filenames[0], 8));
     
     auto two_leptons = df.Filter(
     [](RVec<Muon>& muons, RVec<Electron> electrons)
