@@ -995,7 +995,7 @@ void Table15()
             {
                 if (p.photon_pt > 20e3)
                 {
-                  return p;
+                    return p;
                 }
             }
 

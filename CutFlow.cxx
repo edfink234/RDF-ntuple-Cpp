@@ -1454,8 +1454,8 @@ void CutFlow()
 {
     auto start_time = Clock::now();
     
-//    Table3();
-//    Table8();
+    Table3();
+    Table8();
     Table11();
     
     auto end_time = Clock::now();
