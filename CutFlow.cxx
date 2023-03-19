@@ -78,7 +78,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-
+/*
 void Table3()
 {
     std::vector<std::vector<std::string>> input_filenames = {
@@ -201,7 +201,7 @@ void Table3()
     
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF(file, 8));
+        SchottDataFrame df(MakeRDF(file, 24));
         
 //        df.Describe().Print();
 //        exit(1);
@@ -731,7 +731,7 @@ void Table8()
            \\ \hline )--" << '\n';
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF(file, 8));
+        SchottDataFrame df(MakeRDF(file, 24));
         
         auto trigger_selection = df.Filter(
         [](const RVec<std::string>& trigger_passed_triggers)
@@ -1004,7 +1004,7 @@ void Table8()
     os << R"--(\end{tabular}})--" << '\n';
     std::cout << os.str() << '\n';
 }
-
+*/
 void Table11()
 {
     std::vector<std::vector<std::string>> input_filenames = {
@@ -1170,7 +1170,7 @@ void Table11()
 
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF(file, 8));
+        SchottDataFrame df(MakeRDF(file, 24));
         
         auto trigger_selection = df.Filter(
         [](const RVec<std::string>& trigger_passed_triggers)
@@ -1622,8 +1622,8 @@ void CutFlow()
 {
     auto start_time = Clock::now();
     
-    Table3();
-    Table8();
+//    Table3();
+//    Table8();
     Table11();
     
     auto end_time = Clock::now();

@@ -89,7 +89,7 @@ void Fig34()
         {"/home/common/Za/NTuples/Ntuple_data_test.root"}
     };
     
-    SchottDataFrame df(MakeRDF(input_filenames[0], 8));
+    SchottDataFrame df(MakeRDF(input_filenames[0], 24));
     
     auto two_leptons = df.Filter(
     [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -351,7 +351,7 @@ void Fig52()
     
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF(i, 8));
+        SchottDataFrame df(MakeRDF(i, 24));
         
         auto EventWeight = df.Define("EventWeight",
         [](const RVec<float>& ei_event_weights_generator)
@@ -603,7 +603,7 @@ void Fig52()
 void Figs_34_52()
 {
     auto start_time = Clock::now();
-//    Fig34();
+    Fig34();
     Fig52();
     auto end_time = Clock::now();
     std::cout << "Time difference: "

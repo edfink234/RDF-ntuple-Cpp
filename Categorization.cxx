@@ -141,7 +141,7 @@ void Table4()
     std::cout << R"--($m_A$ \, (GeV) & Both photons matched (\%) & 1 photon matched (\%) & At least 1 photon matched (\%) & 0 photons matched (\%) \\ \hline )--" << '\n';
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF(i, 8));
+        SchottDataFrame df(MakeRDF(i, 24));
         
         auto preselection = df.Filter(
         [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -397,7 +397,7 @@ void Table5()
     std::cout << R"--($m_A$ \, (GeV) & Both photons matched (\%) & 1 photon matched (\%) & At least 1 photon matched (\%) & 0 photons matched (\%) \\ \hline )--" << '\n';
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF(i, 8));
+        SchottDataFrame df(MakeRDF(i, 24));
         
         auto preselection = df.Filter(
         [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -714,7 +714,7 @@ void Table14()
     
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF(i, 8));
+        SchottDataFrame df(MakeRDF(i, 24));
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -1018,7 +1018,7 @@ void Table15()
     
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF(i, 8));
+        SchottDataFrame df(MakeRDF(i, 24));
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -1324,7 +1324,7 @@ void Fig19()
     
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF(file, 8));
+        SchottDataFrame df(MakeRDF(file, 24));
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
         {

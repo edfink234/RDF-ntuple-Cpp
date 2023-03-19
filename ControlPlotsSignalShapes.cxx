@@ -188,7 +188,7 @@ constexpr std::array<const char*,35> triggers =
 //
 //    for (auto& file: input_filenames)
 //    {
-//        SchottDataFrame df(MakeRDF(file, 8));
+//        SchottDataFrame df(MakeRDF(file, 24));
 ////        df.Describe().Print();
 ////        exit(1);
 //        auto trigger_selection = df.Filter(
@@ -459,7 +459,7 @@ constexpr std::array<const char*,35> triggers =
 //    TCanvas* c1 = new TCanvas();
 //    TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.525);
 //
-//    SchottDataFrame df(MakeRDF(input_filenames[0], 8));
+//    SchottDataFrame df(MakeRDF(input_filenames[0], 24));
 //
 //    auto preselection = df.Filter(
 //    [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -657,7 +657,7 @@ constexpr std::array<const char*,35> triggers =
 //    TCanvas* c1 = new TCanvas();
 //    TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.525);
 //
-//    SchottDataFrame df(MakeRDF(input_filenames[0], 8));
+//    SchottDataFrame df(MakeRDF(input_filenames[0], 24));
 //
 //    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
 //    {
@@ -975,7 +975,7 @@ constexpr std::array<const char*,35> triggers =
 //
 //    for (auto& file: input_filenames)
 //    {
-//        SchottDataFrame df(MakeRDF(file, 8));
+//        SchottDataFrame df(MakeRDF(file, 24));
 //
 //        auto preselection = df.Filter(
 //        [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -1459,7 +1459,7 @@ constexpr std::array<const char*,35> triggers =
 //
 //    for (auto& file: input_filenames)
 //    {
-//        SchottDataFrame df(MakeRDF(file, 8));
+//        SchottDataFrame df(MakeRDF(file, 24));
 //
 //        auto preselection = df.Filter(
 //        [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -1767,7 +1767,7 @@ constexpr std::array<const char*,35> triggers =
 //
 //    for (auto& file: input_filenames)
 //    {
-//        SchottDataFrame df(MakeRDF(file, 8));
+//        SchottDataFrame df(MakeRDF(file, 24));
 //
 //        auto preselection = df.Filter(
 //        [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -2172,7 +2172,7 @@ void fig24()
     
     for (auto& sample: input_filenames)
     {
-        SchottDataFrame df(MakeRDF(sample, 8));
+        SchottDataFrame df(MakeRDF(sample, 24));
         
         auto EventWeight = df.Define("EventWeight",
         [](const RVec<float>& ei_event_weights_generator)
@@ -2572,7 +2572,7 @@ void fig24()
 //
 //    for (auto& file: input_filenames)
 //    {
-//        SchottDataFrame df(MakeRDF(file, 8));
+//        SchottDataFrame df(MakeRDF(file, 24));
 //
 //        auto preselection = df.Filter(
 //        [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
