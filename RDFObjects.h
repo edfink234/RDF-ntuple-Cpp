@@ -28,6 +28,7 @@ struct TruthParticle final
     float mc_phi;
     float mc_e;
     float mc_mass;
+    float mc_decay_time;
     
     PtEtaPhiEVector Vector()
     {

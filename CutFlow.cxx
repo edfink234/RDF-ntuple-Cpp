@@ -83,7 +83,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-
+/*
 void Table3()
 {
     std::vector<std::vector<std::string>> input_filenames = {
@@ -1450,13 +1450,1080 @@ void Table11()
     std::cout << os.str() << '\n';
 }
 
+void Table3_Displaced_Axions()
+{
+    std::vector<std::vector<std::string>> input_filenames = {
+        //Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        //Displaced Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
+    };
+    
+    constexpr std::array<const char*,15> Samples = {R"--(Prompt Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Prompt Signal $m_{\text{A}}$ = 5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 0.2 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 0.5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 3 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 10 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 10.1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 20 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 20.1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 29.5 GeV)--", };
+    
+    std::vector<double> massPoints = {0.2,0.5,1,3,5,10,10.1,20,20.1,29.5};
+    
+    std::ostringstream os;
+    os << R"--(\section*{Table 3 Prompt and Displaced Signal Samples})--" << '\n';
+    os << R"--(\hspace{-3cm}\scalebox{0.45}{)--" << '\n';
+    os << R"--(\begin{tabular}{|c|c|c|c|c|c|c|c|})--" << '\n';
+    os << R"--(\hline)--" << '\n';
+    os << R"--(Sample & Before Preselection & 2 leptons
+          & Opposite Charge & $p_{T}^{\text{leading}} > 27$ GeV, \; $p_{T}^{\text{sub-leading}} > 20$ GeV & Same flavour & dilep mass cut & dilep $p_{T}$ cut \\ \hline )--" << '\n';
+    
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
+    
+    int counter = 0;
+    
+    for (auto& file: input_filenames)
+    {
+        SchottDataFrame df(MakeRDF(file, 8));
+        
+        auto trigger_selection = df.Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
+        {
+            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+            [](TruthParticle& x)
+            {
+                return (abs(x.mc_pdg_id) != 36);
+
+            }), truth_particles.end());
+
+            return truth_particles;
+
+        }, {"truth_particles"}).Define("axion_masses", [&](RVec<TruthParticle>& truth_axions)
+        {
+            return truth_axions[0].mc_mass/1e3f;
+
+        }, {"truth_axions"}).Filter(
+        [](const RVec<std::string>& trigger_passed_triggers)
+        {
+            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+
+            if (!trigger_found)
+            {
+              return false;
+            }
+            return true;
+
+        }, {"trigger_passed_triggers"});
+        
+        auto two_leptons = trigger_selection.Define("di_electrons",
+        [](RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                                          && (ep.electron_id_medium == 1)));
+
+            }), electrons.end());
+
+            return electrons;
+
+        },{"electrons"}).Filter([](RVec<Muon>& muons, RVec<Electron> di_electrons)
+        {
+            return (di_electrons.size()==2 && muons.empty() && DeltaR(di_electrons[0].Vector(), di_electrons[1].Vector()) > 0.01);
+            
+        }, {"muons", "di_electrons"});
+        
+        auto opp_charge = two_leptons.Filter([](RVec<Electron> di_electrons)
+        {
+            return (di_electrons[0].electron_charge*di_electrons[1].electron_charge < 0);
+            
+        }, {"di_electrons"});
+        
+        auto leading_pt = opp_charge.Filter([](RVec<Electron>& electrons)
+        {
+            return ((electrons[0].electron_pt >= 20e3 && electrons[1].electron_pt >= 27e3) || (electrons[1].electron_pt >= 20e3 && electrons[0].electron_pt >= 27e3));
+        }, {"di_electrons"});
+        
+        auto same_flavour = leading_pt.Filter([] (RVec<Electron>& electrons)
+        {
+            return true;
+        }, {"di_electrons"});
+        
+        auto dilep = same_flavour.Define("dilep",[] (RVec<Electron>& electrons)
+        {
+            return (electrons[0].Vector() + electrons[1].Vector());
+        }, {"di_electrons"});
+        
+        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+        {
+            auto mass = dilep.M()/1e3;
+            return ((mass >= 81) && (mass <= 101));
+        }, {"dilep"});
+        
+        auto pt_cut = mass.Filter([] (PtEtaPhiEVector& dilep)
+        {
+            auto pT = dilep.Pt()/1e3;
+            return pT > 10;
+        }, {"dilep"});
+        
+        if (counter < 2)
+        {
+            Nodes.push_back(trigger_selection.Count());
+            Nodes.push_back(two_leptons.Count());
+            Nodes.push_back(opp_charge.Count());
+            Nodes.push_back(leading_pt.Count());
+            Nodes.push_back(same_flavour.Count());
+            Nodes.push_back(mass.Count());
+            Nodes.push_back(pt_cut.Count());
+        }
+        
+        else
+        {
+            for (auto& mass_point: massPoints)
+            {
+                auto mass_point_trigger_selection = trigger_selection.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_two_leptons = two_leptons.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_opp_charge = opp_charge.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_leading_pt = leading_pt.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_same_flavour = same_flavour.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_mass = mass.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_pt_cut = pt_cut.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                Nodes.push_back(mass_point_trigger_selection.Count());
+                Nodes.push_back(mass_point_two_leptons.Count());
+                Nodes.push_back(mass_point_opp_charge.Count());
+                Nodes.push_back(mass_point_leading_pt.Count());
+                Nodes.push_back(mass_point_same_flavour.Count());
+                Nodes.push_back(mass_point_mass.Count());
+                Nodes.push_back(mass_point_pt_cut.Count());
+                
+            }
+        }
+        
+        counter++;
+    }
+
+    constexpr std::array<const char*,7> Cuts = {"total", "two leptons", "opposite charge", "leading pt", "same flavour", "mass", "pt cut"};
+    
+    std::cout << Nodes.size();
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    
+//   0    1   2   3   4   5   6                          ma1
+//   7    8   9   10  11  12  13                         ma5
+//   14   15  16  17  18  19  20                         displaced_axion_1
+//   21   22  23  24  25  26  27                         displaced_axion_2
+//   28   29  30  31  32  33  34                         displaced_axion_3
+//   35   36  37  38  39  40  41                         displaced_axion_4
+//   42   43  44  45  46  47  48                         displaced_axion_5
+//   49   50  51  52  53  54  55                         displaced_axion_6
+//   56   57  58  59  60  61  62                         displaced_axion_7
+//   63   64  65  66  67  68  69                         displaced_axion_8
+//   70   71  72  73  74  75  76                         displaced_axion_9
+//   77   78  79  80  81  82  83                         displaced_axion_10
+
+    std::cout << R"--(\section*{Table 3 Signal Ratios})--" << '\n';
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    std::cout << R"--(Sample & $\frac{\text{2 leptons}}{\text{2 leptons}}$
+          & $\frac{\text{Opposite Charge}}{\text{2 leptons}}$ & $\frac{p_{T}^{\text{leading}} > 27\text{ GeV, } \, p_{T}^{\text{sub-leading}} > 20 \text{ GeV }}{\text{2 leptons}}$ & $\frac{\text{Same flavour}}{\text{2 leptons}}$ & $\frac{\text{dilep mass cut}}{\text{2 leptons}}$ & $\frac{\text{dilep }p_{T} \text{ cut}}{\text{2 leptons}}$ \\ \hline )--" << '\n';
+    
+    os.setf(std::ios::fixed);
+    os.precision(2);
+        
+    for (int i=0, j=0; (i<12 && j <= 77); i++, j+=7)
+    {
+        os << Samples[i];
+        os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
+        << R"--($\, \pm \,$)--" << sqrt(*Nodes[j].GetResultPtr<ULong64_t>())
+        << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
+        << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+1].GetResultPtr<ULong64_t>())
+        << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
+        << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+2].GetResultPtr<ULong64_t>())
+        << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
+        << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+3].GetResultPtr<ULong64_t>())
+        << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>()
+        << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+4].GetResultPtr<ULong64_t>())
+        << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
+        << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+5].GetResultPtr<ULong64_t>())
+        << " & " << *Nodes[j+6].GetResultPtr<ULong64_t>()
+        << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+6].GetResultPtr<ULong64_t>())
+        << R"--( \\ \hline )--" << '\n';
+        
+        if (i==0) //1 GeV
+        {
+            std::cout << Samples[i] << " (Me) & " << 1 << " & " <<
+            static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+6].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << R"--( \\ \hline )--" << '\n';
+            
+            std::cout << Samples[i] << " (Paper) & " << 1 << " & " <<
+            21505.03 / 21606.75
+            << " & " <<
+            21375.48 / 21606.75
+            << " & " <<
+            21375.33 / 21606.75
+            << " & " <<
+            20543.06 / 21606.75
+            << " & " <<
+            19516.87 / 21606.75
+            << R"--( \\ \hline )--" << '\n';
+        }
+        
+        else if (i==1) //5 GeV
+        {
+            std::cout << Samples[i] << " (Me) & " << 1 << " & " <<
+            static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+6].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << R"--( \\ \hline )--" << '\n';
+            
+            std::cout << Samples[i] << " (Paper) & " << 1 << " & " <<
+            21556.03 / 21655.38
+            << " & " <<
+            21424.29 / 21655.38
+            << " & " <<
+            21424.28 / 21655.38
+            << " & " <<
+            20585.09 / 21655.38
+            << " & " <<
+            19536.68 / 21655.38
+            << R"--( \\ \hline )--" << '\n';
+        }
+        
+        else
+        {
+            std::cout << Samples[i] << " Displaced (Me) & " << 1 << " & " <<
+            static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+6].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << R"--( \\ \hline )--" << '\n';
+        }
+    }
+
+    std::cout << R"--(\end{tabular}})--" << "\n\n\n";
+
+    os << R"--(\end{tabular}})--" << '\n';
+    std::cout << os.str() << '\n';
+}
+
+void Table8_Displaced_Axions()
+{
+    std::vector<std::vector<std::string>> input_filenames = {
+        //Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        //Displaced Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
+    };
+    
+    constexpr std::array<const char*,15> Samples = {R"--(Prompt Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Prompt Signal $m_{\text{A}}$ = 5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 0.2 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 0.5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 3 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 10 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 10.1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 20 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 20.1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 29.5 GeV)--", };
+    
+    std::vector<double> massPoints = {0.2,0.5,1,3,5,10,10.1,20,20.1,29.5};
+    
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
+    
+    std::ostringstream os;
+    os << R"--(\section*{Table 8 Prompt and Displaced Signal Samples})--" << '\n';
+    os << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    os << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
+    os << R"--(\hline)--" << '\n';
+    os << R"--(Sample & Total Events & PS: Resolved & SB & SR
+           \\ \hline )--" << '\n';
+    
+    int counter = 0;
+    
+    for (auto& file: input_filenames)
+    {
+        SchottDataFrame df(MakeRDF(file, 8));
+        
+        auto trigger_selection = df.Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
+        {
+            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+            [](TruthParticle& x)
+            {
+               return (abs(x.mc_pdg_id) != 36);
+
+            }), truth_particles.end());
+
+            return truth_particles;
+
+        }, {"truth_particles"}).Define("axion_masses", [&](RVec<TruthParticle>& truth_axions)
+        {
+            return truth_axions[0].mc_mass/1e3f;
+
+        }, {"truth_axions"}).Filter(
+        [](const RVec<std::string>& trigger_passed_triggers)
+        {
+            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+
+            if (!trigger_found)
+            {
+             return false;
+            }
+            return true;
+
+        }, {"trigger_passed_triggers"});
+ 
+        auto two_leptons = trigger_selection.Filter(
+        [](RVec<Muon>& muons, RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                          && (ep.electron_id_medium == 1)));
+                
+            }), electrons.end());
+            
+            return (electrons.size()==2 && muons.empty());
+            
+        }, {"muons", "electrons"});
+        
+        auto opp_charge = two_leptons.Define("di_electrons",
+        [](RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                && (ep.electron_id_medium == 1)));
+
+            }), electrons.end());
+            
+            return electrons;
+            
+        },{"electrons"})
+        .Filter([](RVec<Electron> electrons)
+        {
+            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+            
+        }, {"di_electrons"});
+        
+        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+        {
+            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+        }, {"di_electrons"});
+        
+        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+        {
+            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+        }, {"di_electrons"});
+        
+        auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
+        {
+            auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+            return ((mass >= 81) && (mass <= 101));
+        }, {"di_electrons"});
+        
+        auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
+        {
+            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+            return pT > 10;
+        }, {"di_electrons"});
+        
+        auto resolved = ptCut.Define("photons_pass_cuts",
+        [&](RVec<Photon> photons)
+        {
+            photons.erase(std::remove_if(photons.begin(),photons.end(),
+            [](Photon& x)
+            {
+                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+
+            }), photons.end());
+            return photons;
+        }, {"photons"}).Filter(
+        [&](RVec<Photon>& reco_photons_matched)
+        {
+            if (reco_photons_matched.size() < 2)
+            {
+                return false;
+            }
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if (i==0 || abs(1-X) < abs(1-best_X))
+                {
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
+                }
+            }
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+            {
+                return true;
+            }
+            return false;
+
+        }, {"photons_pass_cuts"});
+
+        auto SR = resolved.Filter(
+        [&](RVec<Electron>& electrons, RVec<Photon>& reco_photons_matched)
+        {
+            auto mass = ((electrons[0].Vector()+electrons[1].Vector()).M() + (reco_photons_matched[0].Vector()+reco_photons_matched[1].Vector()).M())/1e3;
+            return ((mass > 110) && (mass < 140));
+        }, {"di_electrons", "photons_pass_cuts"});
+        
+        auto SB = resolved.Filter(
+        [&](RVec<Electron>& electrons, RVec<Photon>& reco_photons_matched)
+        {
+            auto mass = ((electrons[0].Vector()+electrons[1].Vector()).M() + (reco_photons_matched[0].Vector()+reco_photons_matched[1].Vector()).M())/1e3;
+            return (!((mass > 110) && (mass < 140)));
+        }, {"di_electrons", "photons_pass_cuts"});
+        
+        if (counter < 2)
+        {
+            Nodes.push_back(trigger_selection.Count());
+            Nodes.push_back(resolved.Count());
+            Nodes.push_back(SB.Count());
+            Nodes.push_back(SR.Count());
+        }
+        else
+        {
+            for (auto& mass_point: massPoints)
+            {
+                auto mass_point_trigger_selection = trigger_selection.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_resolved = resolved.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_SB = SB.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_SR = SR.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                Nodes.push_back(mass_point_trigger_selection.Count());
+                Nodes.push_back(mass_point_resolved.Count());
+                Nodes.push_back(mass_point_SB.Count());
+                Nodes.push_back(mass_point_SR.Count());
+            }
+        }
+        
+        counter++;
+    }
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    
+//       0    1   2   3                           ma1
+//       4    5   6   7                           ma5
+//       8    9   10  11                          displaced_axion_1
+//       12   13  14  15                          displaced_axion_2
+//       16   17  18  19                          displaced_axion_3
+//       20   21  22  23                          displaced_axion_4
+//       24   25  26  27                          displaced_axion_5
+//       28   29  30  31                          displaced_axion_6
+//       32   33  34  35                          displaced_axion_7
+//       36   37  38  39                          displaced_axion_8
+//       40   41  42  43                          displaced_axion_9
+//       44   45  46  47                          displaced_axion_10
+    os.setf(std::ios::fixed);
+    os.precision(2);
+ 
+    for (int i=0, j=0; (i<12 && j <= 44); i++, j+=4)
+    {
+        os << Samples[i];
+        
+        os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+1].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+2].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+3].GetResultPtr<ULong64_t>())
+            << R"--( \\ \hline )--" << '\n';
+
+    }
+    
+    os << R"--(\end{tabular}})--" << '\n';
+    std::cout << os.str() << '\n';
+}
+*/
+
+void Table11_Displaced_Axions()
+{
+    std::vector<std::vector<std::string>> input_filenames = {
+        //Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        //Displaced Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
+    };
+    
+    constexpr std::array<const char*,15> Samples = {R"--(Prompt Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Prompt Signal $m_{\text{A}}$ = 5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 0.2 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 0.5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 3 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 10 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 10.1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 20 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 20.1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 29.5 GeV)--", };
+    
+    std::vector<double> massPoints = {0.2,0.5,1,3,5,10,10.1,20,20.1,29.5};
+    
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
+
+    std::ostringstream os, ss;
+    
+    os.setf(std::ios::fixed);
+    os.precision(2);
+    
+    os << R"--(\section*{Table 11 Prompt and Displaced Signal Samples})--" << '\n';
+    os << R"--(\hspace{-3cm}\scalebox{0.55}{)--" << '\n';
+    os << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
+    os << R"--(\hline)--" << '\n';
+    os << R"--(Sample & Total Events & pass preselection (PS) & photon $p_T$ + $\Delta R_{\gamma\gamma}$ cut & $X$ window & SR & SR-ID
+           \\ \hline )--" << '\n';
+    
+    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+    {
+        RVec<TruthParticle> truthSelected;
+        bool foundParent;
+        if (truthChain.size() >= 1)
+        {
+            TruthParticle tp;
+            for (auto& tpe: startParticles)
+            {
+                tp = tpe;
+                while (true)
+                {
+                    if (tp.mc_parent_barcode == targetBarcode)
+                    {
+                        truthSelected.push_back(tp);
+                        break;
+                    }
+                    else
+                    {
+                        foundParent = false;
+                        for (auto& tmp: truthChain)
+                        {
+                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+                            {
+                                tp = tmp;
+                                foundParent = true;
+                                break;
+                            }
+                        }
+                        if (foundParent == false)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return truthSelected;
+    };
+    
+    int counter = 0;
+
+    for (auto& file: input_filenames)
+    {
+        SchottDataFrame df(MakeRDF(file, 8));
+        
+        auto trigger_selection = df.Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
+        {
+            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+            [](TruthParticle& x)
+            {
+               return (abs(x.mc_pdg_id) != 36);
+
+            }), truth_particles.end());
+
+            return truth_particles;
+
+        }, {"truth_particles"}).Define("axion_masses", [&](RVec<TruthParticle>& truth_axions)
+        {
+            return truth_axions[0].mc_mass/1e3f;
+
+        }, {"truth_axions"}).Filter(
+        [](const RVec<std::string>& trigger_passed_triggers)
+        {
+            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+
+            if (!trigger_found)
+            {
+             return false;
+            }
+            return true;
+
+        }, {"trigger_passed_triggers"});
+        
+        auto two_leptons = trigger_selection.Define("di_electrons",
+        [](RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return ((ep.electron_pt/1e3 <= 20) || (abs(ep.electron_eta) >= 2.37)
+                        || ((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52))
+                        || (ep.electron_id_medium != 1));
+                
+
+            }), electrons.end());
+
+            return electrons;
+
+        },{"electrons"}).Filter([](RVec<Muon>& muons, RVec<Electron> di_electrons)
+        {
+            return (di_electrons.size()==2 && muons.empty() && DeltaR(di_electrons[0].Vector(), di_electrons[1].Vector()) > 0.01);
+            
+        }, {"muons", "di_electrons"});
+        
+        auto opp_charge = two_leptons.Filter([](RVec<Electron> di_electrons)
+        {
+            return (di_electrons[0].electron_charge*di_electrons[1].electron_charge < 0);
+            
+        }, {"di_electrons"});
+        
+        auto leading_pt = opp_charge.Filter([](RVec<Electron>& electrons)
+        {
+            return ((electrons[0].electron_pt >= 20e3 && electrons[1].electron_pt >= 27e3) || (electrons[1].electron_pt >= 20e3 && electrons[0].electron_pt >= 27e3));
+        }, {"di_electrons"});
+        
+//        auto delta_R = leading_pt.Filter([] (RVec<Electron>& electrons)
+//        {
+//            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+//        }, {"di_electrons"});
+        
+        auto same_flavour = leading_pt.Filter([] (RVec<Electron>& electrons)
+        {
+            return true; //abs(electrons[0].electron_pdg_id) == abs(electrons[1].electron_pdg_id) == 11;
+        }, {"di_electrons"});
+        
+        auto dilep = same_flavour.Define("dilep",[] (RVec<Electron>& electrons)
+        {
+            return (electrons[0].Vector() + electrons[1].Vector());
+        }, {"di_electrons"});
+        
+        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+        {
+            auto mass = dilep.M()/1e3;
+            return ((mass >= 81) && (mass <= 101));
+        }, {"dilep"});
+        
+        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
+        {
+            auto pT = dilep.Pt()/1e3;
+            return pT > 10;
+        }, {"dilep"});
+        
+        auto photonPtDeltaR = ptCut.Define("photonPtDeltaR",
+        [&](RVec<Photon> photons)
+        {
+            photons.erase(std::remove_if(photons.begin(),photons.end(),
+            [](Photon& x)
+            {
+                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+                
+            }), photons.end());
+            return photons;
+        }, {"photons"}).Filter(
+       [&](RVec<Photon>& reco_photons_matched)
+       {
+            if (reco_photons_matched.size() < 2)
+            {
+              return false;
+            }
+            RVec<Photon> x;
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if (i==0 || abs(1-X) < abs(1-best_X))
+                {
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
+                    x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                }
+            }
+            return (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3);
+
+       }, {"photonPtDeltaR"});
+                
+        auto X_window = photonPtDeltaR.Define("chosen_two",
+        [](RVec<Photon>& reco_photons_matched)
+        {
+            RVec<Photon> x;
+            if (reco_photons_matched.size() < 2)
+            {
+                return x;
+            }
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if (i==0 || abs(1-X) < abs(1-best_X))
+                {
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
+                    x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                }
+            }
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+            {
+                return x;
+            }
+            x.clear();
+            return x;
+        }, {"photonPtDeltaR"}).Filter(
+        [&](RVec<Photon>& reco_photons_matched)
+        {
+            return (reco_photons_matched.size()==2);
+        }, {"chosen_two"});
+                
+        auto SR = X_window.Filter(
+        [](RVec<Photon>& photons, RVec<Electron>& electrons)
+        {
+            PtEtaPhiEVector photonVec = photons[0].Vector() + photons[1].Vector();
+            PtEtaPhiEVector electronVec = electrons[0].Vector() + electrons[1].Vector();
+            auto mass = (photonVec+electronVec).M()/1e3;
+            return ((mass >= 110) && (mass <= 140));
+        },{"chosen_two","di_electrons"});
+                
+        auto SR_ID = SR.Filter(
+        [](RVec<Photon>& photons)
+        {
+            return (photons[0].photon_id_loose && photons[1].photon_id_loose);
+        },{"chosen_two"});
+        
+        if (counter < 2)
+        {
+            Nodes.push_back(trigger_selection.Count());
+            Nodes.push_back(ptCut.Count());
+            Nodes.push_back(photonPtDeltaR.Count());
+            Nodes.push_back(X_window.Count());
+            Nodes.push_back(SR.Count());
+            Nodes.push_back(SR_ID.Count());
+        }
+        else
+        {
+            for (auto& mass_point: massPoints)
+            {
+                auto mass_point_trigger_selection = trigger_selection.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_ptCut = ptCut.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_photonPtDeltaR = photonPtDeltaR.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_X_window = X_window.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_SR = SR.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_SR_ID = SR_ID.Filter([&]
+                (float axion_mass)
+                {
+                    return (axion_mass == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                Nodes.push_back(mass_point_trigger_selection.Count());
+                Nodes.push_back(mass_point_ptCut.Count());
+                Nodes.push_back(mass_point_photonPtDeltaR.Count());
+                Nodes.push_back(mass_point_X_window.Count());
+                Nodes.push_back(mass_point_SR.Count());
+                Nodes.push_back(mass_point_SR_ID.Count());
+            }
+        }
+        
+        counter++;
+    }
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    
+//    0    1   2   3   4   5                            ma1
+//    6    7   8   9   10  11                           ma5
+//    12   13  14  15  16  17                           displaced_axion_1
+//    18   19  20  21  22  23                           displaced_axion_2
+//    24   25  26  27  28  29                           displaced_axion_3
+//    30   31  32  33  34  35                           displaced_axion_4
+//    36   37  38  39  40  41                           displaced_axion_5
+//    42   43  44  45  46  47                           displaced_axion_6
+//    48   49  50  51  52  53                           displaced_axion_7
+//    54   55  56  57  58  59                           displaced_axion_8
+//    60   61  62  63  64  65                           displaced_axion_9
+//    66   67  68  69  70  71                           displaced_axion_10
+
+    std::cout << R"--(\section*{Table 11 Signal Ratios})--" << '\n';
+    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    std::cout << R"--(Sample & $\frac{\text{pass preselection (PS)}}{\text{pass preselection (PS)}}$ & $\frac{\text{photon } p_T \text{ + } \Delta R_{\gamma\gamma} \text{ cut }}{\text{pass preselection (PS)}}$ & $\frac{X \text{ window}}{\text{pass preselection (PS)}}$ & $\frac{\text{SR}}{\text{pass preselection (PS)}}$ & $\frac{\text{SR-ID}}{\text{pass preselection (PS)}}$
+           \\ \hline )--" << '\n';
+    
+    ss << R"--(\section*{Table 11 Signal Ratios})--" << '\n';
+    ss << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    ss << R"--(\begin{tabular}{|c|c|c|c|c|c|c|})--" << '\n';
+    ss << R"--(\hline)--" << '\n';
+    ss << R"--(Sample & $\frac{\text{pass preselection (PS)}}{\text{pass preselection (PS)}}$ & $\frac{\text{photon } p_T \text{ + } \Delta R_{\gamma\gamma} \text{ cut }}{\text{pass preselection (PS)}}$ & $\frac{X \text{ window}}{\text{photon } p_T \text{ + } \Delta R_{\gamma\gamma} \text{ cut }}$ & $\frac{\text{SR}}{X \text{ window}}$ & $\frac{\text{SR-ID}}{\text{SR}}$
+           \\ \hline )--" << '\n';
+    
+    for (int i=0, j=0; (i<12 && j <= 66); i++, j+=6)
+    {
+        os << Samples[i];
+        
+        os  << " & " << *Nodes[j].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+1].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+2].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+2].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+3].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+3].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+4].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+4].GetResultPtr<ULong64_t>())
+            << " & " << *Nodes[j+5].GetResultPtr<ULong64_t>()
+            << R"--($\, \pm \,$)--" << sqrt(*Nodes[j+5].GetResultPtr<ULong64_t>())
+            << R"--( \\ \hline )--" << '\n';
+            
+        if (i==0) //1 GeV
+        {
+            std::cout << Samples[i] << " (Me) & " << 1 << " & " <<
+            static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << R"--( \\ \hline )--" << '\n';
+            
+            std::cout << Samples[i] << " (Paper) & " << 1 << " & " <<
+            2343.65 / 19516.87
+            << " & " <<
+            2204.22 / 19516.87
+            << " & " <<
+            2076.73 / 19516.87
+            << " & " <<
+            333.21 / 19516.87
+            << R"--( \\ \hline )--" << '\n';
+            
+            ss << Samples[i] << " (Me) & " << 1 << " & " <<
+            static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+2].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+3].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+4].GetResultPtr<ULong64_t>()
+            << R"--( \\ \hline )--" << '\n';
+            
+            ss << Samples[i] << " (Paper) & " << 1 << " & " <<
+            2343.65 / 19516.87
+            << " & " <<
+            2204.22 / 2343.65
+            << " & " <<
+            2076.73 / 2204.22
+            << " & " <<
+            333.21 / 2076.73
+            << R"--( \\ \hline )--" << '\n';
+            
+        }
+        
+        else if (i==1) //5 GeV
+        {
+            std::cout << Samples[i] << " (Me) & " << 1 << " & " <<
+            static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << R"--( \\ \hline )--" << '\n';
+            
+            std::cout << Samples[i] << " (Paper) & " << 1 << " & " <<
+            3245.86 / 19536.68
+            << " & " <<
+            3052.81 / 19536.68
+            << " & " <<
+            2941.28 / 19536.68
+            << " & " <<
+            1959.68 / 19536.68
+            << R"--( \\ \hline )--" << '\n';
+            
+            ss << Samples[i] << " (Me) & " << 1 << " & " <<
+            static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+2].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+3].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+4].GetResultPtr<ULong64_t>()
+            << R"--( \\ \hline )--" << '\n';
+            
+            ss << Samples[i] << " (Paper) & " << 1 << " & " <<
+            3245.86 / 19536.68
+            << " & " <<
+            3052.81 / 3245.86
+            << " & " <<
+            2941.28 / 3052.81
+            << " & " <<
+            1959.68 / 2941.28
+            << R"--( \\ \hline )--" << '\n';
+        }
+        
+        else
+        {
+            std::cout << Samples[i] << " Displaced (Me) & " << 1 << " & " <<
+            static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << R"--( \\ \hline )--" << '\n';
+            
+            ss << Samples[i] << " Displaced (Me) & " << 1 << " & " <<
+            static_cast<double>(*Nodes[j+2].GetResultPtr<ULong64_t>()) / *Nodes[j+1].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+3].GetResultPtr<ULong64_t>()) / *Nodes[j+2].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+4].GetResultPtr<ULong64_t>()) / *Nodes[j+3].GetResultPtr<ULong64_t>()
+            << " & " <<
+            static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / *Nodes[j+4].GetResultPtr<ULong64_t>()
+            << R"--( \\ \hline )--" << '\n';
+        }
+        
+    }
+    
+    std::cout << R"--(\end{tabular}})--" << "\n\n\n";
+    
+    ss << R"--(\end{tabular}})--" << "\n\n\n";
+    std::cout << ss.str() << '\n';
+    
+    os << R"--(\end{tabular}})--" << '\n';
+    std::cout << os.str() << '\n';
+}
+
 void CutFlow()
 {
     auto start_time = Clock::now();
     
-    Table3();
-    Table8();
-    Table11();
+//    Table3();
+//    Table8();
+//    Table11();
+//    Table3_Displaced_Axions();
+//    Table8_Displaced_Axions();
+    Table11_Displaced_Axions();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "

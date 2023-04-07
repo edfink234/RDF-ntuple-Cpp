@@ -6,6 +6,7 @@
 #include <sstream>
 #include <array>
 #include <cstdlib>
+#include <memory>
 
 #include <ROOT/RLogger.hxx>
 #include "Math/VectorUtil.h"
@@ -83,12 +84,16 @@ void Table11MuonElectron()
 {
     std::vector<std::vector<std::string>> input_filenames = {
         //{"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/muon17.3.root", "muon17.3part2.root"}
-        {"Electrontest.root"}
+        //{"Electrontest.root"}
+        {
+            "muonz0d0.root"
+        }
     };
     
     constexpr std::array<const char*,1> Samples = {R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
     
     std::vector<ROOT::RDF::RResultHandle> Nodes;
+    ROOT::RDF::RResultPtr<TH1D> histoNode;
 
     std::ostringstream os, ss;
     os << R"--(\section*{Table 11})--" << '\n';
@@ -166,8 +171,10 @@ void Table11MuonElectron()
             
             for (auto i = 0; i < muons.size(); i++)
             {
-                if  ((muons[i].muon_pt/1e3 <= 10) ||
-                     (muons[i].muon_pt/1e3 <= 15 && muon_id_medium[i] == 1) ||
+                if  (
+                     (muons[i].muon_pt/1e3 <= 15) ||
+//                     (muons[i].muon_pt/1e3 <= 10) ||
+//                     (muons[i].muon_pt/1e3 <= 15 && muon_id_medium[i] == 1) ||
                      (abs(muons[i].muon_eta) >= 2.5) ||
                      (muon_id_medium[i] != 1))
                 {
@@ -464,8 +471,50 @@ void Table11MuonElectron()
             }
             return (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3);
 
-       }, {"photonPtDeltaR"});
-                
+        }, {"photonPtDeltaR"})
+        .Define("truth_photons",[&](RVec<TruthParticle> truth_particles)
+        {
+            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+            [](TruthParticle& x)
+            {
+                return (abs(x.mc_pdg_id) != 22);
+
+            }), truth_particles.end());
+
+            return truth_particles;
+
+        }, {"truth_particles"})
+        .Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
+        {
+            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+            [](TruthParticle& x)
+            {
+                return (abs(x.mc_pdg_id) != 35);
+
+            }), truth_particles.end());
+
+            return truth_particles;
+
+        }, {"truth_particles"}).Define("truth_photons_from_axions",
+        [&](RVec<TruthParticle>& truth_photons, RVec<TruthParticle>& truth_axions)
+        {
+            return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
+
+            truth_photons.erase(std::remove_if(truth_photons.begin(),truth_photons.end(),[&](TruthParticle& x)
+            {
+                return (x.mc_barcode != truth_axions[0].mc_parent_barcode);
+
+            }), truth_photons.end());
+
+            return truth_photons;
+
+        }, {"truth_photons", "truth_axions"})
+        .Filter([&] (RVec<TruthParticle>& truth_photons_from_axions)
+        {
+        //        R__ASSERT(!truth_photons_from_axions.empty());
+            return !(truth_photons_from_axions.empty());
+        }, {"truth_photons_from_axions"});
+
         auto X_window = photonPtDeltaR.Define("chosen_two",
         [](RVec<Photon>& reco_photons_matched)
         {
@@ -528,15 +577,23 @@ void Table11MuonElectron()
             return (photons[0].photon_id_loose && photons[1].photon_id_loose);
         },{"chosen_two"});
         
-        Nodes.push_back(df.Count());
+        Nodes.push_back(trigger_selection.Count());
         Nodes.push_back(ptCut.Count());
         Nodes.push_back(photonPtDeltaR.Count());
         Nodes.push_back(X_window.Count());
         Nodes.push_back(SR.Count());
         Nodes.push_back(SR_ID.Count());
+        histoNode = df.Histo1D({"d0","d0",101,-5,5}, {"electron_d0"});
     }
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    
+    std::unique_ptr<TCanvas> c1 = std::make_unique<TCanvas>();
+    histoNode->SetTitle("electron_d0 for George;SDF unit of distance;Events");
+    histoNode->GetYaxis()->SetTitleOffset(1.5);
+    histoNode->GetYaxis()->CenterTitle(true);
+    histoNode->Draw("same");
+    c1->SaveAs("Some_D0_for_George.pdf");
     
 //    0    1    2    3    4    5      Z-gamma
 //

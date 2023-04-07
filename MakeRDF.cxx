@@ -213,7 +213,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
 //    Now, create a new RDF representation that also holds the columns
 //    for the objects, as well as Variations (if we choose to use them),
 //    that are created using Define and Vary respectively
-    auto NewDf = df.Define("truth_particles",[&](const RVec<int>& mc_pdg_id, const RVec<int>& mc_barcode, const RVec<int>& mc_parent_barcode, const RVec<int>& mc_status, const RVec<float>& mc_pt, const RVec<float>& mc_charge, const RVec<float>& mc_eta, const RVec<float>& mc_phi, const RVec<float>& mc_e, const RVec<float>& mc_mass)
+    auto NewDf = df.Define("truth_particles",[&](const RVec<int>& mc_pdg_id, const RVec<int>& mc_barcode, const RVec<int>& mc_parent_barcode, const RVec<int>& mc_status, const RVec<float>& mc_pt, const RVec<float>& mc_charge, const RVec<float>& mc_eta, const RVec<float>& mc_phi, const RVec<float>& mc_e, const RVec<float>& mc_mass, const RVec<float>& mc_decay_time)
     {
         RVec<TruthParticle> x;
         x.reserve(mc_pt.size());
@@ -230,10 +230,11 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
             temp.mc_phi =  mc_phi[i];
             temp.mc_e =  mc_e[i];
             temp.mc_mass =  mc_mass[i];
+            temp.mc_decay_time = mc_decay_time[i];
             x.push_back(temp);
         }
         return x;
-    }, {"mc_pdg_id", "mc_barcode", "mc_parent_barcode", "mc_status", "mc_pt", "mc_charge", "mc_eta", "mc_phi", "mc_e", "mc_mass"})
+    }, {"mc_pdg_id", "mc_barcode", "mc_parent_barcode", "mc_status", "mc_pt", "mc_charge", "mc_eta", "mc_phi", "mc_e", "mc_mass", "mc_decay_time"})
     .Define("electrons",MakeElectrons<Electron>, {"electron_charge", "electron_pt", "electron_e", "electron_eta", "electron_phi", /*"electron_id",*/ "electron_isolation", "electron_d0", "electron_z0", "electron_id_medium",})
     .Define("muons",[&](const RVec<int>& muon_charge, const RVec<float>& muon_pt, const RVec<float>& muon_e, const RVec<float>& muon_eta, const RVec<float>& muon_phi)
     {

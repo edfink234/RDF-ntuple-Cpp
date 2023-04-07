@@ -150,7 +150,7 @@ void RDF_analyse()
 //    List of systematics for this analysis
     Event::systematics = {"EG_RESOLUTION_ALL__1down"};
 //    Input file names
-    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"};
+    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4"};
 //    Construct the RDataFrame
     SchottDataFrame df(MakeRDF(input_filenames));
     
