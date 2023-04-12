@@ -83,6 +83,14 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
+
+float roundToOneDecimalPlace(float num) {
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(1) << num;
+    float rounded_num = std::stof(stream.str());
+    return rounded_num;
+}
+
 /*
 void Table4()
 {
@@ -1655,21 +1663,21 @@ void Table4_Displaced_Axions()
                 auto mass_point_reco_photons_matched = reco_photons_matched.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_two_reco_photons_matched = two_reco_photons_matched.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_one_reco_photons_matched = one_reco_photons_matched.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
@@ -1986,21 +1994,21 @@ void Table5_Displaced_Axions()
                 auto mass_point_reco_photons_matched = reco_photons_matched.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_two_reco_photons_matched = two_reco_photons_matched.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_one_reco_photons_matched = one_reco_photons_matched.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 

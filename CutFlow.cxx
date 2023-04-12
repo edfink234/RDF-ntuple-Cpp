@@ -19,12 +19,14 @@
 #include "TCanvas.h"
 #include "TH1.h"
 #include "TH1D.h"
+#include "TH2D.h"
 #include "TStyle.h"
 #include "TPaveText.h"
 #include "TLatex.h"
 #include "TLegend.h"
 #include "Rtypes.h"
 #include "ROOT/RDFHelpers.hxx"
+#include "TAttAxis.h"
 
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
 #include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
@@ -83,6 +85,14 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
+
+float roundToOneDecimalPlace(float num) {
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(1) << num;
+    float rounded_num = std::stof(stream.str());
+    return rounded_num;
+}
+
 /*
 void Table3()
 {
@@ -1579,49 +1589,49 @@ void Table3_Displaced_Axions()
                 auto mass_point_trigger_selection = trigger_selection.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_two_leptons = two_leptons.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_opp_charge = opp_charge.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_leading_pt = leading_pt.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_same_flavour = same_flavour.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_mass = mass.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_pt_cut = pt_cut.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
@@ -1951,28 +1961,28 @@ void Table8_Displaced_Axions()
                 auto mass_point_trigger_selection = trigger_selection.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_resolved = resolved.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_SB = SB.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_SR = SR.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
@@ -2022,7 +2032,7 @@ void Table8_Displaced_Axions()
     os << R"--(\end{tabular}})--" << '\n';
     std::cout << os.str() << '\n';
 }
-*/
+
 
 void Table11_Displaced_Axions()
 {
@@ -2295,42 +2305,42 @@ void Table11_Displaced_Axions()
                 auto mass_point_trigger_selection = trigger_selection.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_ptCut = ptCut.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_photonPtDeltaR = photonPtDeltaR.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_X_window = X_window.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_SR = SR.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_SR_ID = SR_ID.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
@@ -2513,6 +2523,398 @@ void Table11_Displaced_Axions()
     os << R"--(\end{tabular}})--" << '\n';
     std::cout << os.str() << '\n';
 }
+*/
+void Coupling()
+{
+    std::vector<std::vector<std::string>> input_filenames = {
+        //Signal
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        //Displaced Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
+    };
+    
+    std::vector<double> massPoints = {0.2,0.5,1,3,5,10,10.1,20,20.1,29.5};
+    std::vector<double> ALP_photon_couplings = {1.0};
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
+    
+    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+    {
+        RVec<TruthParticle> truthSelected;
+        bool foundParent;
+        if (truthChain.size() >= 1)
+        {
+            TruthParticle tp;
+            for (auto& tpe: startParticles)
+            {
+                tp = tpe;
+                while (true)
+                {
+                    if (tp.mc_parent_barcode == targetBarcode)
+                    {
+                        truthSelected.push_back(tp);
+                        break;
+                    }
+                    else
+                    {
+                        foundParent = false;
+                        for (auto& tmp: truthChain)
+                        {
+                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+                            {
+                                tp = tmp;
+                                foundParent = true;
+                                break;
+                            }
+                        }
+                        if (foundParent == false)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return truthSelected;
+    };
+    
+    int counter = 0;
+    
+    for (auto& file: input_filenames)
+    {
+        SchottDataFrame df(MakeRDF(file, 8));
+    
+        auto newDf = df.Define("EventWeight",
+        [](const RVec<float>& ei_event_weights_generator)
+        {
+            return  ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
+
+        }, {"ei_event_weights_generator"}).Define("totEventWeight", [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
+        {
+            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+            photon_id_eff.resize(ResizeVal,1);
+            photon_iso_eff.resize(ResizeVal,1);
+            photon_trg_eff.resize(ResizeVal,1);
+
+            return photon_id_eff*photon_iso_eff*photon_trg_eff;//*ei_event_weights_generator[0];
+
+        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/}).Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
+        {
+           truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+           [](TruthParticle& x)
+           {
+              return (abs(x.mc_pdg_id) != 36);
+
+           }), truth_particles.end());
+
+           return truth_particles;
+
+        }, {"truth_particles"}).Define("axion_masses", [&](RVec<TruthParticle>& truth_axions)
+        {
+           return truth_axions[0].mc_mass/1e3f;
+
+        }, {"truth_axions"});
+        
+        auto trigger_selection = newDf
+        .Filter([](const RVec<std::string>& trigger_passed_triggers)
+        {
+            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+
+            if (!trigger_found)
+            {
+                return false;
+            }
+            return true;
+
+        }, {"trigger_passed_triggers"});
+        
+        auto two_leptons = trigger_selection.Define("di_electrons",
+        [](RVec<Electron> electrons)
+        {
+            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+            [](Electron& ep)
+            {
+                return ((ep.electron_pt/1e3 <= 20) || (abs(ep.electron_eta) >= 2.37)
+                        || ((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52))
+                        || (ep.electron_id_medium != 1));
+                
+
+            }), electrons.end());
+
+            return electrons;
+
+        },{"electrons"}).Filter([](RVec<Muon>& muons, RVec<Electron> di_electrons)
+        {
+            return (di_electrons.size()==2 && muons.empty() && DeltaR(di_electrons[0].Vector(), di_electrons[1].Vector()) > 0.01);
+            
+        }, {"muons", "di_electrons"});
+        
+        auto opp_charge = two_leptons.Filter([](RVec<Electron> di_electrons)
+        {
+            return (di_electrons[0].electron_charge*di_electrons[1].electron_charge < 0);
+            
+        }, {"di_electrons"});
+        
+        auto leading_pt = opp_charge.Filter([](RVec<Electron>& electrons)
+        {
+            return ((electrons[0].electron_pt >= 20e3 && electrons[1].electron_pt >= 27e3) || (electrons[1].electron_pt >= 20e3 && electrons[0].electron_pt >= 27e3));
+        }, {"di_electrons"});
+        
+//        auto delta_R = leading_pt.Filter([] (RVec<Electron>& electrons)
+//        {
+//            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+//        }, {"di_electrons"});
+        
+        auto same_flavour = leading_pt.Filter([] (RVec<Electron>& electrons)
+        {
+            return true; //abs(electrons[0].electron_pdg_id) == abs(electrons[1].electron_pdg_id) == 11;
+        }, {"di_electrons"});
+        
+        auto dilep = same_flavour.Define("dilep",[] (RVec<Electron>& electrons)
+        {
+            return (electrons[0].Vector() + electrons[1].Vector());
+        }, {"di_electrons"});
+        
+        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+        {
+            auto mass = dilep.M()/1e3;
+            return ((mass >= 81) && (mass <= 101));
+        }, {"dilep"});
+        
+        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
+        {
+            auto pT = dilep.Pt()/1e3;
+            return pT > 10;
+        }, {"dilep"});
+        
+        auto photonPtDeltaR = ptCut.Define("photonPtDeltaR",
+        [&](RVec<Photon> photons)
+        {
+            photons.erase(std::remove_if(photons.begin(),photons.end(),
+            [](Photon& x)
+            {
+                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+                
+            }), photons.end());
+            return photons;
+        }, {"photons"}).Filter(
+       [&](RVec<Photon>& reco_photons_matched)
+       {
+            if (reco_photons_matched.size() < 2)
+            {
+              return false;
+            }
+            RVec<Photon> x;
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if (i==0 || abs(1-X) < abs(1-best_X))
+                {
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
+                    x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                }
+            }
+            return (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3);
+
+       }, {"photonPtDeltaR"});
+                
+        auto X_window = photonPtDeltaR.Define("chosen_two",
+        [](RVec<Photon>& reco_photons_matched)
+        {
+            RVec<Photon> x;
+            if (reco_photons_matched.size() < 2)
+            {
+                return x;
+            }
+            auto combs = Combinations(reco_photons_matched, 2);
+            size_t length = combs[0].size();
+            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+
+            for (size_t i=0; i<length; i++)
+            {
+                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
+                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
+                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
+                X = delta_r*(pt/(2.0*m));
+                if (i==0 || abs(1-X) < abs(1-best_X))
+                {
+                    best_X = X;
+                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                    chosen_delta_r = delta_r;
+                    x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                }
+            }
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+            {
+                return x;
+            }
+            x.clear();
+            return x;
+        }, {"photonPtDeltaR"}).Filter(
+        [&](RVec<Photon>& reco_photons_matched)
+        {
+            return (reco_photons_matched.size()==2);
+        }, {"chosen_two"});
+                
+        auto SR = X_window.Filter(
+        [](RVec<Photon>& photons, RVec<Electron>& electrons)
+        {
+            PtEtaPhiEVector photonVec = photons[0].Vector() + photons[1].Vector();
+            PtEtaPhiEVector electronVec = electrons[0].Vector() + electrons[1].Vector();
+            auto mass = (photonVec+electronVec).M()/1e3;
+            return ((mass >= 110) && (mass <= 140));
+        },{"chosen_two","di_electrons"});
+                
+        auto SR_ID = SR.Filter(
+        [](RVec<Photon>& photons)
+        {
+            return (photons[0].photon_id_loose && photons[1].photon_id_loose);
+        },{"chosen_two"});
+        
+        for (auto& mass_point: massPoints)
+        {
+            auto mass_point_newDf = newDf.Filter([&]
+            (float axion_mass)
+            {
+                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+
+            }, {"axion_masses"});
+            
+            auto mass_point_trigger_selection = trigger_selection.Filter([&]
+            (float axion_mass)
+            {
+                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                
+            }, {"axion_masses"});
+            
+            auto mass_point_ptCut = ptCut.Filter([&]
+            (float axion_mass)
+            {
+                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                
+            }, {"axion_masses"});
+            
+            auto mass_point_photonPtDeltaR = photonPtDeltaR.Filter([&]
+            (float axion_mass)
+            {
+                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                
+            }, {"axion_masses"});
+            
+            auto mass_point_X_window = X_window.Filter([&]
+            (float axion_mass)
+            {
+                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                
+            }, {"axion_masses"});
+            
+            auto mass_point_SR = SR.Filter([&]
+            (float axion_mass)
+            {
+                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                
+            }, {"axion_masses"});
+            
+            auto mass_point_SR_ID = SR_ID.Filter([&]
+            (float axion_mass)
+            {
+                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                
+            }, {"axion_masses"});
+            
+//            Nodes.push_back(mass_point_newDf.Count());
+//            Nodes.push_back(mass_point_trigger_selection.Count());
+//            Nodes.push_back(mass_point_ptCut.Count());
+//            Nodes.push_back(mass_point_photonPtDeltaR.Count());
+//            Nodes.push_back(mass_point_X_window.Count());
+//            Nodes.push_back(mass_point_SR.Count());
+//            Nodes.push_back(mass_point_SR_ID.Count());
+            
+            
+                
+            
+            Nodes.push_back(mass_point_newDf.Sum<RVec<float>>("totEventWeight"));
+            Nodes.push_back(mass_point_trigger_selection.Sum<RVec<float>>("totEventWeight"));
+            Nodes.push_back(mass_point_ptCut.Sum<RVec<float>>("totEventWeight"));
+            Nodes.push_back(mass_point_photonPtDeltaR.Sum<RVec<float>>("totEventWeight"));
+            Nodes.push_back(mass_point_X_window.Sum<RVec<float>>("totEventWeight"));
+            Nodes.push_back(mass_point_SR.Sum<RVec<float>>("totEventWeight"));
+            Nodes.push_back(mass_point_SR_ID.Sum<RVec<float>>("totEventWeight"));
+            
+        }
+        
+        counter++;
+    }
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    std::cout << Nodes.size() << '\n';
+    
+    gStyle->SetPalette(1);
+    TCanvas* c1 = new TCanvas();
+//    gPad->SetFrameLineWidth(3);
+//    TLegend* legend = new TLegend(0.6, 0.2, 0.85, 0.525);
+    TH2D* histo2d = new TH2D("C_{a#gamma#gamma}", ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency", 295, 0.2, 29.5, 5, 0, 2);
+    histo2d->GetXaxis()->SetTitleSize(0.04);
+    histo2d->GetYaxis()->SetTitleSize(0.04);
+    histo2d->GetZaxis()->SetTitleSize(0.04);
+    
+    histo2d->GetYaxis()->SetTitleOffset(0.7);
+    histo2d->GetZaxis()->SetTitleOffset(0.6);
+    
+    histo2d->GetYaxis()->CenterTitle(true);
+    histo2d->GetZaxis()->SetTitle("Efficiency");
+
+    std::cout << "here?\n\n";
+    for (int i=0, j=0; (i < massPoints.size()); i++, j+=7)
+    {
+//        std::cout << i << ' ' << j << ' ' << Nodes.size() << '\n';
+        
+        int bin_number = histo2d->FindFixBin(massPoints[i], ALP_photon_couplings[0]);
+        
+        //efficiency is the number of events that passed divided by the total for a given mass point
+//        double efficiency = *Nodes[j].GetResultPtr<ULong64_t>()
+//        ? static_cast<double>(*Nodes[j+5].GetResultPtr<ULong64_t>()) / static_cast<double>(*Nodes[j].GetResultPtr<ULong64_t>())
+//        : 0.0;
+        float efficiency = *Nodes[j].GetResultPtr<float>()
+        ? (*Nodes[j+5].GetResultPtr<float>()) / (*Nodes[j].GetResultPtr<float>())
+        : 0.0;
+        
+        {
+            std::cout << massPoints[i] << ' '
+            << efficiency << '\n';
+        }
+        
+        histo2d->SetBinContent(bin_number, efficiency);
+    }
+//    std::cout << "here?\n\n";
+    histo2d->Draw("COLZ");
+    
+//    histo2d->GetZaxis()->SetTitle("Efficiency");
+
+    TLatex Tl;
+    gStyle->SetOptStat(0);
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    
+//    c1->Resize();
+//    gPad->SetLeftMargin(0.07); 
+    c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
+    gPad->SetLeftMargin(0.06);
+//    gPad->SetRightMargin(0.2);
+    c1->SaveAs("C_{a#gamma#gamma}.pdf");
+    
+}
 
 void CutFlow()
 {
@@ -2523,7 +2925,8 @@ void CutFlow()
 //    Table11();
 //    Table3_Displaced_Axions();
 //    Table8_Displaced_Axions();
-    Table11_Displaced_Axions();
+//    Table11_Displaced_Axions();
+    Coupling();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "

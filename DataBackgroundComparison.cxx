@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <array>
 #include <fstream>
+#include <sstream>
 
 #include <string>
 #include <array>
@@ -84,6 +85,13 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
+
+float roundToOneDecimalPlace(float num) {
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(1) << num;
+    float rounded_num = std::stof(stream.str());
+    return rounded_num;
+}
 
 //void fig27()
 //{
@@ -3398,42 +3406,42 @@ void Table16_Displaced_Axions()
                 auto mass_point_trigger_selection = trigger_selection.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_merged_reco_photons_matched = merged_reco_photons_matched.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_pSB = pSB.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_pSR = pSR.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_SB = SB.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_SR = SR.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
@@ -3715,49 +3723,49 @@ void Table19_Displaced_Axions()
                 auto mass_point_trigger_selection = trigger_selection.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_ptCut = ptCut.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_failed_resolved = failed_resolved.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_photon_pt_cut = photon_pt_cut.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_pSR = pSR.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_SR = SR.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
                 auto mass_point_SR_ID = SR_ID.Filter([&]
                 (float axion_mass)
                 {
-                    return (axion_mass == mass_point);
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
                     
                 }, {"axion_masses"});
                 
