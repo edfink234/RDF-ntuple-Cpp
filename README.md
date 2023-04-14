@@ -1,7 +1,7 @@
 # RDF-ntuple-Cpp
 RDataFrame C++ version of ntuple software
 
-C++ version of ntuple software
+C++ version of ntuple software.
 
 To run, have all .h and .cxx files in the same directory, then run:
 
