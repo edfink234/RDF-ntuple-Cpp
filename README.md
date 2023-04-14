@@ -1,5 +1,5 @@
 # RDF-ntuple-Cpp
-RDataFrame C++ version of ntuple software
+RDataFrame C++ version of ntuple software. Uses the more efficient RDatasetSpec constructor for RDataFrame available in ROOT version 6.28, instead of calling ```AddFriend``` on a ```TChain``` object pointer.
 
 C++ version of RDataFrame ntuple software.
 
