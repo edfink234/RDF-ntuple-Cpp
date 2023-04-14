@@ -30,8 +30,9 @@ void RDF_analyse_h_Za()
 {
     auto start_time = Clock::now();
     
-    std::vector<std::vector<std::string>> input_filenames = {{"/home/common/Za/NTuples/Ntuple_MC_Za_mA5p0_v4.root"}};
-    
+    std::vector<std::vector<std::string>> input_filenames =
+//    {{"/home/common/Za/NTuples/Ntuple_MC_Za_mA5p0_v4.root"}};
+    {{"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"}};
     SchottDataFrame df(MakeRDF(input_filenames[0],8));
     
    // df.Describe().Print();

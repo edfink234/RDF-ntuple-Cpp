@@ -7,13 +7,11 @@
 #include "TBranch.h"
 #include "TInterpreter.h"
 #include "ROOT/RDFHelpers.hxx"
+#include "ROOT/RDF/RDatasetSpec.hxx"
 
 #include "RDFObjects.h"
 #include "MakeRDF.h"
 #include "RDFevent.h"
-
-TChain* RDFTree::__chain;
-TChain* RDFTree::__event_info_chain;
 
 using namespace ROOT::VecOps;
 
@@ -184,24 +182,12 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         gInterpreter->Declare("std::string cling::printValue(Track *);");
         loaded = true;
     }
-//    Reinitializing TChains to hold info for "physics" and "full_event_info"
-//    TTree's respectively
-    RDFTree::__chain = new TChain("physics");
-    RDFTree::__event_info_chain = new TChain("full_event_info");
-//    Just a precaution
-    RDFTree::__chain->Reset();
-    RDFTree::__event_info_chain->Reset();
-//    Add files supplied by user
-    for (const auto& f: files)
-    {
-        RDFTree::__chain->Add(f.c_str());
-        RDFTree::__event_info_chain->Add(f.c_str());
-    }
-//    Horizontally append __event_info_chain to __chain
-    RDFTree::__chain->AddFriend(RDFTree::__event_info_chain);
-//    Finally, construct the RDataFrame with the columns in both
-//    the "physics" and "full_event_info" TTrees
-    ROOT::RDataFrame df(*RDFTree::__chain);
+    
+    ROOT::RDF::Experimental::RDatasetSpec x;
+    ROOT::RDF::Experimental::RSample r("myPhysicsDf", "physics", files);
+    x.AddSample(r);
+    x.WithGlobalFriends("full_event_info", files);
+    ROOT::RDataFrame df(x);
 
 //    Now, create a new RDF representation that also holds the columns
 //    for the objects, as well as Variations (if we choose to use them),
