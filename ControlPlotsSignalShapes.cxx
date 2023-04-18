@@ -6,6 +6,8 @@
 #include <array>
 #include <cstdlib>
 #include <iomanip>
+#include <map>
+#include <set>
 
 #include <ROOT/RLogger.hxx>
 #include "Math/VectorUtil.h"
@@ -24,13 +26,15 @@
 #include "THStack.h"
 #include "ROOT/RDFHelpers.hxx"
 
-#include "RDFObjects.h"
-#include "MakeRDF.h"
-#include "RDFevent.h"
+#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
+#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
+#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFevent.h"
 
 using namespace ROOT::VecOps; // RVec
 using namespace ROOT::Math::VectorUtil; // DeltaR
 using namespace ROOT::Math; // PtEtaPhiEVector
+using ROOT::RDF::Experimental::RResultMap;
+using ROOT::RDF::Experimental::VariationsFor;
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -79,118 +83,105 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
+
+float roundToOneDecimalPlace(float num) {
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(1) << num;
+    float rounded_num = std::stof(stream.str());
+    return rounded_num;
+}
+
 //Other mA5 file: /Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600909.PhPy8EG_AZNLO_ggH125_mA5p0_Cyy0p01_Czh1p0.merge.AOD.e8324_e7400_s3126_r10724_r10726_v2.root
 
-
+////Works with displaced axion sample ✅
 //void fig1A()
 //{
 //    std::vector<std::vector<std::string>> input_filenames =
 //    {
 //        //Z gamma background
-//        {"/home/common/Za/NTuples/Background/user.kschmied.364860.eegammagamma_pty2_9_17.deriv.DAOD_STDM3.e7057_s3126_r10724_p4092_LGNTuple.root/user.kschmied.31617070._000001.LGNTuple.root"},
-//        {"/home/common/Za/NTuples/Background/user.kschmied.364861.eegammagamma_pty_17_myy_0_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4062_LGNTuple.root/user.kschmied.31617064._000001.LGNTuple.root"},
-//        {"/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000001.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000002.LGNTuple.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"}, //pty2_9_17
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"}, //pty_17_myy_0_80
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"}, //pty_17_myy_80
 //        //Signal
-//        {"/home/common/Za/NTuples/Ntuple_MC_Za_m5p0_v4.root"},
-//        {"/home/common/Haa/ntuples/Za/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+////        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Test_oneMassPoint.root"},
 //        //Jets
-//        {
-//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000001.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000002.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000003.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000004.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000005.LGNTuple.root"
-//        },
-//        {
-//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000001.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000002.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000003.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000004.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000006.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000007.LGNTuple.root",
-//        },
-//        {
-//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000001.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000002.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000003.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000004.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000005.LGNTuple.root",
-//        },
-//        {
-//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000001.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000002.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000003.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000004.LGNTuple.root",
-//        },
-//        {
-//            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000001.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000002.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000003.LGNTuple.root",
-//        },
-//        {
-//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000001.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000002.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000003.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000004.LGNTuple.root",
-//        },
-//        {
-//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000001.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000002.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000003.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000004.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000005.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000006.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000007.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000008.LGNTuple.root"
-//        },
-//        {
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000001.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000002.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000003.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000004.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000005.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000006.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000007.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000008.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000009.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000010.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000011.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000012.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000013.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000014.LGNTuple.root",
-//        },
-//        {
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000001.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000002.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000003.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000004.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000005.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000006.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000007.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000008.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000009.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000010.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000011.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000012.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000013.LGNTuple.root",
-//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000014.LGNTuple.root",
-//
-//        },
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
 //    };
 //
-//    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
+//    Event::systematics =
+//    {
+////        "PH_EFF_ISO_Uncertainty",
+////        "PH_EFF_ISO_Uncertainty",
+////        "EL_EFF_ID_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "PRW_DATASF",
+////        "MUON_EFF_RECO_SYS",
+////        "MUON_EFF_ISO_SYS",
+////        "MUON_EFF_TrigSystUncertainty",
+////        "EL_EFF_Reco_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "MUON_EFF_TrigStatUncertainty",
+////        "MUON_EFF_RECO_STAT",
+////        "MUON_EFF_TTVA_STAT",
+////        "EL_EFF_Iso_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "MUON_EFF_TTVA_SYS",
+////        "MUON_EFF_ISO_STAT",
+////        "MUON_SAGITTA_RHO",
+////        "EG_RESOLUTION_ALL",
+////        "EG_SCALE_ALL",
+////        "MUON_MS",
+////        "MUON_ID",
+////        "EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "MUON_SAGITTA_RESBIAS",
+////        "MUON_SCALE",
+//
+////        "PH_EFF_ISO_Uncertainty__1down",
+////        "PH_EFF_ID_Uncertainty__1up",
+////        "PH_EFF_TRIGGER_Uncertainty__1up",
+//        "EG_SCALE_ALL__1down",
+//        "EG_SCALE_ALL__1up",
+////        "PH_EFF_ID_Uncertainty__1down",
+////        "PH_EFF_TRIGGER_Uncertainty__1down",
+////        "PH_EFF_ISO_Uncertainty__1up",
+//        "EG_RESOLUTION_ALL__1up",
+//        "EG_RESOLUTION_ALL__1down",
+//    };
+//    std::vector<RResultMap<TH1D>> resultmaps; //store varied histos
+//
+//    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
 //
 //    std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
-//    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))};
+//    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
 //    std::vector<EColor> colors = {kBlue, kRed, kViolet, kBlack, kMagenta};
 //    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
 //
 //    TCanvas* c1 = new TCanvas();
-//    TLegend* legend = new TLegend(0.625, 0.25, 0.9, 0.65);
+//    TLegend* legend = new TLegend(0.625, 0.25, 0.88, 0.65);
 //    int count = 0;
 //    std::vector<ROOT::RDF::RResultHandle> Nodes;
+//    std::vector<ROOT::RDF::RResultHandle> VaryNodes;
+//
+//    std::set<std::pair<std::string,std::string>> columns;
 //
 //    for (auto& file: input_filenames)
 //    {
-//        SchottDataFrame df(MakeRDF(file, 24));
+//        SchottDataFrame df(MakeRDF(file, 8));
 ////        df.Describe().Print();
 ////        exit(1);
+////        for (auto& i: df.GetColumnNames())
+////        {
+////            columns.insert(std::make_pair(i, df.GetColumnType(i)));
+////        }
+//
 //        auto trigger_selection = df.Filter(
 //        [](const RVec<std::string>& trigger_passed_triggers)
 //        {
@@ -260,7 +251,7 @@ constexpr std::array<const char*,35> triggers =
 //        auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
 //        {
 //            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
-//            return pT > 10;
+//            return pT >= 10;
 //        }, {"di_electrons"});
 //
 //        auto dilep_mass = ptCut.Define("dilep_mass",[&](RVec<Electron>& electrons)
@@ -274,23 +265,29 @@ constexpr std::array<const char*,35> triggers =
 //
 //        if (count <= 2) //Z gamma
 //        {
-//            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
+//            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 60u, 60, 120}, "dilep_mass"));
 //            Nodes.push_back(dilep_mass.Count());
 //            Nodes.push_back(df.Count());
 //        }
 //
 //        else if (count >= 3 && count <= 4) //signal
 //        {
-//            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
+//            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 60u, 60, 120}, "dilep_mass"));
 //        }
 //
 //        else //Z+jets
 //        {
-//            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 60, 120}, "dilep_mass"));
+//            Nodes.push_back(dilep_mass.Histo1D<double>({prefixes[count], prefixes[count++], 60u, 60, 120}, "dilep_mass"));
 //            Nodes.push_back(dilep_mass.Count());
 //            Nodes.push_back(df.Count());
 //        }
 //    }
+//
+////    for (auto& i: columns)
+////    {
+////        std::cout << std::setw(60) << i.second << std::setw(60) << i.first;
+////        std::cout << '\n';
+////    }
 //
 //    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
 //
@@ -366,6 +363,7 @@ constexpr std::array<const char*,35> triggers =
 //    std::cout << "\n\nWeighted Total Bkg sum = " << std::setprecision(2) << std::fixed
 //    << total_back << "\n\n\n";
 //
+//
 ////     First, we calculate the total Zgamma background by taking the weighted sum, i.e.,
 ////     adding all of the counts of the individual Zgamma samples weighted by their
 ////     respective scaling factors.
@@ -427,7 +425,11 @@ constexpr std::array<const char*,35> triggers =
 //        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
 //        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
 //        {
+////            std::cout << Nodes[i].GetResultPtr<TH1D>()->Integral()
+////            << '\n';
 //            Nodes[i].GetResultPtr<TH1D>()->Scale((factor/Nodes[i].GetResultPtr<TH1D>()->Integral()));
+//
+//
 //        }
 //        Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
 //        gPad->Modified(); gPad->Update();
@@ -447,19 +449,21 @@ constexpr std::array<const char*,35> triggers =
 //    Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
 //    legend->SetBorderSize(0);
 //    legend->Draw();
-//    c1->SaveAs("Fig1A.png");
+//    c1->SaveAs("Fig1A.pdf");
 //}
-//
-//
+
+////Works with displaced axion sample ✅
 //void fig5()
 //{
-//    std::vector<std::vector<std::string>> input_filenames = { {"/home/common/Haa/ntuples/Za/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+//    std::vector<std::string> input_filenames = {
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
+////        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Test_oneMassPoint.root",
 //    };
 //    std::vector<EColor> colors = {kRed, kBlue, kBlack};
 //    TCanvas* c1 = new TCanvas();
 //    TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.525);
 //
-//    SchottDataFrame df(MakeRDF(input_filenames[0], 24));
+//    SchottDataFrame df(MakeRDF(input_filenames, 8));
 //
 //    auto preselection = df.Filter(
 //    [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -614,7 +618,7 @@ constexpr std::array<const char*,35> triggers =
 //    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 1 GeV");
 //    legend->SetBorderSize(0);
 //    legend->Draw();
-//    c1->SaveAs("Fig5A.png");
+//    c1->SaveAs("Fig5A.pdf");
 //    c1 = new TCanvas();
 //    legend = new TLegend(0.6, 0.4, 0.8, 0.6);
 //    factor = histos[2]->Integral();
@@ -645,286 +649,299 @@ constexpr std::array<const char*,35> triggers =
 //    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 1 GeV");
 //    legend->SetBorderSize(0);
 //    legend->Draw();
-//    c1->SaveAs("Fig5B.png");
+//    c1->SaveAs("Fig5B.pdf");
 //}
 //
-//void fig6()
-//{
-//    std::vector<std::vector<std::string>> input_filenames = { {"/home/common/Haa/ntuples/Za/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
-//    };
-//
-//    std::vector<EColor> colors = {kRed, kBlue};
-//    TCanvas* c1 = new TCanvas();
-//    TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.525);
-//
-//    SchottDataFrame df(MakeRDF(input_filenames[0], 24));
-//
-//    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
-//    {
-//        RVec<TruthParticle> truthSelected;
-//        bool foundParent;
-//        if (truthChain.size() >= 1)
-//        {
-//            TruthParticle tp;
-//            for (auto& tpe: startParticles)
-//            {
-//                tp = tpe;
-//                while (true)
-//                {
-//                    if (tp.mc_parent_barcode == targetBarcode)
-//                    {
-//                        truthSelected.push_back(tp);
-//                        break;
-//                    }
-//                    else
-//                    {
-//                        foundParent = false;
-//                        for (auto& tmp: truthChain)
-//                        {
-//                            if (tp.mc_parent_barcode == tmp.mc_barcode)
-//                            {
-//                                tp = tmp;
-//                                foundParent = true;
-//                                break;
-//                            }
-//                        }
-//                        if (foundParent == false)
-//                        {
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return truthSelected;
-//    };
-//
-//    auto preselection = df.Filter(
-//    [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
-//    {
-//        bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
-//
-//        if (!trigger_found)
-//        {
-//            return false;
-//        }
-//
-//        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-//        [](TruthParticle& x)
-//        {
-//            return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-//                    abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-//                    abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
-//
-//        }), truth_particles.end());
-//
-//        if (truth_particles.size() != 2)
-//        {
-//            return false;
-//        }
-//
-//        if (DeltaR(truth_particles[0].Vector(), truth_particles[1].Vector()) <= 0.01)
-//        {
-//            return false;
-//        }
-//
-//        if (truth_particles[0].mc_charge*truth_particles[1].mc_charge >= 0)
-//        {
-//            return false;
-//        }
-//
-//        if (!((truth_particles[0].mc_pt > 27e3 && truth_particles[1].mc_pt > 20e3)
-//                                               ||
-//              (truth_particles[1].mc_pt > 27e3 && truth_particles[0].mc_pt > 20e3)))
-//        {
-//            return false;
-//        }
-//
-//        PtEtaPhiEVector dilepton = truth_particles[0].Vector() + truth_particles[1].Vector();
-//
-//        if ((dilepton.M() < 81e3) || (dilepton.M() > 101e3))
-//        {
-//            return false;
-//        }
-//
-//        if ((truth_particles[0].Vector() + truth_particles[1].Vector()).Pt() <= 10e3)
-//        {
-//            return false;
-//        }
-//
-//        return true;
-//
-//    }, {"trigger_passed_triggers", "truth_particles"});
-//
-////    std::cout << *preselection.Count() << '\n';
-//
-//    auto truth_photons_from_axions = preselection.Define("truth_photons",[&](RVec<TruthParticle> truth_particles)
-//    {
-//        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-//        [](TruthParticle& x)
-//        {
-//            return (abs(x.mc_pdg_id) != 22);
-//
-//        }), truth_particles.end());
-//
-//        return truth_particles;
-//
-//    }, {"truth_particles"})
-//    .Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
-//    {
-//        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-//        [](TruthParticle& x)
-//        {
-//            return (abs(x.mc_pdg_id) != 35);
-//
-//        }), truth_particles.end());
-//
-//        return truth_particles;
-//
-//    }, {"truth_particles"}).Define("truth_photons_from_axions",
-//    [&](RVec<TruthParticle>& truth_photons, RVec<TruthParticle>& truth_axions)
-//    {
-//        return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
-//
-//    }, {"truth_photons", "truth_axions"})
-//    .Filter([&] (RVec<TruthParticle>& truth_photons_from_axions)
-//    {
-//        return truth_photons_from_axions.size()==2;
-//    }, {"truth_photons_from_axions"})
-//    .Define("photons_pass_cuts",
-//    [&](RVec<Photon> photons)
-//    {
-//        photons.erase(std::remove_if(photons.begin(),photons.end(),
-//        [](Photon& x)
-//        {
-//            return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
-//
-//        }), photons.end());
-//
-//        return photons;
-//    }, {"photons"});
-//
-//    auto reco_photons_matched = truth_photons_from_axions.Define("reco_photons_matched",
-//    [&](RVec<Photon>& photons_pass_cuts, RVec<TruthParticle>& truth_photons_from_axions)
-//    {
-//        RVec<Photon> matchedPhotons;
-//        PtEtaPhiEVector tp1 = truth_photons_from_axions[0].Vector();
-//        PtEtaPhiEVector tp2 = truth_photons_from_axions[1].Vector();
-//
-//        for (auto& rp: photons_pass_cuts)
-//        {
-//            if (!(DeltaR(rp.Vector(), tp1) < 0.1 || DeltaR(rp.Vector(), tp2) < 0.1))
-//            {
-//                continue;
-//            }
-//            matchedPhotons.push_back(rp);
-//        }
-//
-//        std::sort(matchedPhotons.begin(),matchedPhotons.end(),
-//        [](Photon& x, Photon& y)
-//        {
-//            return x.photon_pt > y.photon_pt;
-//        });
-//
-//        return matchedPhotons;
-//
-//    }, {"photons_pass_cuts", "truth_photons_from_axions"}).Define("totEventWeight", [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
-//    {
-//        auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
-//        photon_id_eff.resize(ResizeVal,1);
-//        photon_iso_eff.resize(ResizeVal,1);
-//        photon_trg_eff.resize(ResizeVal,1);
-//
-//        return photon_id_eff*photon_iso_eff*photon_trg_eff;//*ei_event_weights_generator[0];
-//
-//    }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
-//
-//    auto two_reco_photons_matched = reco_photons_matched.Filter(
-//    [&](RVec<Photon>& reco_photons_matched)
-//    {
-//        return reco_photons_matched.size()==2;
-//
-//    }, {"reco_photons_matched"})
-//    .Define("leading_pt",[&] (RVec<Photon>& reco_photons_matched)
-//    {
-//        return reco_photons_matched[0].photon_pt/1e3;
-//    }, {"reco_photons_matched"})
-//    .Define("sub_leading_pt",[&] (RVec<Photon>& reco_photons_matched)
-//    {
-//        return reco_photons_matched[1].photon_pt/1e3;
-//    }, {"reco_photons_matched"});
-//
-//    auto one_reco_photons_matched = reco_photons_matched.Filter(
-//    [&](RVec<Photon>& reco_photons_matched)
-//    {
-//        return reco_photons_matched.size()==1;
-//
-//    }, {"reco_photons_matched"})
-//    .Define("leading_pt",[&] (RVec<Photon>& reco_photons_matched)
-//    {
-//        return reco_photons_matched[0].photon_pt/1e3;
-//    }, {"reco_photons_matched"});
-//
-//    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos =
-//    {
-//        two_reco_photons_matched.Histo1D<double>({"Leading Photon", "Leading Photon", 20u, 0, 50}, "leading_pt", "totEventWeight"),
-//        two_reco_photons_matched.Histo1D<double>({"Sub-Leading Photon", "Sub-Leading Photon", 20u, 0, 50}, "sub_leading_pt", "totEventWeight"),
-//        one_reco_photons_matched.Histo1D<double>({"Leading Photon", "Leading Photon", 40u, 0, 100}, "leading_pt", "totEventWeight"),
-//    };
-//
-//    double factor = histos[0]->Integral();
-//
-//    histos[0]->Scale(factor/factor);
-//    histos[0]->SetLineColor(colors[0]);
-//    histos[0]->Draw("HIST");
-//    legend->AddEntry(&(*histos[0]), histos[0]->GetTitle(), "l");
-//    histos[0]->SetTitle(";photon p_{T}  [GeV];Events");
-//    histos[0]->SetTitleOffset(1.2);
-//    histos[0]->GetYaxis()->CenterTitle(true);
-//    histos[0]->SetAxisRange(0., 170,"Y");
-//
-//    histos[1]->Scale(factor/histos[1]->Integral());
-//    histos[1]->SetLineColor(colors[1]);
-//    histos[1]->Draw("HISTsame");
-//    legend->AddEntry(&(*histos[1]), histos[1]->GetTitle(), "l");
-//
-//    gStyle->SetOptStat(0);
-//    TLatex Tl;
-//    Tl.SetTextSize(0.03);
-//    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-//    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-//    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 1 GeV");
-//    legend->SetBorderSize(0);
-//    legend->Draw();
-//    c1->SaveAs("Fig6A.pdf");
-//
-//    c1 = new TCanvas();
-//    legend = new TLegend(0.6, 0.4, 0.8, 0.6);
-//    factor = histos[2]->Integral();
-//    histos[2]->Scale(factor/factor);
-//    histos[2]->SetLineColor(colors[0]);
-//    histos[2]->Draw("HIST");
-//    histos[2]->GetYaxis()->CenterTitle(true);
-//
-//    legend->AddEntry(&(*histos[2]), histos[2]->GetTitle(), "l");
-//    histos[2]->SetTitle(";photon p_{T}  [GeV];Events");
-//
-//    gStyle->SetOptStat(0);
-//    Tl.SetTextSize(0.03);
-//    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-//    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-//    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 1 GeV");
-//    legend->SetBorderSize(0);
-//    legend->Draw();
-//    c1->SaveAs("Fig6B.pdf");
-//
-//}
-//
+
+void fig6()
+{
+    std::vector<std::string> input_filenames = {
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Test_oneMassPoint.root"
+    };
+    
+    std::vector<EColor> colors = {kRed, kBlue};
+    TCanvas* c1 = new TCanvas();
+    TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.525);
+
+    SchottDataFrame df(MakeRDF(input_filenames, 8));
+
+    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+    {
+        RVec<TruthParticle> truthSelected;
+        bool foundParent;
+        if (truthChain.size() >= 1)
+        {
+            TruthParticle tp;
+            for (auto& tpe: startParticles)
+            {
+                tp = tpe;
+                while (true)
+                {
+                    if (tp.mc_parent_barcode == targetBarcode)
+                    {
+                        truthSelected.push_back(tp);
+                        break;
+                    }
+                    else
+                    {
+                        foundParent = false;
+                        for (auto& tmp: truthChain)
+                        {
+                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+                            {
+                                tp = tmp;
+                                foundParent = true;
+                                break;
+                            }
+                        }
+                        if (foundParent == false)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return truthSelected;
+    };
+
+    auto preselection = df.Filter(
+    [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
+    {
+        bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+
+        if (!trigger_found)
+        {
+            return false;
+        }
+
+        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+        [](TruthParticle& x)
+        {
+            return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
+                    abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
+                    abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+
+        }), truth_particles.end());
+
+        if (truth_particles.size() != 2)
+        {
+            return false;
+        }
+
+        if (DeltaR(truth_particles[0].Vector(), truth_particles[1].Vector()) <= 0.01)
+        {
+            return false;
+        }
+
+        if (truth_particles[0].mc_charge*truth_particles[1].mc_charge >= 0)
+        {
+            return false;
+        }
+
+        if (!((truth_particles[0].mc_pt > 27e3 && truth_particles[1].mc_pt > 20e3)
+                                               ||
+              (truth_particles[1].mc_pt > 27e3 && truth_particles[0].mc_pt > 20e3)))
+        {
+            return false;
+        }
+
+        PtEtaPhiEVector dilepton = truth_particles[0].Vector() + truth_particles[1].Vector();
+
+        if ((dilepton.M() < 81e3) || (dilepton.M() > 101e3))
+        {
+            return false;
+        }
+
+        if ((truth_particles[0].Vector() + truth_particles[1].Vector()).Pt() <= 10e3)
+        {
+            return false;
+        }
+
+        return true;
+
+    }, {"trigger_passed_triggers", "truth_particles"});
+
+//    std::cout << *preselection.Count() << '\n';
+
+    auto truth_photons_from_axions = preselection.Define("truth_photons",[&](RVec<TruthParticle> truth_particles)
+    {
+        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+        [](TruthParticle& x)
+        {
+            return (abs(x.mc_pdg_id) != 22);
+
+        }), truth_particles.end());
+
+        return truth_particles;
+
+    }, {"truth_particles"})
+    .Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
+    {
+        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+        [&](TruthParticle& x)
+        {
+            return (abs(x.mc_pdg_id) != 35 && abs(x.mc_pdg_id) != 36);
+
+        }), truth_particles.end());
+
+        return truth_particles;
+
+    }, {"truth_particles"}).Define("truth_photons_from_axions",
+    [&](RVec<TruthParticle>& truth_photons, RVec<TruthParticle>& truth_axions)
+    {
+        return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
+
+    }, {"truth_photons", "truth_axions"})
+    .Filter([&] (RVec<TruthParticle>& truth_photons_from_axions)
+    {
+        return truth_photons_from_axions.size()==2;
+    }, {"truth_photons_from_axions"})
+    .Define("photons_pass_cuts",
+    [&](RVec<Photon> photons)
+    {
+        photons.erase(std::remove_if(photons.begin(),photons.end(),
+        [](Photon& x)
+        {
+            return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+
+        }), photons.end());
+
+        return photons;
+    }, {"photons"});
+
+    auto reco_photons_matched = truth_photons_from_axions.Define("reco_photons_matched",
+    [&](RVec<Photon>& photons_pass_cuts, RVec<TruthParticle>& truth_photons_from_axions)
+    {
+        RVec<Photon> matchedPhotons;
+        PtEtaPhiEVector tp1 = truth_photons_from_axions[0].Vector();
+        PtEtaPhiEVector tp2 = truth_photons_from_axions[1].Vector();
+
+        for (auto& rp: photons_pass_cuts)
+        {
+            if (!(DeltaR(rp.Vector(), tp1) < 0.1 || DeltaR(rp.Vector(), tp2) < 0.1))
+            {
+                continue;
+            }
+            matchedPhotons.push_back(rp);
+        }
+
+        std::sort(matchedPhotons.begin(),matchedPhotons.end(),
+        [](Photon& x, Photon& y)
+        {
+            return x.photon_pt > y.photon_pt;
+        });
+
+        return matchedPhotons;
+
+    }, {"photons_pass_cuts", "truth_photons_from_axions"}).Define("totEventWeight", [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
+    {
+        auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+        photon_id_eff.resize(ResizeVal,1);
+        photon_iso_eff.resize(ResizeVal,1);
+        photon_trg_eff.resize(ResizeVal,1);
+//        R__ASSERT(ResizeVal);
+        return photon_id_eff*photon_iso_eff*photon_trg_eff;//*ei_event_weights_generator[0];
+
+    }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
+
+    auto two_reco_photons_matched = reco_photons_matched.Filter(
+    [&](RVec<Photon>& reco_photons_matched)
+    {
+        return reco_photons_matched.size()==2;
+
+    }, {"reco_photons_matched"})
+    .Define("leading_pt",[&] (RVec<Photon>& reco_photons_matched)
+    {
+        return reco_photons_matched[0].photon_pt/1e3;
+    }, {"reco_photons_matched"})
+    .Define("sub_leading_pt",[&] (RVec<Photon>& reco_photons_matched)
+    {
+        return reco_photons_matched[1].photon_pt/1e3;
+    }, {"reco_photons_matched"});
+
+    auto one_reco_photons_matched = reco_photons_matched.Filter(
+    [&](RVec<Photon>& reco_photons_matched)
+    {
+        return reco_photons_matched.size()==1;
+
+    }, {"reco_photons_matched"})
+    .Define("leading_pt",[&] (RVec<Photon>& reco_photons_matched)
+    {
+        return reco_photons_matched[0].photon_pt/1e3;
+    }, {"reco_photons_matched"});
+
+    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos =
+    {
+        two_reco_photons_matched.Histo1D<double>({"Leading Photon", "Leading Photon", 20u, 0, 50}, "leading_pt", "totEventWeight"),
+        two_reco_photons_matched.Histo1D<double>({"Sub-Leading Photon", "Sub-Leading Photon", 20u, 0, 50}, "sub_leading_pt", "totEventWeight"),
+        one_reco_photons_matched.Histo1D<double>({"Leading Photon", "Leading Photon", 40u, 0, 100}, "leading_pt", "totEventWeight"),
+    };
+    
+    auto truth_photons_from_axions_Count = truth_photons_from_axions.Count();
+    std::cout << *truth_photons_from_axions_Count << '\n';
+    truth_photons_from_axions_Count = two_reco_photons_matched.Count();
+    std::cout << *truth_photons_from_axions_Count << '\n';
+    truth_photons_from_axions_Count = one_reco_photons_matched.Count();
+    std::cout << *truth_photons_from_axions_Count << '\n';
+
+    double factor = histos[0]->Integral();
+
+    histos[0]->Scale(factor/factor);
+    histos[0]->SetLineColor(colors[0]);
+    histos[0]->Draw("HIST");
+    legend->AddEntry(&(*histos[0]), histos[0]->GetTitle(), "l");
+    histos[0]->SetTitle(";photon p_{T}  [GeV];Events");
+    histos[0]->SetTitleOffset(1.2);
+    histos[0]->GetYaxis()->CenterTitle(true);
+    histos[0]->SetAxisRange(0., 170,"Y");
+
+    histos[1]->Scale(factor/histos[1]->Integral());
+    histos[1]->SetLineColor(colors[1]);
+    histos[1]->Draw("HISTsame");
+    legend->AddEntry(&(*histos[1]), histos[1]->GetTitle(), "l");
+
+    gStyle->SetOptStat(0);
+    TLatex Tl;
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 1 GeV");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Fig6A.pdf");
+//    c1->SaveAs("Fig6A_Displaced.pdf");
+
+    c1 = new TCanvas();
+    legend = new TLegend(0.6, 0.4, 0.8, 0.6);
+    factor = histos[2]->Integral();
+    histos[2]->Scale(factor/factor);
+    histos[2]->SetLineColor(colors[0]);
+    histos[2]->Draw("HIST");
+    histos[2]->GetYaxis()->CenterTitle(true);
+
+    legend->AddEntry(&(*histos[2]), histos[2]->GetTitle(), "l");
+    histos[2]->SetTitle(";photon p_{T}  [GeV];Events");
+
+    gStyle->SetOptStat(0);
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 1 GeV");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Fig6B.pdf");
+//    c1->SaveAs("Fig6B_Displaced.pdf");
+
+}
+
+
 //void fig8()
 //{
-//    std::vector<std::vector<std::string>> input_filenames = {
-//        {"/home/common/Za/NTuples/Ntuple_MC_Za_m5p0_v4.root"},
-//        {"/home/common/Haa/ntuples/Za/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}
+//    std::vector<std::string> input_filenames = {
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
 //    };
 //
 //    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
@@ -975,7 +992,7 @@ constexpr std::array<const char*,35> triggers =
 //
 //    for (auto& file: input_filenames)
 //    {
-//        SchottDataFrame df(MakeRDF(file, 24));
+//        SchottDataFrame df(MakeRDF({file}, 8));
 //
 //        auto preselection = df.Filter(
 //        [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -1406,9 +1423,9 @@ constexpr std::array<const char*,35> triggers =
 //
 //void fig10()
 //{
-//    std::vector<std::vector<std::string>> input_filenames = {
-//        {"/home/common/Za/NTuples/Ntuple_MC_Za_m5p0_v4.root"},
-//        {"/home/common/Haa/ntuples/Za/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}
+//    std::vector<std::string> input_filenames = {
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
 //    };
 //
 //    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
@@ -1459,7 +1476,7 @@ constexpr std::array<const char*,35> triggers =
 //
 //    for (auto& file: input_filenames)
 //    {
-//        SchottDataFrame df(MakeRDF(file, 24));
+//        SchottDataFrame df(MakeRDF({file}, 8));
 //
 //        auto preselection = df.Filter(
 //        [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -1711,12 +1728,12 @@ constexpr std::array<const char*,35> triggers =
 //    c1->SaveAs("Fig10B.pdf");
 //}
 //
-//
+////FIXME:
 //void fig18()
 //{
-//    std::vector<std::vector<std::string>> input_filenames = {
-//        {"/home/common/Za/NTuples/Ntuple_MC_Za_m5p0_v4.root"},
-//        {"/home/common/Haa/ntuples/Za/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}
+//    std::vector<std::string> input_filenames = {
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
 //    };
 //
 //    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
@@ -1767,7 +1784,7 @@ constexpr std::array<const char*,35> triggers =
 //
 //    for (auto& file: input_filenames)
 //    {
-//        SchottDataFrame df(MakeRDF(file, 24));
+//        SchottDataFrame df(MakeRDF({file}, 8));
 //
 //        auto preselection = df.Filter(
 //        [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -2024,504 +2041,435 @@ constexpr std::array<const char*,35> triggers =
 //    legend->Draw();
 //    c1->SaveAs("Fig18B.pdf");
 //}
-
-void fig24()
-{
-    std::vector<std::vector<std::string>> input_filenames = {
-        //Signal samples
-        {"/home/common/Za/NTuples/Ntuple_MC_Za_m5p0_v4.root"},
-        {"/home/common/Haa/ntuples/Za/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
-        //Z gamma samples
-        {"/home/common/Za/NTuples/Background/user.kschmied.364860.eegammagamma_pty2_9_17.deriv.DAOD_STDM3.e7057_s3126_r10724_p4092_LGNTuple.root/user.kschmied.31617070._000001.LGNTuple.root"}, {"/home/common/Za/NTuples/Background/user.kschmied.364861.eegammagamma_pty_17_myy_0_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4062_LGNTuple.root/user.kschmied.31617064._000001.LGNTuple.root"},
-        {"/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000001.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000002.LGNTuple.root"},
-        //Jet samples
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000001.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000002.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000003.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000004.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000005.LGNTuple.root"
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000007.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000005.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000004.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000003.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000004.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000005.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000007.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000008.LGNTuple.root"
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000005.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000007.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000008.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000009.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000010.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000011.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000012.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000013.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000014.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000005.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000007.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000008.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000009.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000010.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000011.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000012.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000013.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000014.LGNTuple.root",
-            
-        },
-    };
-    
-    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
-    
-    std::vector<const char*> prefixes = {"sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
-    
-    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
-    {
-        RVec<TruthParticle> truthSelected;
-        bool foundParent;
-        if (truthChain.size() >= 1)
-        {
-            TruthParticle tp;
-            for (auto& tpe: startParticles)
-            {
-                tp = tpe;
-                while (true)
-                {
-                    if (tp.mc_parent_barcode == targetBarcode)
-                    {
-                        truthSelected.push_back(tp);
-                        break;
-                    }
-                    else
-                    {
-                        foundParent = false;
-                        for (auto& tmp: truthChain)
-                        {
-                            if (tp.mc_parent_barcode == tmp.mc_barcode)
-                            {
-                                tp = tmp;
-                                foundParent = true;
-                                break;
-                            }
-                        }
-                        if (foundParent == false)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return truthSelected;
-    };
-    
-    std::vector<ROOT::RDF::RResultHandle> Nodes;
-    
-    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))};
-    
-    std::vector<EColor> colors = {kBlack, kMagenta, kBlue, kRed, kViolet};
-    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
-    int count = 0;
-    
-    TCanvas* c1 = new TCanvas();
-    TLegend* legend = new TLegend(0.525, 0.225, 0.825, 0.625);
-    
-    for (auto& sample: input_filenames)
-    {
-        SchottDataFrame df(MakeRDF(sample, 24));
-        
-        auto EventWeight = df.Define("EventWeight",
-        [](const RVec<float>& ei_event_weights_generator)
-        {
-            return  ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
-
-        }, {"ei_event_weights_generator"});
-        
-        auto trigger_selection = df.Filter(
-        [](const RVec<std::string>& trigger_passed_triggers)
-        {
-            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
-           
-            if (!trigger_found)
-            {
-                return false;
-            }
-            return true;
-            
-        }, {"trigger_passed_triggers"});
-            
-        auto two_leptons = trigger_selection.Filter(
-        [](RVec<Muon>& muons, RVec<Electron> electrons)
-        {
-            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
-            [](Electron& ep)
-            {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
-                          && (ep.electron_id_medium == 1)));
-                
-            }), electrons.end());
-            
-            return (electrons.size()==2 && muons.empty());
-            
-        }, {"muons", "electrons"});
-
-        auto opp_charge = two_leptons.Define("di_electrons",
-        [](RVec<Electron> electrons)
-        {
-            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
-            [](Electron& ep)
-            {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
-                && (ep.electron_id_medium == 1)));
-
-            }), electrons.end());
-            
-            return electrons;
-            
-        },{"electrons"})
-        .Filter([](RVec<Electron> electrons)
-        {
-            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
-            
-        }, {"di_electrons"});
-
-        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
-        {
-            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
-        }, {"di_electrons"});
-
-        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
-        {
-            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
-        }, {"di_electrons"});
-
-        auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
-        {
-            auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
-            return ((mass >= 81) && (mass <= 101));
-        }, {"di_electrons"});
-
-        auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
-        {
-            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
-            return pT > 10;
-        }, {"di_electrons"});
-        
-        auto photons_pass_cuts = ptCut.Define("photons_pass_cuts",
-        [&](RVec<Photon> photons)
-        {
-            photons.erase(std::remove_if(photons.begin(),photons.end(),
-            [](Photon& x)
-            {
-                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
-
-            }), photons.end());
-            
-            return photons;
-        }, {"photons"});
-        
-        auto resolved = photons_pass_cuts.Define("chosen_two",
-        [](RVec<Photon>& photons_pass_cuts)
-        {
-            RVec<Photon> x;
-            if (photons_pass_cuts.size() < 2)
-            {
-                return x;
-            }
-            auto combs = Combinations(photons_pass_cuts, 2);
-            size_t length = combs[0].size();
-            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
-
-            for (size_t i=0; i<length; i++)
-            {
-                delta_r = DeltaR(photons_pass_cuts[combs[0][i]].Vector(), photons_pass_cuts[combs[1][i]].Vector());
-                m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
-                pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
-                X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
-                {
-                    best_X = X;
-                    pt1 = photons_pass_cuts[combs[0][i]].photon_pt;
-                    pt2 = photons_pass_cuts[combs[1][i]].photon_pt;
-                    chosen_delta_r = delta_r;
-                    x = {photons_pass_cuts[combs[0][i]], photons_pass_cuts[combs[1][i]]};
-                }
-            }
-            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
-            {
-                return x;
-            }
-            x.clear();
-            return x;
-        }, {"photons_pass_cuts"}).Filter(
-        [&](RVec<Photon>& two_reco_photons_matched)
-        {
-            return (two_reco_photons_matched.size()==2);
-        }, {"chosen_two"})
-        .Define("reco_photons_from_axions_deltaR",
-        [&](RVec<Photon>& reco_photons_matched)
-        {
-            return DeltaR(reco_photons_matched[0].Vector(), reco_photons_matched[1].Vector());
-            
-        }, {"chosen_two"})
-        .Define("totEventWeight", [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
-        {
-            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
-            photon_id_eff.resize(ResizeVal,1);
-            photon_iso_eff.resize(ResizeVal,1);
-            photon_trg_eff.resize(ResizeVal,1);
-
-            return photon_id_eff*photon_iso_eff*photon_trg_eff;//*ei_event_weights_generator[0];
-
-        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
-
-        Nodes.push_back(resolved.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 0.8}, "reco_photons_from_axions_deltaR", "totEventWeight"));
-        Nodes.push_back(resolved.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 0.8}, "reco_photons_from_axions_deltaR", "totEventWeight"));
-        if (count > 2)
-        {
-            Nodes.push_back(resolved.Sum<RVec<float>>("totEventWeight"));
-            Nodes.push_back(EventWeight.Sum<float>("EventWeight")); //need total events for scale factor.
-        }
-    }
-    
-//    0   1
-//    2   3
-//    4   5   6   7
-//    8   9   10  11
-//    12  13  14  15
-//    16  17  18  19
-//    20  21  22  23
-//    24  25  26  27
-//    28  29  30  31
-//    32  33  34  35
-//    36  37  38  39
-//    40  41  42  43
-//    44  45  46  47
-//    48  49  50  51
-    
-    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
-    
-    double factor;
-    double total_back = 0;
-    
-    //Background counts from Z gamma
-    for (int i = 6, j = 0; (i <= 14 && j <= 2); i+=4, j++)
-    {
-        total_back += *Nodes[i].GetResultPtr<float>()*(SFs[j]/ *Nodes[i+1].GetResultPtr<float>());
-    }
-    
-    //Background counts from Z jets
-    for (int i = 18, j = 0; (i <= 50 && j <= 8); i += 4, j++)
-    {
-        total_back += *Nodes[i].GetResultPtr<float>()*(JetNumeratorSFs[j] / *Nodes[i+1].GetResultPtr<float>());
-    }
-    
-    int back_count = 0;
-    factor = total_back;
-    auto hs = new THStack("hs3","");
-    //weighted Zgamma
-    for (auto& i: {4,8,12})
-    {
-        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[2+back_count]);
-        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
-        {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[back_count++]/ *Nodes[i+3].GetResultPtr<float>());
-        }
-        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
-        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-
-        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
-    }
-    
-    //weighted ZJets
-    for (int i = 16, j = 0; (i <= 48 && j <= 8); i += 4, j++)
-    {
-        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
-        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
-        {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / (*Nodes[i+3].GetResultPtr<float>()));
-        }
-        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
-        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-
-        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
-    }
-    
-    hs->Draw("HIST");
-    
-    count = 0;
-    for (auto& i: {0, 2})
-    {
-        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
-        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
-        
-        if (i == 0)
-        {
-            if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
-            {
-                Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
-            }
-            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
-            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
-
-            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
-        }
-        else
-        {
-            if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
-            {
-                Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
-            }
-            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
-        }
-    }
-    
-    hs->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
-    hs->GetYaxis()->CenterTitle(true);
-    hs->GetXaxis()->SetTitleOffset(1.2);
-    hs->SetMinimum(0.);
-    hs->SetMaximum(9200);
-    
-    gStyle->SetOptStat(0);
-    TLatex Tl;
-    Tl.SetTextSize(0.03);
-    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-    legend->SetBorderSize(0);
-    legend->Draw();
-    c1->SaveAs("Fig24B.pdf");
-    
-    c1 = new TCanvas();
-    legend = new TLegend(0.5, 0.2125, 0.8, 0.6125);
-    
-    back_count=0;
-    hs = new THStack("hs3","");
-    //background Zgamma unweighted
-    for (auto& i: {5,9,13})
-    {
-        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[2+back_count]);
-        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
-        {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[back_count++]/(*Nodes[i+2].GetResultPtr<float>()));
-            gPad->Modified(); gPad->Update();
-        }
-        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll}  [GeV];Events");
-        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-        
-        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
-        count++;
-    }
-    
-    for (int i = 17, j = 0; (i <= 49 && j <= 8); i += 4, j++)
-    {
-        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
-        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
-        {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / (*Nodes[i+2].GetResultPtr<float>()));
-            gPad->Modified(); gPad->Update();
-        }
-        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll}  [GeV];Events");
-        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-        
-        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
-    }
-    
-    hs->Draw("HIST");
-    count = 0;
-    //signal
-    for (auto& i: {1, 3})
-    {
-        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
-        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
-        
-        if (i == 1)
-        {
-            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
-            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
-            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
-            gPad->Modified(); gPad->Update();
-        }
-        else
-        {
-            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
-            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
-            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
-            gPad->Modified(); gPad->Update();
-        }
-    }
-    hs->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
-    hs->GetYaxis()->CenterTitle(true);
-    hs->GetXaxis()->SetTitleOffset(1.2);
-    hs->SetMinimum(0.);
-    hs->SetMaximum(4000);
-    
-    gStyle->SetOptStat(0);
-    Tl.SetTextSize(0.03);
-    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-    legend->SetBorderSize(0);
-    legend->Draw();
-    c1->SaveAs("Fig24A.pdf");
-}
-
-//void fig54()
+//
+//void fig24()
 //{
 //    std::vector<std::vector<std::string>> input_filenames = {
-//        {"/home/common/Za/NTuples/Ntuple_MC_Za_m5p0_v4.root"},
-//        {"/home/common/Haa/ntuples/Za/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}
+//        //Signal samples
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+//        //Z gamma samples
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"}, {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+//        //Jet samples
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
+//    };
+//
+//    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
+//
+//    std::vector<const char*> prefixes = {"sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
+//
+//    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+//    {
+//        RVec<TruthParticle> truthSelected;
+//        bool foundParent;
+//        if (truthChain.size() >= 1)
+//        {
+//            TruthParticle tp;
+//            for (auto& tpe: startParticles)
+//            {
+//                tp = tpe;
+//                while (true)
+//                {
+//                    if (tp.mc_parent_barcode == targetBarcode)
+//                    {
+//                        truthSelected.push_back(tp);
+//                        break;
+//                    }
+//                    else
+//                    {
+//                        foundParent = false;
+//                        for (auto& tmp: truthChain)
+//                        {
+//                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+//                            {
+//                                tp = tmp;
+//                                foundParent = true;
+//                                break;
+//                            }
+//                        }
+//                        if (foundParent == false)
+//                        {
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return truthSelected;
+//    };
+//
+//    std::vector<ROOT::RDF::RResultHandle> Nodes;
+//
+//    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))};
+//
+//    std::vector<EColor> colors = {kBlack, kMagenta, kBlue, kRed, kViolet};
+//    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
+//    int count = 0;
+//
+//    TCanvas* c1 = new TCanvas();
+//    TLegend* legend = new TLegend(0.525, 0.225, 0.825, 0.625);
+//
+//    for (auto& sample: input_filenames)
+//    {
+//        SchottDataFrame df(MakeRDF(sample, 8));
+//
+//        auto EventWeight = df.Define("EventWeight",
+//        [](const RVec<float>& ei_event_weights_generator)
+//        {
+//            return  ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
+//
+//        }, {"ei_event_weights_generator"});
+//
+//        auto trigger_selection = df.Filter(
+//        [](const RVec<std::string>& trigger_passed_triggers)
+//        {
+//            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+//
+//            if (!trigger_found)
+//            {
+//                return false;
+//            }
+//            return true;
+//
+//        }, {"trigger_passed_triggers"});
+//
+//        auto two_leptons = trigger_selection.Filter(
+//        [](RVec<Muon>& muons, RVec<Electron> electrons)
+//        {
+//            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+//            [](Electron& ep)
+//            {
+//                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+//                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+//                          && (ep.electron_id_medium == 1)));
+//
+//            }), electrons.end());
+//
+//            return (electrons.size()==2 && muons.empty());
+//
+//        }, {"muons", "electrons"});
+//
+//        auto opp_charge = two_leptons.Define("di_electrons",
+//        [](RVec<Electron> electrons)
+//        {
+//            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+//            [](Electron& ep)
+//            {
+//                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
+//                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+//                && (ep.electron_id_medium == 1)));
+//
+//            }), electrons.end());
+//
+//            return electrons;
+//
+//        },{"electrons"})
+//        .Filter([](RVec<Electron> electrons)
+//        {
+//            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+//
+//        }, {"di_electrons"});
+//
+//        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+//        {
+//            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+//        }, {"di_electrons"});
+//
+//        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+//        {
+//            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+//        }, {"di_electrons"});
+//
+//        auto mass = deltaR.Filter([] (RVec<Electron>& electrons)
+//        {
+//            auto mass = (electrons[0].Vector() + electrons[1].Vector()).M()/1e3;
+//            return ((mass >= 81) && (mass <= 101));
+//        }, {"di_electrons"});
+//
+//        auto ptCut = mass.Filter([] (RVec<Electron>& electrons)
+//        {
+//            auto pT = (electrons[0].Vector() + electrons[1].Vector()).Pt()/1e3;
+//            return pT > 10;
+//        }, {"di_electrons"});
+//
+//        auto photons_pass_cuts = ptCut.Define("photons_pass_cuts",
+//        [&](RVec<Photon> photons)
+//        {
+//            photons.erase(std::remove_if(photons.begin(),photons.end(),
+//            [](Photon& x)
+//            {
+//                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+//
+//            }), photons.end());
+//
+//            return photons;
+//        }, {"photons"});
+//
+//        auto resolved = photons_pass_cuts.Define("chosen_two",
+//        [](RVec<Photon>& photons_pass_cuts)
+//        {
+//            RVec<Photon> x;
+//            if (photons_pass_cuts.size() < 2)
+//            {
+//                return x;
+//            }
+//            auto combs = Combinations(photons_pass_cuts, 2);
+//            size_t length = combs[0].size();
+//            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+//
+//            for (size_t i=0; i<length; i++)
+//            {
+//                delta_r = DeltaR(photons_pass_cuts[combs[0][i]].Vector(), photons_pass_cuts[combs[1][i]].Vector());
+//                m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
+//                pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
+//                X = delta_r*(pt/(2.0*m));
+//                if (i==0 || abs(1-X) < abs(1-best_X))
+//                {
+//                    best_X = X;
+//                    pt1 = photons_pass_cuts[combs[0][i]].photon_pt;
+//                    pt2 = photons_pass_cuts[combs[1][i]].photon_pt;
+//                    chosen_delta_r = delta_r;
+//                    x = {photons_pass_cuts[combs[0][i]], photons_pass_cuts[combs[1][i]]};
+//                }
+//            }
+//            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+//            {
+//                return x;
+//            }
+//            x.clear();
+//            return x;
+//        }, {"photons_pass_cuts"}).Filter(
+//        [&](RVec<Photon>& two_reco_photons_matched)
+//        {
+//            return (two_reco_photons_matched.size()==2);
+//        }, {"chosen_two"})
+//        .Define("reco_photons_from_axions_deltaR",
+//        [&](RVec<Photon>& reco_photons_matched)
+//        {
+//            return DeltaR(reco_photons_matched[0].Vector(), reco_photons_matched[1].Vector());
+//
+//        }, {"chosen_two"})
+//        .Define("totEventWeight", [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
+//        {
+//            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+//            photon_id_eff.resize(ResizeVal,1);
+//            photon_iso_eff.resize(ResizeVal,1);
+//            photon_trg_eff.resize(ResizeVal,1);
+//
+//            return photon_id_eff*photon_iso_eff*photon_trg_eff;//*ei_event_weights_generator[0];
+//
+//        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
+//
+//        Nodes.push_back(resolved.Histo1D<double>({prefixes[count], prefixes[count], 100u, 0, 0.8}, "reco_photons_from_axions_deltaR", "totEventWeight"));
+//        Nodes.push_back(resolved.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 0, 0.8}, "reco_photons_from_axions_deltaR", "totEventWeight"));
+//        if (count > 2)
+//        {
+//            Nodes.push_back(resolved.Sum<RVec<float>>("totEventWeight"));
+//            Nodes.push_back(EventWeight.Sum<float>("EventWeight")); //need total events for scale factor.
+//        }
+//    }
+//
+////    0   1
+////    2   3
+////    4   5   6   7
+////    8   9   10  11
+////    12  13  14  15
+////    16  17  18  19
+////    20  21  22  23
+////    24  25  26  27
+////    28  29  30  31
+////    32  33  34  35
+////    36  37  38  39
+////    40  41  42  43
+////    44  45  46  47
+////    48  49  50  51
+//
+//    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+//
+//    double factor;
+//    double total_back = 0;
+//
+//    //Background counts from Z gamma
+//    for (int i = 6, j = 0; (i <= 14 && j <= 2); i+=4, j++)
+//    {
+//        total_back += *Nodes[i].GetResultPtr<float>()*(SFs[j]/ *Nodes[i+1].GetResultPtr<float>());
+//    }
+//
+//    //Background counts from Z jets
+//    for (int i = 18, j = 0; (i <= 50 && j <= 8); i += 4, j++)
+//    {
+//        total_back += *Nodes[i].GetResultPtr<float>()*(JetNumeratorSFs[j] / *Nodes[i+1].GetResultPtr<float>());
+//    }
+//
+//    int back_count = 0;
+//    factor = total_back;
+//    auto hs = new THStack("hs3","");
+//    //weighted Zgamma
+//    for (auto& i: {4,8,12})
+//    {
+//        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[2+back_count]);
+//        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+//        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+//        {
+//            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[back_count++]/ *Nodes[i+3].GetResultPtr<float>());
+//        }
+//        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
+//        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+//
+//        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+//    }
+//
+//    //weighted ZJets
+//    for (int i = 16, j = 0; (i <= 48 && j <= 8); i += 4, j++)
+//    {
+//        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+//        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+//        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+//        {
+//            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / (*Nodes[i+3].GetResultPtr<float>()));
+//        }
+//        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
+//        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+//
+//        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+//    }
+//
+//    hs->Draw("HIST");
+//
+//    count = 0;
+//    for (auto& i: {0, 2})
+//    {
+//        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
+//        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
+//
+//        if (i == 0)
+//        {
+//            if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+//            {
+//                Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+//            }
+//            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
+//            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+//            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+//
+//            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
+//        }
+//        else
+//        {
+//            if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+//            {
+//                Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+//            }
+//            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
+//        }
+//    }
+//
+//    hs->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
+//    hs->GetYaxis()->CenterTitle(true);
+//    hs->GetXaxis()->SetTitleOffset(1.2);
+//    hs->SetMinimum(0.);
+//    hs->SetMaximum(7200);
+//
+//    gStyle->SetOptStat(0);
+//    TLatex Tl;
+//    Tl.SetTextSize(0.03);
+//    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
+//    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+//    legend->SetBorderSize(0);
+//    legend->Draw();
+//    c1->SaveAs("Fig24B.pdf");
+//
+//    c1 = new TCanvas();
+//    legend = new TLegend(0.5, 0.2125, 0.8, 0.6125);
+//
+//    back_count=0;
+//    hs = new THStack("hs3","");
+//    //background Zgamma unweighted
+//    for (auto& i: {5,9,13})
+//    {
+//        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[2+back_count]);
+//        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+//        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+//        {
+//            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[back_count++]/(*Nodes[i+2].GetResultPtr<float>()));
+//            gPad->Modified(); gPad->Update();
+//        }
+//        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll}  [GeV];Events");
+//        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+//
+//        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+//        count++;
+//    }
+//
+//    for (int i = 17, j = 0; (i <= 49 && j <= 8); i += 4, j++)
+//    {
+//        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+//        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+//        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+//        {
+//            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / (*Nodes[i+2].GetResultPtr<float>()));
+//            gPad->Modified(); gPad->Update();
+//        }
+//        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll}  [GeV];Events");
+//        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+//
+//        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+//    }
+//
+//    hs->Draw("HIST");
+//    count = 0;
+//    //signal
+//    for (auto& i: {1, 3})
+//    {
+//        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
+//        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
+//
+//        if (i == 1)
+//        {
+//            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
+//            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+//            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+//            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
+//            gPad->Modified(); gPad->Update();
+//        }
+//        else
+//        {
+//            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
+//            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+//            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+//            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
+//            gPad->Modified(); gPad->Update();
+//        }
+//    }
+//    hs->SetTitle(";#DeltaR_{#gamma#gamma} [GeV];Events");
+//    hs->GetYaxis()->CenterTitle(true);
+//    hs->GetXaxis()->SetTitleOffset(1.2);
+//    hs->SetMinimum(0.);
+//    hs->SetMaximum(3000);
+//
+//    gStyle->SetOptStat(0);
+//    Tl.SetTextSize(0.03);
+//    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
+//    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+//    legend->SetBorderSize(0);
+//    legend->Draw();
+//    c1->SaveAs("Fig24A.pdf");
+//}
+//
+//void fig54()
+//{
+//    std::vector<std::string> input_filenames = {
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
 //    };
 //
 //    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
@@ -2572,7 +2520,7 @@ void fig24()
 //
 //    for (auto& file: input_filenames)
 //    {
-//        SchottDataFrame df(MakeRDF(file, 24));
+//        SchottDataFrame df(MakeRDF({file}, 8));
 //
 //        auto preselection = df.Filter(
 //        [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -2981,6 +2929,290 @@ void fig24()
 //    legend->Draw();
 //    c1->SaveAs("Fig54B.pdf");
 //}
+//
+void fig29()
+{
+    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+    {
+        RVec<TruthParticle> truthSelected;
+        bool foundParent;
+        if (truthChain.size() >= 1)
+        {
+            TruthParticle tp;
+            for (auto& tpe: startParticles)
+            {
+                tp = tpe;
+                while (true)
+                {
+                    if (tp.mc_parent_barcode == targetBarcode)
+                    {
+                        truthSelected.push_back(tp);
+                        break;
+                    }
+                    else
+                    {
+                        foundParent = false;
+                        for (auto& tmp: truthChain)
+                        {
+                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+                            {
+                                tp = tmp;
+                                foundParent = true;
+                                break;
+                            }
+                        }
+                        if (foundParent == false)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return truthSelected;
+    };
+
+    std::vector<std::string> input_filenames = { //"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Test_oneMassPoint.root",
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"
+    };
+
+    TCanvas* c1 = new TCanvas();
+    TLegend* legend = new TLegend(0.6, 0.2, 0.85, 0.525);
+
+    SchottDataFrame df(MakeRDF(input_filenames, 8));
+
+//    df.Describe().Print();
+
+    std::cout << '\n';
+
+    auto preselection = df.Filter(
+    [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
+    {
+        bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+        if (!trigger_found)
+        {
+            return false;
+        }
+
+        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+        [](TruthParticle& x)
+        {
+            return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
+                    abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
+                    abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+
+        }), truth_particles.end());
+
+        if (truth_particles.size() != 2)
+        {
+            return false;
+        }
+
+        if (DeltaR(truth_particles[0].Vector(), truth_particles[1].Vector()) <= 0.01)
+        {
+            return false;
+        }
+
+        if (truth_particles[0].mc_charge*truth_particles[1].mc_charge >= 0)
+        {
+            return false;
+        }
+
+        if (!((truth_particles[0].mc_pt > 27e3 && truth_particles[1].mc_pt > 20e3)
+                                               ||
+              (truth_particles[1].mc_pt > 27e3 && truth_particles[0].mc_pt > 20e3)))
+        {
+            return false;
+        }
+
+        PtEtaPhiEVector dilepton = truth_particles[0].Vector() + truth_particles[1].Vector();
+
+        if ((dilepton.M() < 81e3) || (dilepton.M() > 101e3))
+        {
+            return false;
+        }
+
+        if ((truth_particles[0].Vector() + truth_particles[1].Vector()).Pt() <= 10e3)
+        {
+            return false;
+        }
+
+        return true;
+
+    }, {"trigger_passed_triggers", "truth_particles"});
+
+    auto truth_photons_from_axions = df.Define("truth_photons",[&](RVec<TruthParticle> truth_particles)
+    {
+        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+        [](TruthParticle& x)
+        {
+            return (abs(x.mc_pdg_id) != 22);
+
+        }), truth_particles.end());
+
+        return truth_particles;
+
+    }, {"truth_particles"})
+    .Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
+    {
+        truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+        [](TruthParticle& x)
+        {
+            return (abs(x.mc_pdg_id) != 36);
+
+        }), truth_particles.end());
+
+        return truth_particles;
+
+    }, {"truth_particles"}).Define("truth_photons_from_axions",
+    [&](RVec<TruthParticle>& truth_photons, RVec<TruthParticle> truth_axions)
+    {
+        std::sort(truth_axions.begin(),truth_axions.end(),
+        [](TruthParticle& x, TruthParticle& y)
+        {
+            return x.mc_barcode < y.mc_barcode;
+        });
+        
+        return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
+
+    }, {"truth_photons", "truth_axions"})
+    .Define("truth_photons_from_axions_size",
+    [](RVec<TruthParticle>& truth_photons_from_axions)
+    {
+        return truth_photons_from_axions.size();
+    }, {"truth_photons_from_axions"})
+//    .Filter([&] (RVec<TruthParticle>& truth_photons_from_axions)
+//    {
+//        return truth_photons_from_axions.size();// == 2;
+////        return true;
+//    }, {"truth_photons_from_axions"})
+    .Define("diphoton_inv_mass", [&](RVec<TruthParticle> truth_photons_from_axions)
+    {
+        auto four_momentum = truth_photons_from_axions[0].Vector() + truth_photons_from_axions[1].Vector();
+        return four_momentum.M()/1e3f;
+    }, {"truth_photons"})
+    .Define("axion_masses", [&](RVec<TruthParticle>& truth_axions)
+    {
+        return truth_axions[0].mc_mass/1e3f;
+
+    }, {"truth_axions"})
+    .Define("axion_decay_times", [&](RVec<TruthParticle>& truth_axions)
+    {
+        return truth_axions[0].mc_decay_time;
+
+    }, {"truth_axions"});
+
+    auto numAxions = truth_photons_from_axions.Filter(
+    [](RVec<TruthParticle>& truth_particles)
+    {
+        return !truth_particles.empty();
+    }, {"truth_axions"});
+
+    auto vals = truth_photons_from_axions.Take<float, RVec<float>>("axion_masses");
+    
+    auto number_of_truth_photons_in_each_event = truth_photons_from_axions.Take<size_t, RVec<size_t>>("truth_photons_from_axions_size");
+    
+    ROOT::RDF::RResultPtr<ULong64_t> Count = truth_photons_from_axions.Count()
+    , AxionCount = numAxions.Count();
+
+    ROOT::RDF::RResultPtr<TH1D> histo = truth_photons_from_axions.Histo1D<double>({"Diphoton Invariant Mass", "Diphoton Invariant Mass", 60u, 0, 40}, "diphoton_inv_mass");
+
+    ROOT::RDF::RResultPtr<TH1D> mc_decay_time_histo = truth_photons_from_axions.Histo1D<float>({"MC decay times", "MC decay times", 60u, 0, 0}, "axion_decay_times");
+    
+    ROOT::RDF::RResultPtr<TH1D> histo_axion_mass = truth_photons_from_axions.Histo1D<float>({"Axion Mass", "Axion Mass", 60u, 0, 0}, "axion_masses");
+
+    std::cout << *Count << '\n' << *AxionCount << '\n';
+    
+    std::map<int, int> truth_photons_from_axion_counts;
+    
+    for (auto& i: *number_of_truth_photons_in_each_event)
+    {
+        truth_photons_from_axion_counts[i]++;
+    }
+    
+    for (auto& i: truth_photons_from_axion_counts)
+    {
+        std::cout <<
+        "number of events with " <<
+        i.first
+        << " truth photons from the axion = "
+        << i.second << '\n';
+    }
+
+    histo->SetLineColor(kGreen);
+    legend->AddEntry(&(*histo), histo->GetTitle(), "l");
+    histo->SetTitleOffset(1.2);
+    histo->GetYaxis()->CenterTitle(true);
+    histo->SetTitle(";m_{#gamma#gamma}  [GeV]; Events");
+    histo->Draw("HIST");
+    
+    std::set<float> unique_vals;
+    
+    for (auto& i: *vals)
+    {
+        unique_vals.emplace(roundToOneDecimalPlace(i));
+    }
+    std::cout << (*vals).size() << '\n';
+    std::ofstream out("massPoints.txt");
+    for (auto& i: unique_vals)
+    {
+        out << i << ", ";
+    }
+    out.close();
+    
+    gStyle->SetOptStat(0);
+    TLatex Tl;
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = {...} GeV");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Fig29.pdf");
+
+    c1 = new TCanvas();
+    legend = new TLegend(0.5, 0.8, 0.25, 0.6);
+
+    mc_decay_time_histo->SetLineColor(kOrange);
+    legend->AddEntry(&(*mc_decay_time_histo), mc_decay_time_histo->GetTitle(), "l");
+    mc_decay_time_histo->SetTitle(";Decay times (wonder what the units are?);Events");
+    mc_decay_time_histo->SetTitleOffset(1.2);
+    mc_decay_time_histo->GetYaxis()->CenterTitle(true);
+    mc_decay_time_histo->SetAxisRange(0., 35e3, "X");
+
+    mc_decay_time_histo->Draw("HIST");
+
+    gStyle->SetOptStat(0);
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = {...} GeV");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Decay_Times.pdf");
+    
+    c1 = new TCanvas();
+    legend = new TLegend(0.2, 0.5, 0.45, 0.8);
+    
+    histo_axion_mass->SetLineColor(kRed);
+    legend->AddEntry(&(*histo_axion_mass), histo_axion_mass->GetTitle(), "l");
+    histo_axion_mass->SetTitleOffset(1.2);
+    histo_axion_mass->GetYaxis()->CenterTitle(true);
+    histo_axion_mass->SetTitle(";m_{a}  [GeV]; Events");
+    histo_axion_mass->Draw("HIST");
+
+    gStyle->SetOptStat(0);
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = {...} GeV");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Axion_masses.pdf");
+    
+}
+
+
 
 void ControlPlotsSignalShapes()
 {
@@ -2991,8 +3223,9 @@ void ControlPlotsSignalShapes()
 //    fig8();
 //    fig10();
 //    fig18();
-    fig24();
+//    fig24();
 //    fig54();
+    fig29();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "
@@ -3000,9 +3233,9 @@ void ControlPlotsSignalShapes()
     
 }
 
+
 int main()
 {
     ControlPlotsSignalShapes();
 }
-
 

@@ -8,6 +8,12 @@
 
 using namespace ROOT::Math;
 
+//Object structs. The structs contain attributes named the
+//same way as the branches used in the analysis. The branches
+//themselves have for each event an RVec of the types
+//specified in the object structs declared below. For convenience,
+//an inline method for the PtEtaPhiE four-vector is defined
+
 struct TruthParticle final
 {
     static const std::string PREFIX;
@@ -22,6 +28,7 @@ struct TruthParticle final
     float mc_phi;
     float mc_e;
     float mc_mass;
+    float mc_decay_time;
     
     PtEtaPhiEVector Vector()
     {
@@ -158,6 +165,7 @@ struct AbstractParticle final
     }
 };
 
+//Namespace for pretty-printing functions for objects
 namespace cling
 {
     std::string printValue(TruthParticle *p);
