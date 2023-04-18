@@ -8,6 +8,7 @@
 #include <array>
 #include <cstdlib>
 #include <unordered_set>
+#include <functional>
 
 #include <ROOT/RLogger.hxx>
 #include "Math/VectorUtil.h"
@@ -1941,7 +1942,7 @@ void Table21_Displaced_Axions()
 
     std::vector<ROOT::RDF::RResultHandle> Totals;
     std::vector<RResultMap<float>> resultmaps;
-    std::stringstream ss;
+    std::stringstream ss, cs;
 
     int counter = 0;
 
@@ -2058,18 +2059,25 @@ void Table21_Displaced_Axions()
             return pT > 10;
         }, {"di_electrons"});
 
-        auto photon_passes_cuts = ptCut.Define("photons_pass_cuts",
-        [&](RVec<AbstractParticle> photons)
+        auto photon_passes_cuts = ptCut.Define("abstract_photons_pass_cut_indices",[&](RVec<AbstractParticle>& p) //p = photon
         {
-            photons.erase(std::remove_if(photons.begin(),photons.end(),
-            [](AbstractParticle& x)
+            RVec<int> x;
+            
+            for (auto i = 0; i < p.size(); i++)
             {
-              return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
-
-            }), photons.end());
-
-            return photons;
-        }, {"abstract_photons"});
+                if (not ((abs(p[i].photon_eta) >= 2.37) or (abs(p[i].photon_eta) > 1.37 and abs(p[i].photon_eta) < 1.52) or (not p[i].photon_id_loose)))
+                {
+                    x.push_back(i);
+                }
+            }
+            
+            return x;
+        }, {"abstract_photons"}).Define("photons_pass_cuts",
+        [&](RVec<AbstractParticle>& photons, RVec<int>& x)
+        {
+            return Take(photons, x); //Taking only the photons that passed the cuts in each event
+            
+        }, {"abstract_photons", "abstract_photons_pass_cut_indices"});
 
         auto merged_reco_photons_matched = photon_passes_cuts.Filter(
         [&](const RVec<AbstractParticle>& reco_photons_matched)
@@ -2117,19 +2125,25 @@ void Table21_Displaced_Axions()
             return false;
 
         }, {"photons_pass_cuts"})
-        .Define("merged_photon",
-        [&](const RVec<AbstractParticle>& reco_photons_matched)
+        .Define("merged_photon_index",
+        [&](const RVec<AbstractParticle>& rpm) //rpm = reco photons matched
         {
-            for (auto& p: reco_photons_matched)
+            for (auto i = 0; i < rpm.size(); i++)
             {
-                if (p.photon_pt > 20e3)
+                if (rpm[i].photon_pt > 20e3)
                 {
-                    return p;
+                    return i; //returning the index of the first photon that has photon_pt > 20 GeV
                 }
             }
-            return reco_photons_matched[0]; //jic the compiler complains
+            return 0; //jic the compiler complains
 
-        }, {"photons_pass_cuts"});
+        }, {"photons_pass_cuts"})
+        .Define("merged_photon",
+        [&](const RVec<AbstractParticle>& reco_photons_matched, int merged_photon_index)
+        {
+            return reco_photons_matched[merged_photon_index];
+
+        }, {"photons_pass_cuts", "merged_photon_index"});
 
         auto dilepton_and_photon = merged_reco_photons_matched
         .Define("reconstructed_mass",[&](const RVec<AbstractParticle>& di_electrons, const AbstractParticle& merged_photon)
@@ -2164,22 +2178,27 @@ void Table21_Displaced_Axions()
             return (!Any(Eratio <= 0.8));
         }, {"photon_shower_shape_e_ratio"});
 
-        auto totEventWeight = merged_reco_photons_matched
-        .Define("totEventWeight", [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
+        //mpi = merged_photon_index
+        auto totEventWeight = merged_reco_photons_matched.Define("totEventWeight", [](int mpi, RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
         {
+            //   ||  jic they don't already have the same size  ||
+            //   \/                                             \/
             auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
             photon_id_eff.resize(ResizeVal,1);
             photon_iso_eff.resize(ResizeVal,1);
             photon_trg_eff.resize(ResizeVal,1);
+            
+            return photon_id_eff[mpi]*photon_iso_eff[mpi]*photon_trg_eff[mpi];
+            
+            //TODO: multiply above vector to get one number and then return it.  ✅
+            //TODO: above vectors should have the same size as the number of photons that passed merged in this event -> 1  ✅
 
-            return photon_id_eff*photon_iso_eff*photon_trg_eff;//*ei_event_weights_generator[0];
-
-        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
+        }, {"merged_photon_index", "photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
 
         if (counter < 2)
         {
             Totals.push_back(EventWeight.Sum<float>("EventWeight"));
-            resultmaps.push_back(VariationsFor(totEventWeight.Sum<RVec<float>>("totEventWeight")));
+            resultmaps.push_back(VariationsFor(totEventWeight.Sum<float>("totEventWeight")));
         }
         else
         {
@@ -2200,7 +2219,7 @@ void Table21_Displaced_Axions()
                 }, {"axion_masses"});
 
                 Totals.push_back(mass_point_EventWeight.Sum<float>("EventWeight"));
-                resultmaps.push_back(VariationsFor(mass_point_totEventWeight.Sum<RVec<float>>("totEventWeight")));
+                resultmaps.push_back(VariationsFor(mass_point_totEventWeight.Sum<float>("totEventWeight")));
             }
         }
 
@@ -2245,6 +2264,17 @@ void Table21_Displaced_Axions()
     ss << R"--(\hline)--" << '\n';
 
     ss << R"--({Sample} & EG\_RESOLUTION\_ALL & EG\_SCALE\_ALL & PH\_EFF\_ISO\_Uncertainty & PH\_EFF\_ID\_Uncertainty & PH\_EFF\_TRIGGER\_Uncertainty \\ \hline)--" << '\n';
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    cs << R"--(\section*{Table 21 Prompt and Displaced Signal Samples})--" << '\n';
+    cs << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
+    cs << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
+    cs << R"--(\begin{tabular}{|c|c|c|c|c|c|})--" << '\n';
+    cs << R"--(\hline)--" << '\n';
+
+    cs << R"--(\multicolumn{6}{|c|}{\parbox{\linewidth}{\centering Merged Photon Category: Up Variations \\ (raw number of events)}}\\[5 pt])--" << '\n';
+    cs << R"--(\hline)--" << '\n';
+
+    cs << R"--({Sample} & EG\_RESOLUTION\_ALL & EG\_SCALE\_ALL & PH\_EFF\_ISO\_Uncertainty & PH\_EFF\_ID\_Uncertainty & PH\_EFF\_TRIGGER\_Uncertainty \\ \hline)--" << '\n';
 
     for (auto i = 0; (i < resultmaps.size()); i++)
     {
@@ -2263,6 +2293,19 @@ void Table21_Displaced_Axions()
         << ( (nominalVal && resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"]) ? ((resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
         << " & " << std::setprecision(4) << std::fixed
         << ( (nominalVal && resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"]) ? ((resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
+        << R"--( \\ \hline)--" << '\n';
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        cs << prefixes[i] << " & ";
+        cs << std::setprecision(4) << std::fixed
+        << ( (nominalVal && resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1up"]) ? resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1up"] : 0.0)
+        << " & " << std::setprecision(4) << std::fixed
+        << ( (nominalVal && resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1up"]) ? resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1up"] : 0.0)
+        << " & " << std::setprecision(4) << std::fixed
+        << ( (nominalVal && resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"]) ? resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"] : 0.0)
+        << " & " << std::setprecision(4) << std::fixed
+        << ( (nominalVal && resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"]) ? resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"] : 0.0)
+        << " & " << std::setprecision(4) << std::fixed
+        << ( (nominalVal && resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"]) ? resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"] : 0.0)
         << R"--( \\ \hline)--" << '\n';
 
         if (!resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"])
@@ -2292,10 +2335,14 @@ void Table21_Displaced_Axions()
     }
 
     ss << R"--(\end{tabular}})--" << '\n';
+    cs << R"--(\end{tabular}})--" << '\n';
 
     ss << "\n\n\n";
+    cs << "\n\n\n";
 
     std::cout << "\n\n\n" << ss.str();
+    std::cout << "\n\n\n" << cs.str();
+    
 }
 
 void Table22_Displaced_Axions()
@@ -3413,9 +3460,9 @@ void Section7_TablesPlots()
 //    Table23();
 //    Table24();
     Table21_Displaced_Axions();
-    Table22_Displaced_Axions();
-    Table23_Displaced_Axions();
-    Table24_Displaced_Axions();
+//    Table22_Displaced_Axions();
+//    Table23_Displaced_Axions();
+//    Table24_Displaced_Axions();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " seconds" << std::endl;
