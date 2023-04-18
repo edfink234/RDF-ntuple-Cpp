@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <iomanip>
 #include <fstream>
-#include <sstream>
 
 #include <string>
 #include <array>
@@ -28,9 +27,9 @@
 #include "Rtypes.h"
 #include "ROOT/RDFHelpers.hxx"
 
-#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
-#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
-#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFevent.h"
+#include "RDFObjects.h"
+#include "MakeRDF.h"
+#include "RDFevent.h"
 
 using namespace ROOT::VecOps; // RVec
 using namespace ROOT::Math::VectorUtil; // DeltaR
@@ -83,18 +82,14 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-
-float roundToOneDecimalPlace(float num) {
-    std::stringstream stream;
-    stream << std::fixed << std::setprecision(1) << num;
-    float rounded_num = std::stof(stream.str());
-    return rounded_num;
-}
-
 /*
 void Table4()
 {
-    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
+    std::vector<std::vector<std::string>> input_filenames =
+    {
+        //Signal
+        {"/home/common/Za/NTuples/Ntuple_MC_Za_mA5p0_v4.root"},
+        {"/home/common/Haa/ntuples/Za/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
     };
     
     constexpr std::array<float, 2> prefixes = {5.0, 1.0};
@@ -146,7 +141,7 @@ void Table4()
     std::cout << R"--($m_A$ \, (GeV) & Both photons matched (\%) & 1 photon matched (\%) & At least 1 photon matched (\%) & 0 photons matched (\%) \\ \hline )--" << '\n';
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({i}, 8));
+        SchottDataFrame df(MakeRDF(i, 24));
         
         auto preselection = df.Filter(
         [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -347,7 +342,10 @@ void Table4()
 
 void Table5()
 {
-    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root", "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root",
+    std::vector<std::vector<std::string>> input_filenames =
+    {
+        {"/home/common/Za/NTuples/Ntuple_MC_Za_mA5p0_v4.root"},
+        {"/home/common/Haa/ntuples/Za/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
     };
     
     constexpr std::array<float, 2> prefixes = {5.0, 1.0};
@@ -399,7 +397,7 @@ void Table5()
     std::cout << R"--($m_A$ \, (GeV) & Both photons matched (\%) & 1 photon matched (\%) & At least 1 photon matched (\%) & 0 photons matched (\%) \\ \hline )--" << '\n';
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({i}, 8));
+        SchottDataFrame df(MakeRDF(i, 24));
         
         auto preselection = df.Filter(
         [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
@@ -625,21 +623,90 @@ void Table14()
     {
         //Z gamma background
         {
-            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"
+            "/home/common/Za/NTuples/Background/user.kschmied.364860.eegammagamma_pty2_9_17.deriv.DAOD_STDM3.e7057_s3126_r10724_p4092_LGNTuple.root/user.kschmied.31617070._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364861.eegammagamma_pty_17_myy_0_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4062_LGNTuple.root/user.kschmied.31617064._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000002.LGNTuple.root",
         },
         //Jets
         {
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root",
-            "/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000004.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000005.LGNTuple.root",
+
+            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000004.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000006.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000007.LGNTuple.root",
+
+            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000004.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000005.LGNTuple.root",
+
+
+            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000004.LGNTuple.root",
+
+
+            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000003.LGNTuple.root",
+
+
+            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000004.LGNTuple.root",
+
+
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000004.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000005.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000006.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000007.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000008.LGNTuple.root",
+
+
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000004.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000005.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000006.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000007.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000008.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000009.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000010.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000011.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000012.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000013.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000014.LGNTuple.root",
+
+
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000004.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000005.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000006.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000007.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000008.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000009.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000010.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000011.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000012.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000013.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000014.LGNTuple.root",
         },
     };
     
@@ -647,7 +714,7 @@ void Table14()
     
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF(i, 8));
+        SchottDataFrame df(MakeRDF(i, 24));
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -851,24 +918,97 @@ void Table14()
     
     std::cout << R"--(\end{tabular}})--" << "\n\n\n";
 }
-
+ */
 void Table15()
 {
     std::vector<std::vector<std::string>> input_filenames =
     {
-        //Z-gamma
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"}, {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+        //Z gamma background
+        {"/home/common/Za/NTuples/Background/user.kschmied.364860.eegammagamma_pty2_9_17.deriv.DAOD_STDM3.e7057_s3126_r10724_p4092_LGNTuple.root/user.kschmied.31617070._000001.LGNTuple.root"},
+        {"/home/common/Za/NTuples/Background/user.kschmied.364861.eegammagamma_pty_17_myy_0_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4062_LGNTuple.root/user.kschmied.31617064._000001.LGNTuple.root"},
+        {"/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000001.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000002.LGNTuple.root"},
         //Jets
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
+        {
+            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000004.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000005.LGNTuple.root",
+        },
+        {
+            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000004.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000006.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000007.LGNTuple.root",
+        },
+        {
+            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000004.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000005.LGNTuple.root",
+        },
+        {
+            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000004.LGNTuple.root",
+        },
+        {
+            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000003.LGNTuple.root",
+        },
+        {
+            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000004.LGNTuple.root",
+        },
+        {
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000004.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000005.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000006.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000007.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000008.LGNTuple.root",
+        },
+        {
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000004.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000005.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000006.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000007.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000008.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000009.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000010.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000011.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000012.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000013.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000014.LGNTuple.root",
+        },
+        {
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000001.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000002.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000003.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000004.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000005.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000006.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000007.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000008.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000009.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000010.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000011.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000012.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000013.LGNTuple.root",
+            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000014.LGNTuple.root",
+        },
     };
     
     std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
@@ -878,7 +1018,7 @@ void Table15()
     
     for (auto& i: input_filenames)
     {
-        SchottDataFrame df(MakeRDF(i, 8));
+        SchottDataFrame df(MakeRDF(i, 24));
         
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
@@ -1004,7 +1144,7 @@ void Table15()
             {
                 if (p.photon_pt > 20e3)
                 {
-                    return p;
+                  return p;
                 }
             }
 
@@ -1126,12 +1266,13 @@ void Table15()
     
     std::cout << R"--(\end{tabular}})--" << "\n\n\n";
 }
-
+/*
 void Fig19()
 {
-    std::vector<std::string> input_filenames = {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root",
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
+    std::vector<std::vector<std::string>> input_filenames =
+    {
+        {"/home/common/Za/NTuples/Ntuple_MC_Za_mA5p0_v4.root"},
+        {"/home/common/Haa/ntuples/Za/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}
     };
     
     std::vector<float> massPoints = {5, 1};
@@ -1183,7 +1324,7 @@ void Fig19()
     
     for (auto& file: input_filenames)
     {
-        SchottDataFrame df(MakeRDF({file}, 8));
+        SchottDataFrame df(MakeRDF(file, 24));
         auto two_leptons = df.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
         {
@@ -1404,642 +1545,8 @@ void Fig19()
     Tl.DrawLatexNDC(0.5, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
     legend->SetBorderSize(0);
     legend->Draw();
-    c1->SaveAs("Fig19.pdf");
-}
-*/
-
-void Table4_Displaced_Axions()
-{
-    std::vector<std::vector<std::string>> input_filenames = {
-        //Signal
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
-        //Displaced Signal
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
-    };
-    
-    constexpr std::array<const char*,15> prefixes = {R"--(Prompt Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Prompt Signal $m_{\text{A}}$ = 5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 0.2 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 0.5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 3 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 10 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 10.1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 20 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 20.1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 29.5 GeV)--", };
-    
-    std::vector<double> massPoints = {0.2,0.5,1,3,5,10,10.1,20,20.1,29.5};
-    
-    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
-    {
-        RVec<TruthParticle> truthSelected;
-        bool foundParent;
-        if (truthChain.size() >= 1)
-        {
-            TruthParticle tp;
-            for (auto& tpe: startParticles)
-            {
-                tp = tpe;
-                while (true)
-                {
-                    if (tp.mc_parent_barcode == targetBarcode)
-                    {
-                        truthSelected.push_back(tp);
-                        break;
-                    }
-                    else
-                    {
-                        foundParent = false;
-                        for (auto& tmp: truthChain)
-                        {
-                            if (tp.mc_parent_barcode == tmp.mc_barcode)
-                            {
-                                tp = tmp;
-                                foundParent = true;
-                                break;
-                            }
-                        }
-                        if (foundParent == false)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return truthSelected;
-    };
-    
-    int counter = 0;
-    
-    std::vector<ROOT::RDF::RResultHandle> Nodes;
-    std::cout << R"--(\section*{Table 4 Prompt and Displaced Signal Samples})--" << '\n';
-    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
-    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
-    std::cout << R"--(\hline)--" << '\n';
-    std::cout << R"--($m_A$ \, (GeV) & Both photons matched (\%) & 1 photon matched (\%) & At least 1 photon matched (\%) & 0 photons matched (\%) \\ \hline )--" << '\n';
-    for (auto& i: input_filenames)
-    {
-        SchottDataFrame df(MakeRDF(i, 8));
-        
-        auto preselection = df.Filter(
-        [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
-        {
-            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
-
-            if (!trigger_found)
-            {
-                return false;
-            }
-            
-            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-            [](TruthParticle& x)
-            {
-                return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                        abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
-                
-            }), truth_particles.end());
-            
-            if (truth_particles.size() != 2)
-            {
-                return false;
-            }
-            
-            if (DeltaR(truth_particles[0].Vector(), truth_particles[1].Vector()) <= 0.01)
-            {
-                return false;
-            }
-            
-            if (truth_particles[0].mc_charge*truth_particles[1].mc_charge >= 0)
-            {
-                return false;
-            }
-            
-            if (!((truth_particles[0].mc_pt > 27e3 && truth_particles[1].mc_pt > 20e3)
-                                                   ||
-                  (truth_particles[1].mc_pt > 27e3 && truth_particles[0].mc_pt > 20e3)))
-            {
-                return false;
-            }
-            
-            PtEtaPhiEVector dilepton = truth_particles[0].Vector() + truth_particles[1].Vector();
-            
-            if ((dilepton.M() < 81e3) || (dilepton.M() > 101e3))
-            {
-                return false;
-            }
-            
-            if ((truth_particles[0].Vector() + truth_particles[1].Vector()).Pt() <= 10e3)
-            {
-                return false;
-            }
-            
-            return true;
-            
-        }, {"trigger_passed_triggers", "truth_particles"});
-                
-        auto truth_photons_from_axions = preselection.Define("truth_photons",[&](RVec<TruthParticle> truth_particles)
-        {
-            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-            [](TruthParticle& x)
-            {
-                return (abs(x.mc_pdg_id) != 22);
-                
-            }), truth_particles.end());
-            
-            return truth_particles;
-            
-        }, {"truth_particles"})
-        .Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
-        {
-            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-            [](TruthParticle& x)
-            {
-                return (abs(x.mc_pdg_id) != 35 && abs(x.mc_pdg_id) != 36);
-                
-            }), truth_particles.end());
-            
-            return truth_particles;
-            
-        }, {"truth_particles"}).Define("truth_photons_from_axions",
-        [&](RVec<TruthParticle>& truth_photons, RVec<TruthParticle>& truth_axions)
-        {
-            return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
-            
-        }, {"truth_photons", "truth_axions"})
-        .Filter([&] (RVec<TruthParticle>& truth_photons_from_axions)
-        {
-            return truth_photons_from_axions.size()==2;
-        }, {"truth_photons_from_axions"})
-        .Define("photons_pass_cuts",
-        [&](RVec<Photon> photons)
-        {
-            photons.erase(std::remove_if(photons.begin(),photons.end(),
-            [](Photon& x)
-            {
-                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
-            }), photons.end());
-            
-            return photons;
-        }, {"photons"}).Filter([](RVec<Photon>& reco_photons_matched)
-        {
-            if (reco_photons_matched.size() < 2)
-            {
-                return false;
-            }
-            auto combs = Combinations(reco_photons_matched, 2);
-            size_t length = combs[0].size();
-            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
-
-            for (size_t i=0; i<length; i++)
-            {
-                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
-                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
-                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
-                X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
-                {
-                    best_X = X;
-                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
-                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
-                    chosen_delta_r = delta_r;
-                }
-            }
-            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
-            {
-                return true;
-            }
-            return false;
-            
-        }, {"photons_pass_cuts"});
-        
-        auto reco_photons_matched = truth_photons_from_axions.Define("reco_photons_matched",
-        [&](RVec<Photon>& chosen_two, RVec<TruthParticle>& truth_photons_from_axions)
-        {
-            RVec<Photon> matchedPhotons;
-            PtEtaPhiEVector tp1 = truth_photons_from_axions[0].Vector();
-            PtEtaPhiEVector tp2 = truth_photons_from_axions[1].Vector();
-
-            for (auto& rp: chosen_two)
-            {
-                if ((DeltaR(rp.Vector(), tp1) < 0.2 || DeltaR(rp.Vector(), tp2) < 0.2))
-                {
-                    matchedPhotons.push_back(rp);
-                }
-            }
-
-            std::sort(matchedPhotons.begin(),matchedPhotons.end(),
-            [](Photon& x, Photon& y)
-            {
-                return x.photon_pt > y.photon_pt;
-            });
-
-            return matchedPhotons;
-
-        }, {"photons_pass_cuts", "truth_photons_from_axions"}).Define("axion_masses", [&](RVec<TruthParticle>& truth_axions)
-        {
-            return truth_axions[0].mc_mass/1e3f;
-
-        }, {"truth_axions"});
-        
-        auto two_reco_photons_matched = reco_photons_matched.Filter(
-        [&](RVec<Photon>& reco_photons_matched)
-        {
-            return reco_photons_matched.size()==2;
-            
-        }, {"reco_photons_matched"});
-        
-        auto one_reco_photons_matched = reco_photons_matched.Filter(
-        [&](RVec<Photon>& reco_photons_matched)
-        {
-            return reco_photons_matched.size()==1;
-            
-        }, {"reco_photons_matched"});
-        
-        if (counter < 2)
-        {
-            Nodes.push_back(reco_photons_matched.Count());
-            Nodes.push_back(two_reco_photons_matched.Count());
-            Nodes.push_back(one_reco_photons_matched.Count());
-        }
-        
-        else
-        {
-            for (auto& mass_point: massPoints)
-            {
-                auto mass_point_reco_photons_matched = reco_photons_matched.Filter([&]
-                (float axion_mass)
-                {
-                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-                    
-                }, {"axion_masses"});
-                
-                auto mass_point_two_reco_photons_matched = two_reco_photons_matched.Filter([&]
-                (float axion_mass)
-                {
-                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-                    
-                }, {"axion_masses"});
-                
-                auto mass_point_one_reco_photons_matched = one_reco_photons_matched.Filter([&]
-                (float axion_mass)
-                {
-                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-                    
-                }, {"axion_masses"});
-                
-                Nodes.push_back(mass_point_reco_photons_matched.Count());
-                Nodes.push_back(mass_point_two_reco_photons_matched.Count());
-                Nodes.push_back(mass_point_one_reco_photons_matched.Count());
-            }
-        }
-        
-        counter++;
-    }
-    
-//    std::cout << Nodes.size() << '\n';
-    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
-    
-    int count = 0;
-    double total, both, one;
-    std::stringstream ss;
-    
-    for (int i = 0; i <= 33; i += 3)
-    {
-        total = static_cast<double>(*Nodes[i].GetResultPtr<ULong64_t>());
-        both = static_cast<double>(*Nodes[i+1].GetResultPtr<ULong64_t>());
-        one = static_cast<double>(*Nodes[i+2].GetResultPtr<ULong64_t>());
-        
-        ss << prefixes[count] << " & " << total
-        << " & " << both << " & " << one
-        << '\n';
-        
-        std::cout << prefixes[count++] << " & " << (both / total)*100
-        << " & " << (one / total)*100 << " & " << ((one + both) / total)*100
-        << " & " << ((total - (one + both)) / total)*100 << R"--(\\ \hline )--" << '\n';
-    }
-    
-    std::cout << R"--(\end{tabular}})--" << '\n';
-    
-    std::cout << "\n\n\n";
-    
-//    std::cout << ss.str() << '\n';
-}
-
-void Table5_Displaced_Axions()
-{
-    std::vector<std::vector<std::string>> input_filenames = {
-        //Signal
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
-        //Displaced Signal
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
-    };
-    
-    constexpr std::array<const char*,15> prefixes = {R"--(Prompt Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Prompt Signal $m_{\text{A}}$ = 5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 0.2 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 0.5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 3 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 10 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 10.1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 20 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 20.1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 29.5 GeV)--", };
-    
-    std::vector<double> massPoints = {0.2,0.5,1,3,5,10,10.1,20,20.1,29.5};
-    
-    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
-    {
-        RVec<TruthParticle> truthSelected;
-        bool foundParent;
-        if (truthChain.size() >= 1)
-        {
-            TruthParticle tp;
-            for (auto& tpe: startParticles)
-            {
-                tp = tpe;
-                while (true)
-                {
-                    if (tp.mc_parent_barcode == targetBarcode)
-                    {
-                        truthSelected.push_back(tp);
-                        break;
-                    }
-                    else
-                    {
-                        foundParent = false;
-                        for (auto& tmp: truthChain)
-                        {
-                            if (tp.mc_parent_barcode == tmp.mc_barcode)
-                            {
-                                tp = tmp;
-                                foundParent = true;
-                                break;
-                            }
-                        }
-                        if (foundParent == false)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return truthSelected;
-    };
-    
-    int counter = 0;
-    
-    std::vector<ROOT::RDF::RResultHandle> Nodes;
-    std::cout << R"--(\section*{Table 5 Prompt and Displaced Signal Samples})--" << '\n';
-    std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
-    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
-    std::cout << R"--(\hline)--" << '\n';
-    std::cout << R"--($m_A$ \, (GeV) & Both photons matched (\%) & 1 photon matched (\%) & At least 1 photon matched (\%) & 0 photons matched (\%) \\ \hline )--" << '\n';
-    for (auto& i: input_filenames)
-    {
-        SchottDataFrame df(MakeRDF(i, 8));
-        
-        auto preselection = df.Filter(
-        [&](const RVec<std::string>& trigger_passed_triggers, RVec<TruthParticle> truth_particles)
-        {
-            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
-
-            if (!trigger_found)
-            {
-                return false;
-            }
-            
-            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-            [](TruthParticle& x)
-            {
-                return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                        abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
-                
-            }), truth_particles.end());
-            
-            if (truth_particles.size() != 2)
-            {
-                return false;
-            }
-            
-            if (DeltaR(truth_particles[0].Vector(), truth_particles[1].Vector()) <= 0.01)
-            {
-                return false;
-            }
-            
-            if (truth_particles[0].mc_charge*truth_particles[1].mc_charge >= 0)
-            {
-                return false;
-            }
-            
-            if (!((truth_particles[0].mc_pt > 27e3 && truth_particles[1].mc_pt > 20e3)
-                                                   ||
-                  (truth_particles[1].mc_pt > 27e3 && truth_particles[0].mc_pt > 20e3)))
-            {
-                return false;
-            }
-            
-            PtEtaPhiEVector dilepton = truth_particles[0].Vector() + truth_particles[1].Vector();
-            
-            if ((dilepton.M() < 81e3) || (dilepton.M() > 101e3))
-            {
-                return false;
-            }
-            
-            if ((truth_particles[0].Vector() + truth_particles[1].Vector()).Pt() <= 10e3)
-            {
-                return false;
-            }
-            
-            return true;
-            
-        }, {"trigger_passed_triggers", "truth_particles"});
-        
-    //    std::cout << *preselection.Count() << '\n';
-        
-        auto truth_photons_from_axions = preselection.Define("truth_photons",[&](RVec<TruthParticle> truth_particles)
-        {
-            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-            [](TruthParticle& x)
-            {
-                return (abs(x.mc_pdg_id) != 22);
-                
-            }), truth_particles.end());
-            
-            return truth_particles;
-            
-        }, {"truth_particles"})
-        .Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
-        {
-            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-            [](TruthParticle& x)
-            {
-                return (abs(x.mc_pdg_id) != 35);
-                
-            }), truth_particles.end());
-            
-            return truth_particles;
-            
-        }, {"truth_particles"}).Define("truth_photons_from_axions",
-        [&](RVec<TruthParticle>& truth_photons, RVec<TruthParticle>& truth_axions)
-        {
-            return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
-            
-        }, {"truth_photons", "truth_axions"})
-        .Filter([&] (RVec<TruthParticle>& truth_photons_from_axions)
-        {
-            return truth_photons_from_axions.size()==2;
-        }, {"truth_photons_from_axions"})
-        .Define("photons_pass_cuts",
-        [&](RVec<Photon> photons)
-        {
-            photons.erase(std::remove_if(photons.begin(),photons.end(),
-            [](Photon& x)
-            {
-                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
-            }), photons.end());
-            
-            return photons;
-        }, {"photons"}).Filter([](RVec<Photon>& reco_photons_test)
-        {
-            RVec<Photon> reco_photons_matched = reco_photons_test;
-            if (reco_photons_matched.size() == 1)
-            {
-                return reco_photons_matched[0].photon_pt > 20e3;
-            }
-            else if (reco_photons_matched.empty())
-            {
-                return false;
-            }
-            
-            auto combs = Combinations(reco_photons_matched, 2);
-            size_t length = combs[0].size();
-            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
-
-            for (size_t i=0; i<length; i++)
-            {
-                delta_r = DeltaR(reco_photons_matched[combs[0][i]].Vector(), reco_photons_matched[combs[1][i]].Vector());
-                m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
-                pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
-                X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
-                {
-                    best_X = X;
-                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
-                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
-                    chosen_delta_r = delta_r;
-                }
-            }
-            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
-            {
-                return false;
-            }
-            
-            for (auto& p: reco_photons_matched)
-            {
-                if (p.photon_pt > 20e3)
-                {
-                    return true;
-                }
-            }
-            return false;
-            
-        }, {"photons_pass_cuts"});
-        
-        auto reco_photons_matched = truth_photons_from_axions.Define("reco_photons_matched",
-        [&](RVec<Photon>& merged, RVec<TruthParticle>& truth_photons_from_axions)
-        {
-            PtEtaPhiEVector tp1 = truth_photons_from_axions[0].Vector();
-            PtEtaPhiEVector tp2 = truth_photons_from_axions[1].Vector();
-            
-            for (auto& rp: merged)
-            {
-                if ((DeltaR(rp.Vector(), tp1) < 0.2 && DeltaR(rp.Vector(), tp2) < 0.2))
-                {
-                    return RVec<TruthParticle>{truth_photons_from_axions[0], truth_photons_from_axions[1]};
-                }
-                else if (DeltaR(rp.Vector(), tp1) < 0.2)
-                {
-                    return RVec<TruthParticle>{truth_photons_from_axions[0]};
-                }
-                else if (DeltaR(rp.Vector(), tp2) < 0.2)
-                {
-                    return RVec<TruthParticle>{truth_photons_from_axions[1]};
-                }
-                else
-                {
-                    return RVec<TruthParticle>();
-                }
-            }
-            return RVec<TruthParticle>();
-            
-        }, {"photons_pass_cuts", "truth_photons_from_axions"}).Define("axion_masses", [&](RVec<TruthParticle>& truth_axions)
-        {
-            return truth_axions[0].mc_mass/1e3f;
-
-        }, {"truth_axions"});
-        
-        auto two_reco_photons_matched = reco_photons_matched.Filter(
-        [&](RVec<TruthParticle>& reco_photons_matched)
-        {
-            return reco_photons_matched.size()==2;
-            
-        }, {"reco_photons_matched"});
-        
-        auto one_reco_photons_matched = reco_photons_matched.Filter(
-        [&](RVec<TruthParticle>& reco_photons_matched)
-        {
-            return reco_photons_matched.size()==1;
-            
-        }, {"reco_photons_matched"});
-        
-        if (counter < 2)
-        {
-            Nodes.push_back(reco_photons_matched.Count());
-            Nodes.push_back(two_reco_photons_matched.Count());
-            Nodes.push_back(one_reco_photons_matched.Count());
-        }
-        
-        else
-        {
-            for (auto& mass_point: massPoints)
-            {
-                auto mass_point_reco_photons_matched = reco_photons_matched.Filter([&]
-                (float axion_mass)
-                {
-                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-                    
-                }, {"axion_masses"});
-                
-                auto mass_point_two_reco_photons_matched = two_reco_photons_matched.Filter([&]
-                (float axion_mass)
-                {
-                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-                    
-                }, {"axion_masses"});
-                
-                auto mass_point_one_reco_photons_matched = one_reco_photons_matched.Filter([&]
-                (float axion_mass)
-                {
-                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-                    
-                }, {"axion_masses"});
-                
-                Nodes.push_back(mass_point_reco_photons_matched.Count());
-                Nodes.push_back(mass_point_two_reco_photons_matched.Count());
-                Nodes.push_back(mass_point_one_reco_photons_matched.Count());
-            }
-        }
-        counter++;
-    }
-    
-    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
-    
-    int count = 0;
-    double total, both, one;
-    
-    for (int i = 0; i <= 33; i += 3)
-    {
-        total = static_cast<double>(*Nodes[i].GetResultPtr<ULong64_t>());
-        both = static_cast<double>(*Nodes[i+1].GetResultPtr<ULong64_t>());
-        one = static_cast<double>(*Nodes[i+2].GetResultPtr<ULong64_t>());
-        
-        std::cout << prefixes[count++] << " & " << (both / total)*100
-        << " & " << (one / total)*100 << " & " << ((one + both) / total)*100
-        << " & " << ((total - (one + both)) / total)*100 << R"--(\\ \hline )--" << '\n';
-    }
-    
-    std::cout << R"--(\end{tabular}})--" << '\n';
-    
-    std::cout << "\n\n\n";
-}
+    c1->SaveAs("Fig19.png");
+}*/
 
 void Categorization()
 {
@@ -2047,10 +1554,8 @@ void Categorization()
 //    Table4();
 //    Table5();
 //    Table14();
-//    Table15();
+    Table15();
 //    Fig19();
-    Table4_Displaced_Axions();
-    Table5_Displaced_Axions();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " seconds" << std::endl;

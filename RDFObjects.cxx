@@ -1,8 +1,7 @@
 #include <string>
 #include <sstream>
 
-//#include "RDFObjects.h"
-#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
+#include "RDFObjects.h"
 
 const std::string TruthParticle::PREFIX = "mc";
 const std::string Electron::PREFIX = "electron";
@@ -14,9 +13,6 @@ const std::string Cluster::PREFIX = "cluster";
 const int Electron::PDG_ID = 11;
 const int Muon::PDG_ID = 13;
 const int Photon::PDG_ID = 22;
-
-//Functions that describe how to print the objects. Used in
-//RDF::Display if one specifies a column with objects
 
 std::string cling::printValue(TruthParticle *p)
 {

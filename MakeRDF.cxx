@@ -7,20 +7,11 @@
 #include "TBranch.h"
 #include "TInterpreter.h"
 #include "ROOT/RDFHelpers.hxx"
+#include "ROOT/RDF/RDatasetSpec.hxx"
 
-//Uncomment These #include statements!
-//#include "RDFObjects.h"
-//#include "MakeRDF.h"
-//#include "RDFevent.h"
-
-//Delete These #include statements!
-#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h"
-#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/MakeRDF.h"
-#include "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFevent.h"
-
-//TChains used to build the RDF in MakeRDF
-TChain* RDFTree::__chain;
-TChain* RDFTree::__event_info_chain;
+#include "RDFObjects.h"
+#include "MakeRDF.h"
+#include "RDFevent.h"
 
 using namespace ROOT::VecOps;
 
@@ -180,7 +171,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
 //        gInterpreter->LoadMacro("RDFObjects.h");
         
 //        Delete the following line!
-        gInterpreter->LoadMacro("/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/RDFObjects.h");
+        gInterpreter->LoadMacro("RDFObjects.h");
 
 //        Then load printValue overloads so objects can be printed
         gInterpreter->Declare("std::string cling::printValue(TruthParticle *);");
@@ -191,29 +182,17 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         gInterpreter->Declare("std::string cling::printValue(Track *);");
         loaded = true;
     }
-//    Reinitializing TChains to hold info for "physics" and "full_event_info"
-//    TTree's respectively
-    RDFTree::__chain = new TChain("physics");
-    RDFTree::__event_info_chain = new TChain("full_event_info");
-//    Just a precaution
-    RDFTree::__chain->Reset();
-    RDFTree::__event_info_chain->Reset();
-//    Add files supplied by user
-    for (const auto& f: files)
-    {
-        RDFTree::__chain->Add(f.c_str());
-        RDFTree::__event_info_chain->Add(f.c_str());
-    }
-//    Horizontally append __event_info_chain to __chain
-    RDFTree::__chain->AddFriend(RDFTree::__event_info_chain);
-//    Finally, construct the RDataFrame with the columns in both
-//    the "physics" and "full_event_info" TTrees
-    ROOT::RDataFrame df(*RDFTree::__chain);
+    
+    ROOT::RDF::Experimental::RDatasetSpec x;
+    ROOT::RDF::Experimental::RSample r("myPhysicsDf", "physics", files);
+    x.AddSample(r);
+    x.WithGlobalFriends("full_event_info", files);
+    ROOT::RDataFrame df(x);
 
 //    Now, create a new RDF representation that also holds the columns
 //    for the objects, as well as Variations (if we choose to use them),
 //    that are created using Define and Vary respectively
-    auto NewDf = df.Define("truth_particles",[&](const RVec<int>& mc_pdg_id, const RVec<int>& mc_barcode, const RVec<int>& mc_parent_barcode, const RVec<int>& mc_status, const RVec<float>& mc_pt, const RVec<float>& mc_charge, const RVec<float>& mc_eta, const RVec<float>& mc_phi, const RVec<float>& mc_e, const RVec<float>& mc_mass, const RVec<float>& mc_decay_time)
+    auto NewDf = df.Define("truth_particles",[&](const RVec<int>& mc_pdg_id, const RVec<int>& mc_barcode, const RVec<int>& mc_parent_barcode, const RVec<int>& mc_status, const RVec<float>& mc_pt, const RVec<float>& mc_charge, const RVec<float>& mc_eta, const RVec<float>& mc_phi, const RVec<float>& mc_e, const RVec<float>& mc_mass)
     {
         RVec<TruthParticle> x;
         x.reserve(mc_pt.size());
@@ -230,11 +209,10 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
             temp.mc_phi =  mc_phi[i];
             temp.mc_e =  mc_e[i];
             temp.mc_mass =  mc_mass[i];
-            temp.mc_decay_time = mc_decay_time[i];
             x.push_back(temp);
         }
         return x;
-    }, {"mc_pdg_id", "mc_barcode", "mc_parent_barcode", "mc_status", "mc_pt", "mc_charge", "mc_eta", "mc_phi", "mc_e", "mc_mass", "mc_decay_time"})
+    }, {"mc_pdg_id", "mc_barcode", "mc_parent_barcode", "mc_status", "mc_pt", "mc_charge", "mc_eta", "mc_phi", "mc_e", "mc_mass"})
     .Define("electrons",MakeElectrons<Electron>, {"electron_charge", "electron_pt", "electron_e", "electron_eta", "electron_phi", /*"electron_id",*/ "electron_isolation", "electron_d0", "electron_z0", "electron_id_medium",})
     .Define("muons",[&](const RVec<int>& muon_charge, const RVec<float>& muon_pt, const RVec<float>& muon_e, const RVec<float>& muon_eta, const RVec<float>& muon_phi)
     {

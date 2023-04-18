@@ -35,10 +35,7 @@ using ROOT::RDF::Experimental::VariationsFor;
 
 using Clock = std::chrono::high_resolution_clock;
 
-//should use full-screen on this.
-//just a helper function to print out variations for a
-//column if they exist. Not used in the event-loop, more like
-//a sanity check.
+//should use full-screen on this
 template<typename T>
 void printNominalAndVariedObjects(SchottDataFrame& df, const char* column, int rows)
 {
@@ -75,9 +72,6 @@ void printNominalAndVariedObjects(SchottDataFrame& df, const char* column, int r
     std::cout << "\nNumber of different objects = " << diffCount << '\n';
 }
 
-//Select reco-photons that pass a photon id criterion, pt >= 2.5 GeV,
-//|eta| <= 2.37, |eta| <= 1.37 or |eta| >= 1.52 (interlayer of end-cap
-//and barrel calorimeters in the ATLAS detector)
 bool photon_selection(Photon& photon)
 {
     if (!photon.photon_id)
@@ -102,9 +96,6 @@ bool photon_selection(Photon& photon)
     return true;
 }
 
-//Select truth-photons that pass a photon id criterion, pt >= 2.5 GeV,
-//|eta| <= 2.37, |eta| <= 1.37 or |eta| >= 1.52 (interlayer of end-cap
-//and barrel calorimeters in the ATLAS detector)
 bool truth_photon_selection(TruthParticle& truth_photon)
 {
     if (truth_photon.mc_pt < 2500)
@@ -124,7 +115,6 @@ bool truth_photon_selection(TruthParticle& truth_photon)
     return true;
 }
 
-//Select tracks that have pt >= 0.1 GeV and |eta| <= 2.5
 bool track_selection(Track& track)
 {
     if (track.track_pt < 100)
@@ -143,26 +133,20 @@ bool track_selection(Track& track)
 void RDF_analyse()
 {
     auto start_time = Clock::now();
-//    Prints out the info of the event loop(s) running (in this case 1 event
-//    loop because we do it correctly :) ) in a verbose manner
     auto verbosity = ROOT::Experimental::RLogScopedVerbosity(ROOT::Detail::RDF::RDFLogChannel(), ROOT::Experimental::ELogLevel::kInfo);
     
-//    List of systematics for this analysis
     Event::systematics = {"EG_RESOLUTION_ALL__1down"};
-//    Input file names
-    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4"};
-//    Construct the RDataFrame
-    SchottDataFrame df(MakeRDF(input_filenames));
+    std::vector<std::vector<std::string>> input_filenames = {{"/home/common/Za/NTuples/Ntuple_MC_Za_m5p0_v4.root"}};
+
+    SchottDataFrame df(MakeRDF(input_filenames[0]));
     
 //    df.Describe().Print();
-//    exit(1);
-//    
+    exit(1);
+    
 //    printNominalAndVariedObjects<Electron>(df, "electrons", 10);
 //    printNominalAndVariedObjects<Photon>(df, "photons", 10);
     bool mc = true;
     
-//    Book a filtration of events for those that don't have a trigger
-//    and if mc is false. So this filter does nothing!
     auto firstTriggerCut = df.Filter(
     [&](const RVec<std::string>& trigger_passed_triggers)
     {
@@ -185,7 +169,6 @@ void RDF_analyse()
 //    auto passed = firstTriggerCut.Count();
 //    std::cout << *passed << '\n';
     
-//    Define a new column for reco-photons that pass photon_selection (see above)
     auto selected_photons_and_tracks = firstTriggerCut.Define("selected_photons", [&](RVec<Photon> photons)
     {
         photons.erase(std::remove_if(photons.begin(),photons.end(),
@@ -197,7 +180,6 @@ void RDF_analyse()
         
         return photons;
     }, {"photons"})
-//    Define a new column for tracks that pass track_selection (see above)
     .Define("selected_tracks", [&](RVec<Track> tracks)
     {
        tracks.erase(std::remove_if(tracks.begin(),tracks.end(),
@@ -210,8 +192,6 @@ void RDF_analyse()
        return tracks;
     }, {"tracks"});
 
-//    Define a new column for truth-photons that pass truth_photon_selection
-//    (see above)
     auto truth_photons = firstTriggerCut.Define("truth_photons", [&](RVec<TruthParticle> truth_particles)
     {
         truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
@@ -224,8 +204,6 @@ void RDF_analyse()
         return truth_particles;
     }, {"truth_particles"});
     
-//    Book a filtration of events: keep events that have exactly
-//    2 selected truth photons and whose diphoton invariant mass > 5 GeV
     auto truth_candidates = truth_photons.Filter(
     [&](RVec<TruthParticle>& truth_photons)
     {
@@ -241,14 +219,11 @@ void RDF_analyse()
         }
         return false;
     }, {"truth_photons"}, "truth_candidates")
-//    For the events that passed the above Filter, define a new column
-//    that holds the pt of the selected truth photons
     .Define("truth_candidates_pt", [&](RVec<TruthParticle>& truth_photons)
     {
         return RVec<float>({static_cast<float>(truth_photons[0].mc_pt/1e3), static_cast<float>(truth_photons[1].mc_pt/1e3)});
         
     }, {"truth_photons"})
-//    Do the same for the diphoton invariant mass
     .Define("truth_candidates_mass", [&](RVec<TruthParticle>& truth_photons)
     {
         PtEtaPhiEVector four_momentum =
@@ -257,22 +232,17 @@ void RDF_analyse()
         return four_momentum.M()/1e3;
     }, {"truth_photons"});
     
-//    Book a new filtration of events: remove events that don't have
-//    exactly two selected photons
     auto diphotons_and_tracks = selected_photons_and_tracks.Filter(
     [&](RVec<Photon>& selected_photons)
     {
         return (selected_photons.size() == 2);
        
     }, {"selected_photons"}, "diphotons_and_tracks")
-//    For the events that passed the above Filter, define a new column to hold
-//    the pt of the two photons per event
     .Define("diphotons_pt", [&](RVec<Photon>& diphotons)
     {
         return RVec<float>({static_cast<float>(diphotons[0].photon_pt/1e3), static_cast<float>(diphotons[1].photon_pt/1e3)});
         
     }, {"selected_photons"})
-//    Do the same for the diphoton invariant mass
     .Define("diphotons_mass", [&](RVec<Photon>& diphotons)
     {
         PtEtaPhiEVector four_momentum =
@@ -280,13 +250,11 @@ void RDF_analyse()
         
         return four_momentum.M()/1e3;
     }, {"selected_photons"})
-//    Do the same for the number of tracks in each of the remaining events
     .Define("num_tracks", [&](RVec<Track>& tracks)
     {
         return tracks.size();
         
     }, {"selected_tracks"})
-//    Do the same for the pt of each track in each event
     .Define("selected_tracks_pt", [&](RVec<Track>& tracks)
     {
         RVec<float> selected_tracks_pt;
@@ -298,7 +266,6 @@ void RDF_analyse()
         return selected_tracks_pt;
         
     }, {"selected_tracks"})
-//    Do the same for the eta of each track in each event
     .Define("selected_tracks_eta", [&](RVec<Track>& tracks)
     {
         RVec<float> selected_tracks_eta;
@@ -310,11 +277,7 @@ void RDF_analyse()
         return selected_tracks_eta;
         
     }, {"selected_tracks"});
-
-//    For the diphotons_and_tracks node that we defined above, book a
-//    filter for events of this node that will discard events with
-//    selected tracks and discard events with diphoton invariant mass
-//    > 5 GeV
+    
     auto no_tracks_inv_mass = diphotons_and_tracks.Filter(
     [&](RVec<Track>& selected_tracks, RVec<Photon>& diphotons)
     {
@@ -324,14 +287,11 @@ void RDF_analyse()
         return (selected_tracks.empty() && four_momentum.M() > 5000);
      
     }, {"selected_tracks", "selected_photons"}, "no_tracks_inv_mass")
-//    For events that pass the above Filter, define a new column for the
-//    pt of the two photons
     .Define("diphotons_pt_no_tracks_inv_mass", [&](RVec<Photon>& diphotons)
     {
         return RVec<float>({static_cast<float>(diphotons[0].photon_pt/1e3), static_cast<float>(diphotons[1].photon_pt/1e3)});
         
     }, {"selected_photons"})
-//    Do the same for the diphoton invariant mass
     .Define("diphotons_mass_no_tracks_inv_mass", [&](RVec<Photon>& diphotons)
     {
         PtEtaPhiEVector four_momentum =
@@ -339,13 +299,11 @@ void RDF_analyse()
         
         return four_momentum.M()/1e3;
     }, {"selected_photons"})
-//    Do the same for the number of tracks in each of the remaining events
     .Define("num_tracks_no_tracks_inv_mass", [&](RVec<Track>& tracks)
     {
         return tracks.size();
         
     }, {"selected_tracks"})
-//    Do the same for the pt of each track in each event
     .Define("selected_tracks_pt_no_tracks_inv_mass", [&](RVec<Track>& tracks)
     {
         RVec<float> selected_tracks_pt;
@@ -357,7 +315,6 @@ void RDF_analyse()
         return selected_tracks_pt;
         
     }, {"selected_tracks"})
-//    Do the same for the pt of each track in each event
     .Define("selected_tracks_eta_no_tracks_inv_mass", [&](RVec<Track>& tracks)
     {
         RVec<float> selected_tracks_eta;
@@ -370,22 +327,18 @@ void RDF_analyse()
         
     }, {"selected_tracks"});
     
-//    For the diphotons_and_tracks node defined above, create a new node that will
-//    hold a lazy removal of events that have selected_tracks not empty
+    
     auto no_tracks = diphotons_and_tracks.Filter(
     [&](RVec<Track>& selected_tracks)
     {
         return (selected_tracks.empty());
         
     }, {"selected_tracks"}, "no_tracks")
-//    For the events that passed the above Filter, define a new column for the
-//    pt of the two selected photons in each of the remaining events
     .Define("diphotons_pt_no_tracks", [&](RVec<Photon>& diphotons)
     {
         return RVec<float>({static_cast<float>(diphotons[0].photon_pt/1e3), static_cast<float>(diphotons[1].photon_pt/1e3)});
         
     }, {"selected_photons"})
-//    Do the same for the diphoton invariant mass
     .Define("diphotons_mass_no_tracks", [&](RVec<Photon>& diphotons)
     {
         PtEtaPhiEVector four_momentum =
@@ -393,13 +346,11 @@ void RDF_analyse()
         
         return four_momentum.M()/1e3;
     }, {"selected_photons"})
-//    Do the same for the number of tracks in each of the remaining events
     .Define("num_tracks_no_tracks", [&](RVec<Track>& tracks)
     {
         return tracks.size();
         
     }, {"selected_tracks"})
-//    Do the same for the pt of each track in each event
     .Define("selected_tracks_pt_no_tracks", [&](RVec<Track>& tracks)
     {
         RVec<float> selected_tracks_pt;
@@ -411,7 +362,6 @@ void RDF_analyse()
         return selected_tracks_pt;
         
     }, {"selected_tracks"})
-//    Do the same for the eta of each track in each event
     .Define("selected_tracks_eta_no_tracks", [&](RVec<Track>& tracks)
     {
         RVec<float> selected_tracks_eta;
@@ -423,12 +373,12 @@ void RDF_analyse()
         return selected_tracks_eta;
         
     }, {"selected_tracks"});
+
 //    auto passed = truth_candidates.Count();
 //    std::cout << *passed << '\n';
+    
 //    std::cout << '\n' << selected_photons.Display<RVec<Photon>,RVec<Photon>> ({"photons", "selected_photons"},100)->AsString() << '\n';
     
-//    Histograms that we want to eventually draw. Note, the event-loop
-//    has NOT been triggered yet!
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos =
     {
         truth_candidates.Histo1D<RVec<float>>({"TruthRecoPhotonPt", "TruthRecoPhotonPt", 20u, 0, 25}, "truth_candidates_pt"),
@@ -463,18 +413,14 @@ void RDF_analyse()
         no_tracks.Histo1D<unsigned long>({"01NoTracksTrackingNumTracks", "01NoTracksTrackingNumTracks", 20u, 0, 20}, "num_tracks_no_tracks"),
         no_tracks.Histo1D<RVec<float>>({"01NoTracksTrackingTrackPt", "01NoTracksTrackingTrackPt", 140u, 0, 7}, "selected_tracks_pt_no_tracks"),
         no_tracks.Histo1D<RVec<float>>({"01NoTracksTrackingTrackEta", "01NoTracksTrackingTrackEta", 50u, -2.5, 2.5}, "selected_tracks_eta_no_tracks"),
+        
     };
     
-//    vector of RResultMaps that will hold the nominal and varied results for
-//    each histogram (technically, any 'action', but we're just doing histograms here)
     std::vector<RResultMap<TH1D>> resultmaps;
-//    Vector to store the name of each histogram
     std::vector<std::string> histNames;
-    resultmaps.reserve(53); //good practice to reserve capacity for vectors
-    histNames.reserve(53);  //good practice to reserve capacity for vectors
+    resultmaps.reserve(53);
+    histNames.reserve(53);
 
-//    Looping over all histos, storing maps of nominal/varied
-//    results and histogram names
     for (auto& h: histos)
     {
         resultmaps.push_back(VariationsFor(h));
@@ -483,29 +429,28 @@ void RDF_analyse()
 
     TCanvas *c1;
     std::string str;
-    for (auto i = 0; i < resultmaps.size(); i++) //For each histogram
+    for (auto i = 0; i < resultmaps.size(); i++)
     {
-        for (auto& var: resultmaps[i].GetKeys()) //For each variation of said histogram
+        for (auto& var: resultmaps[i].GetKeys())
         {
             c1 = new TCanvas("","",800, 700);
-            resultmaps[i][var].Draw("same"); //Draw the histogram
+            resultmaps[i][var].Draw("same");
             str = var;
             str.erase(std::remove(str.begin(), str.end(), ':'), str.end());
-            c1->SaveAs((str+histNames[i]+".png").c_str()); //save it
+            c1->SaveAs((str+histNames[i]+".png").c_str());
             if (histNames[i] == "02MassCutTrackingNumTracks")
             {
 //                std::cout << *no_tracks_inv_mass.Count() << '\n';
                 std::cout << "# events for " << var << " = "
-                << resultmaps[i][var].GetEntries() << '\n'; //print out some interesting info while we're at it :)
+                << resultmaps[i][var].GetEntries() << '\n';
             }
         }
     }
     
 //    df.Describe().Print();
-    auto end_time = Clock::now(); //done
-    std::cout << "\nTime difference: "
-       << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " seconds" << std::endl;
-    
+    auto end_time = Clock::now();
+    std::cout << "\nTime difference:"
+       << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count() << " nanoseconds" << std::endl;
     
 }
 
