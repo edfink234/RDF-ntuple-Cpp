@@ -3029,10 +3029,21 @@ void Coupling_and_Systematics()
             photon_id_eff.resize(ResizeVal,1);
             photon_iso_eff.resize(ResizeVal,1);
             photon_trg_eff.resize(ResizeVal,1);
+            
+            return photon_id_eff*photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
 
-            return photon_id_eff*photon_iso_eff*photon_trg_eff;//*ei_event_weights_generator[0];
-
-        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/}).Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
+        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/}).Define("totEventWeightFactor",[](RVec<float>& photon_efficiencies)
+        {
+            float total = 1.0f;
+            
+            for (auto i: photon_efficiencies)
+            {
+                total *= i;
+            }
+            
+            return total; //1 efficiency
+            
+        }, {"totEventWeight"}).Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
         {
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
@@ -3121,50 +3132,83 @@ void Coupling_and_Systematics()
             return pT > 10;
         }, {"dilep"});
         
-        auto photonPtDeltaR = ptCut.Define("photonPtDeltaR",
-        [&](RVec<AbstractParticle> photons)
+        auto photonPtDeltaR = ptCut.Define("photons_pass_cut_indices",
+        [&](RVec<AbstractParticle>& p) //p = photon
         {
-            photons.erase(std::remove_if(photons.begin(),photons.end(),
-            [](AbstractParticle& x)
+            RVec<int> x; //indices of photons that passed the cuts
+            for (auto i = 0; i < p.size(); i++)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
-                
-            }), photons.end());
-            return photons;
-        }, {"abstract_photons"}).Filter(
-       [&](RVec<AbstractParticle>& reco_photons_matched)
-       {
+                if (not ((abs(p[i].photon_eta) >= 2.37) || (p[i].photon_pt <= 10e3) || (abs(p[i].photon_eta) > 1.37 && abs(p[i].photon_eta) < 1.52)))
+                {
+                    x.push_back(i);
+                }
+            }
+            return x;
+            
+        }, {"abstract_photons"}).Define("photonPtDeltaR",
+        [&](RVec<AbstractParticle>& photons, RVec<int>& x)
+        {
+            return Take(photons, x); //Taking only the photons that passed the cuts in each event
+            
+        }, {"abstract_photons", "photons_pass_cut_indices"}).Define("photonPtDeltaR_photons_pass_cut_indices",
+        [&](RVec<AbstractParticle>& reco_photons_matched)
+        {
+            RVec<unsigned long> x; //vector of indices
             if (reco_photons_matched.size() < 2)
             {
-                return false;
+                return x;
             }
-            RVec<AbstractParticle> x;
+
             auto combs = Combinations(reco_photons_matched, 2);
             size_t length = combs[0].size();
             double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+            
             for (size_t i=0; i<length; i++)
             {
                 delta_r = DeltaR(reco_photons_matched[combs[0][i]].PhotonVector(), reco_photons_matched[combs[1][i]].PhotonVector());
                 m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
                 pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || ((abs(1-X) < abs(1-best_X)) and (delta_r < 1.5)))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
                     pt2 = reco_photons_matched[combs[1][i]].photon_pt;
                     chosen_delta_r = delta_r;
-                    x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                    x = {combs[0][i], combs[1][i]};
                 }
             }
-            return (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3);
+            if (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3)
+            {
+                return x;
+            }
+            
+            x.clear();
+            return x;
 
-       }, {"photonPtDeltaR"});
-                
-        auto X_window = photonPtDeltaR.Define("chosen_two",
+        }, {"photonPtDeltaR"}).Filter(
+        [&](RVec<unsigned long>& indices)
+        {
+            return (indices.size()==2);
+          
+        }, {"photonPtDeltaR_photons_pass_cut_indices"}).Define("photonPtDeltaR_TotalEventWeightFactor",
+        [](RVec<unsigned long>& photonPtDeltaR_photons_pass_cut_indices, RVec<int>& photons_pass_cut_indices, RVec<float>& photon_efficiencies)
+        {
+            RVec<float> photonPtDeltaR_photon_efficiencies = Take(Take(photon_efficiencies, photons_pass_cut_indices), photonPtDeltaR_photons_pass_cut_indices);
+            float total = 1.0f;
+            
+            for (auto i: photonPtDeltaR_photon_efficiencies)
+            {
+                total *= i;
+            }
+            
+            return total;
+        }, {"photonPtDeltaR_photons_pass_cut_indices", "photons_pass_cut_indices", "totEventWeight"});
+
+        auto X_window = photonPtDeltaR.Define("X_window_photons_pass_cut_indices",
         [](RVec<AbstractParticle>& reco_photons_matched)
         {
-            RVec<AbstractParticle> x;
+            RVec<unsigned long> x; //vector of indices
             if (reco_photons_matched.size() < 2)
             {
                 return x;
@@ -3179,13 +3223,13 @@ void Coupling_and_Systematics()
                 m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
                 pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || ((abs(1-X) < abs(1-best_X)) and (delta_r < 1.5)))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
                     pt2 = reco_photons_matched[combs[1][i]].photon_pt;
                     chosen_delta_r = delta_r;
-                    x = {reco_photons_matched[combs[0][i]], reco_photons_matched[combs[1][i]]};
+                    x = {combs[0][i], combs[1][i]};
                 }
             }
             if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
@@ -3195,10 +3239,29 @@ void Coupling_and_Systematics()
             x.clear();
             return x;
         }, {"photonPtDeltaR"}).Filter(
-        [&](RVec<AbstractParticle>& reco_photons_matched)
+        [&](RVec<unsigned long>& X_window_photons_pass_cut_indices)
         {
-            return (reco_photons_matched.size()==2);
-        }, {"chosen_two"});
+            return (X_window_photons_pass_cut_indices.size()==2);
+            
+        }, {"X_window_photons_pass_cut_indices"})
+        .Define("chosen_two",[&](RVec<AbstractParticle>& reco_photons_matched, RVec<unsigned long>& X_window_photons_pass_cut_indices)
+        {
+            return Take(reco_photons_matched, X_window_photons_pass_cut_indices);
+            
+        }, {"photonPtDeltaR", "X_window_photons_pass_cut_indices"})
+        .Define("X_window_TotalEventWeightFactor",
+        [&](RVec<unsigned long>& X_window_photons_pass_cut_indices, RVec<int>& photons_pass_cut_indices, RVec<float>& photon_efficiencies)
+        {
+            RVec<float> X_window_photon_efficiencies = Take(Take(photon_efficiencies, photons_pass_cut_indices), X_window_photons_pass_cut_indices);
+            float total = 1.0f;
+            
+            for (auto i: X_window_photon_efficiencies)
+            {
+                total *= i;
+            }
+            
+            return total;
+        }, {"X_window_photons_pass_cut_indices", "photons_pass_cut_indices", "totEventWeight"});
                 
         auto SR = X_window.Filter(
         [](RVec<AbstractParticle>& photons, RVec<AbstractParticle>& electrons)
@@ -3274,13 +3337,13 @@ void Coupling_and_Systematics()
             Nodes.push_back(mass_point_SR.Count());
             Nodes.push_back(mass_point_SR_ID.Count());
             
-            resultmaps.push_back(VariationsFor(mass_point_newDf.Sum<RVec<float>>("totEventWeight")));
-            resultmaps.push_back(VariationsFor(mass_point_trigger_selection.Sum<RVec<float>>("totEventWeight")));
-            resultmaps.push_back(VariationsFor(mass_point_ptCut.Sum<RVec<float>>("totEventWeight")));
-            resultmaps.push_back(VariationsFor(mass_point_photonPtDeltaR.Sum<RVec<float>>("totEventWeight")));
-            resultmaps.push_back(VariationsFor(mass_point_X_window.Sum<RVec<float>>("totEventWeight")));
-            resultmaps.push_back(VariationsFor(mass_point_SR.Sum<RVec<float>>("totEventWeight")));
-            resultmaps.push_back(VariationsFor(mass_point_SR_ID.Sum<RVec<float>>("totEventWeight")));
+            resultmaps.push_back(VariationsFor(mass_point_newDf.Sum<float>("totEventWeightFactor")));
+            resultmaps.push_back(VariationsFor(mass_point_trigger_selection.Sum<float>("totEventWeightFactor")));
+            resultmaps.push_back(VariationsFor(mass_point_ptCut.Sum<float>("totEventWeightFactor")));
+            resultmaps.push_back(VariationsFor(mass_point_photonPtDeltaR.Sum<float>("photonPtDeltaR_TotalEventWeightFactor")));
+            resultmaps.push_back(VariationsFor(mass_point_X_window.Sum<float>("X_window_TotalEventWeightFactor")));
+            resultmaps.push_back(VariationsFor(mass_point_SR.Sum<float>("X_window_TotalEventWeightFactor")));
+            resultmaps.push_back(VariationsFor(mass_point_SR_ID.Sum<float>("X_window_TotalEventWeightFactor")));
 
         }
         counter++;
