@@ -2964,10 +2964,11 @@ void Coupling_and_Systematics()
 //        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
 //        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
         //Displaced Signal
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"},
     };
     
-    std::vector<double> massPoints = {0.2,0.5,1,3,5,10,10.1,20,20.1,29.5};
+    std::vector<float> massPoints = {0.2, 0.5, 1, 3, 5, 10, 20, 29.5};//{0.2,0.5,1,3,5,10,10.1,20,20.1,29.5};
     std::vector<double> ALP_photon_couplings = {1.0};
     std::vector<RResultMap<float>> resultmaps;
     std::vector<ROOT::RDF::RResultHandle> Nodes;
@@ -3435,7 +3436,7 @@ void Coupling_and_Systematics()
         Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
-        title = std::string("C_{a#gamma#gamma}") + std::string(syst_index) + ".pdf";
+        title = std::string("C_{a#gamma#gamma}") + std::string(syst_index) + ".png";
         c1->SaveAs(title.c_str());
     }
 }
