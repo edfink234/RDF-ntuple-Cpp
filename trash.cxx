@@ -79,7 +79,7 @@ constexpr std::array<const char*,35> triggers =
     "HLT_2e12_lhvloose_L12EM10VH",
     "HLT_mu18_mu8noL1",
 };
-
+/*
 void Table11MuonElectron()
 {
     std::vector<std::vector<std::string>> input_filenames = {
@@ -707,11 +707,14 @@ void Table11MuonElectron()
     os << R"--(\end{tabular}})--" << '\n';
     std::cout << os.str() << '\n';
 }
-/*
+*/
+
 void Table11()
 {
     std::vector<std::vector<std::string>> input_filenames = {
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/muon17.3.root", "muon17.3part2.root"}
+        //{"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/muon17.3.root", "muon17.3part2.root"}
+        {"Jesussf.root"},
+//        {"muonz0d0.root"}
     };
     
     constexpr std::array<const char*,1> Samples = {R"--(Signal $m_{\text{A}}$ = 5 GeV)--"};
@@ -725,6 +728,8 @@ void Table11()
     os << R"--(\hline)--" << '\n';
     os << R"--(Sample & Total Events & pass preselection (PS) & photon $p_T$ + $\Delta R_{\gamma\gamma}$ cut & $X$ window & SR & SR-ID
            \\ \hline )--" << '\n';
+    
+    ROOT::RDF::RResultPtr<TH1D> histo;
     
     auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
     {
@@ -835,13 +840,16 @@ void Table11()
         auto dilep = same_flavour.Define("dilep",[] (RVec<Muon>& muons)
         {
             return (muons[0].Vector() + muons[1].Vector());
-        }, {"di_muons"});
-        
-        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+        }, {"di_muons"})
+        .Define("dilep_mass", [] (PtEtaPhiEVector& dilep)
         {
-            auto mass = dilep.M()/1e3;
-            return ((mass >= 81) && (mass <= 101));
+            return dilep.M()/1e3;
         }, {"dilep"});
+            
+        auto mass = dilep.Filter([] (double mass)
+        {
+            return ((mass >= 81) && (mass <= 101));
+        }, {"dilep_mass"});
         
         auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
         {
@@ -949,6 +957,10 @@ void Table11()
         Nodes.push_back(X_window.Count());
         Nodes.push_back(SR.Count());
         Nodes.push_back(SR_ID.Count());
+        
+//        histo = ptCut.Histo1D<double>({"Dimuon Invariant Mass", "Dimuon Invariant Mass", 60u, 60, 120}, "dilep_mass", "muon_sf_total");
+        histo = ptCut.Histo1D<double>({"Dimuon Invariant Mass", "Dimuon Invariant Mass", 60u, 60, 120}, "dilep_mass");
+        
     }
     
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
@@ -982,6 +994,30 @@ void Table11()
 //    78   79   80   81   82   83     Z-jets
 //
 //    84   85   86   87   88   89     Z-jets
+    
+    ///First, plot and save the dimuon invariant mass
+    
+    TCanvas* c1 = new TCanvas();
+    TLegend* legend = new TLegend(0.6, 0.3, 0.85, 0.625); //x_min, y_min, x_max, y_max
+
+    histo->SetLineColor(kOrange);
+    histo->SetFillColor(kOrange);
+    legend->AddEntry(&(*histo), histo->GetTitle(), "l");
+    histo->SetTitle(";m_{#mu#mu} (GeV);Events");
+    histo->SetTitleOffset(1.2);
+    histo->GetYaxis()->CenterTitle(true);
+
+    histo->Draw("HIST");
+
+    gStyle->SetOptStat(0);
+    TLatex Tl;
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 5 GeV");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Dimuon_Invariant_Mass_unweighted.pdf");
 
     std::cout << R"--(\section*{Table 11 Signal Ratios})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';
@@ -1065,15 +1101,15 @@ void Table11()
     os << R"--(\end{tabular}})--" << '\n';
     std::cout << os.str() << '\n';
 }
-*/
+
 void CutFlow()
 {
     auto start_time = Clock::now();
     
 //    Table3();
 //    Table8();
-//    Table11();
-    Table11MuonElectron();
+    Table11();
+//    Table11MuonElectron();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "

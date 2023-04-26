@@ -2917,7 +2917,7 @@ void Table11_Displaced_Axions()
 //
 //}
 
-void Coupling_and_Systematics()
+void Coupling_and_Systematics_resolved()
 {
     Event::systematics =
     {
@@ -2957,20 +2957,19 @@ void Coupling_and_Systematics()
         "PH_EFF_TRIGGER_Uncertainty__1down",
     };
 
-    
-    
     std::vector<std::vector<std::string>> input_filenames = {
         //Signal
-//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
-//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
         //Displaced Signal
 //        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"},
     };
     
     std::vector<float> massPoints = {0.2, 0.5, 1, 3, 5, 10, 20, 29.5};//{0.2,0.5,1,3,5,10,10.1,20,20.1,29.5};
+    std::vector<float> massPoints_prompt = {1, 5};
     std::vector<double> ALP_photon_couplings = {1.0};
-    std::vector<RResultMap<float>> resultmaps;
+    std::vector<RResultMap<float>> resultmaps, prompt_resultmaps;
     std::vector<ROOT::RDF::RResultHandle> Nodes;
     
     auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
@@ -3279,74 +3278,95 @@ void Coupling_and_Systematics()
             return (photons[0].photon_id_loose && photons[1].photon_id_loose);
         },{"chosen_two"});
         
-        for (auto& mass_point: massPoints)
+        if (counter < 2) //or however many signal samples there are.
         {
-            auto mass_point_newDf = newDf.Filter([&]
-            (float axion_mass)
-            {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+            Nodes.push_back(newDf.Count());
+            Nodes.push_back(trigger_selection.Count());
+            Nodes.push_back(ptCut.Count());
+            Nodes.push_back(photonPtDeltaR.Count());
+            Nodes.push_back(X_window.Count());
+            Nodes.push_back(SR.Count());
+            Nodes.push_back(SR_ID.Count());
 
-            }, {"axion_masses"});
-            
-            auto mass_point_trigger_selection = trigger_selection.Filter([&]
-            (float axion_mass)
-            {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
-                
-            }, {"axion_masses"});
-            
-            auto mass_point_ptCut = ptCut.Filter([&]
-            (float axion_mass)
-            {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
-                
-            }, {"axion_masses"});
-            
-            auto mass_point_photonPtDeltaR = photonPtDeltaR.Filter([&]
-            (float axion_mass)
-            {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
-                
-            }, {"axion_masses"});
-            
-            auto mass_point_X_window = X_window.Filter([&]
-            (float axion_mass)
-            {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
-                
-            }, {"axion_masses"});
-            
-            auto mass_point_SR = SR.Filter([&]
-            (float axion_mass)
-            {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
-                
-            }, {"axion_masses"});
-            
-            auto mass_point_SR_ID = SR_ID.Filter([&]
-            (float axion_mass)
-            {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
-                
-            }, {"axion_masses"});
-            
-            Nodes.push_back(mass_point_newDf.Count());
-            Nodes.push_back(mass_point_trigger_selection.Count());
-            Nodes.push_back(mass_point_ptCut.Count());
-            Nodes.push_back(mass_point_photonPtDeltaR.Count());
-            Nodes.push_back(mass_point_X_window.Count());
-            Nodes.push_back(mass_point_SR.Count());
-            Nodes.push_back(mass_point_SR_ID.Count());
-            
-            resultmaps.push_back(VariationsFor(mass_point_newDf.Sum<float>("totEventWeightFactor")));
-            resultmaps.push_back(VariationsFor(mass_point_trigger_selection.Sum<float>("totEventWeightFactor")));
-            resultmaps.push_back(VariationsFor(mass_point_ptCut.Sum<float>("totEventWeightFactor")));
-            resultmaps.push_back(VariationsFor(mass_point_photonPtDeltaR.Sum<float>("photonPtDeltaR_TotalEventWeightFactor")));
-            resultmaps.push_back(VariationsFor(mass_point_X_window.Sum<float>("X_window_TotalEventWeightFactor")));
-            resultmaps.push_back(VariationsFor(mass_point_SR.Sum<float>("X_window_TotalEventWeightFactor")));
-            resultmaps.push_back(VariationsFor(mass_point_SR_ID.Sum<float>("X_window_TotalEventWeightFactor")));
-
+            prompt_resultmaps.push_back(VariationsFor(newDf.Sum<float>("totEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(trigger_selection.Sum<float>("totEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(ptCut.Sum<float>("totEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(photonPtDeltaR.Sum<float>("photonPtDeltaR_TotalEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(X_window.Sum<float>("X_window_TotalEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(SR.Sum<float>("X_window_TotalEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(SR_ID.Sum<float>("X_window_TotalEventWeightFactor")));
         }
+        else
+        {
+            for (auto& mass_point: massPoints)
+            {
+                auto mass_point_newDf = newDf.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+
+                }, {"axion_masses"});
+                
+                auto mass_point_trigger_selection = trigger_selection.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_ptCut = ptCut.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_photonPtDeltaR = photonPtDeltaR.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_X_window = X_window.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_SR = SR.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_SR_ID = SR_ID.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                Nodes.push_back(mass_point_newDf.Count());
+                Nodes.push_back(mass_point_trigger_selection.Count());
+                Nodes.push_back(mass_point_ptCut.Count());
+                Nodes.push_back(mass_point_photonPtDeltaR.Count());
+                Nodes.push_back(mass_point_X_window.Count());
+                Nodes.push_back(mass_point_SR.Count());
+                Nodes.push_back(mass_point_SR_ID.Count());
+                
+                resultmaps.push_back(VariationsFor(mass_point_newDf.Sum<float>("totEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_trigger_selection.Sum<float>("totEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_ptCut.Sum<float>("totEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_photonPtDeltaR.Sum<float>("photonPtDeltaR_TotalEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_X_window.Sum<float>("X_window_TotalEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_SR.Sum<float>("X_window_TotalEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_SR_ID.Sum<float>("X_window_TotalEventWeightFactor")));
+            }
+        }
+        
         counter++;
     }
     
@@ -3366,7 +3386,6 @@ void Coupling_and_Systematics()
 //
 //    std::cout << '\n';
     
-
     std::vector<std::string> syst_indices = {"nominal", "photons_and_electrons:EG_RESOLUTION_ALL__1down", "photons_and_electrons:EG_SCALE_ALL__1down", "photon_iso_eff:PH_EFF_ISO_Uncertainty__1down", "photon_id_eff:PH_EFF_ID_Uncertainty__1down", "photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down", "photons_and_electrons:EG_RESOLUTION_ALL__1up", "photons_and_electrons:EG_SCALE_ALL__1up", "photon_iso_eff:PH_EFF_ISO_Uncertainty__1up", "photon_id_eff:PH_EFF_ID_Uncertainty__1up", "photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"};
 
     TLatex Tl;
@@ -3376,9 +3395,11 @@ void Coupling_and_Systematics()
     //for each systematic
     for (auto& syst_index: syst_indices)
     {
+        ///displaced case
+        
         //create a plot
         c1 = new TCanvas();
-        std::string title = syst_index + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
+        std::string title = syst_index + std::string(" (displaced resolved)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
         std::string name = std::string("C_{a#gamma#gamma}") + syst_index;
         histo2d = new TH2D(name.c_str(), title.c_str(), 295, 0.2, 29.5, 5, 0, 2);
         histo2d->GetXaxis()->SetTitleSize(0.04);
@@ -3436,8 +3457,74 @@ void Coupling_and_Systematics()
         Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
-        title = std::string("C_{a#gamma#gamma}") + std::string(syst_index) + ".png";
+        title = std::string("C_{a#gamma#gamma}_displaced_resolved_") + std::string(syst_index) + ".pdf";
         c1->SaveAs(title.c_str());
+        
+        ///Prompt case
+        
+        //create a plot
+        c1 = new TCanvas();
+        title = syst_index + std::string(" (prompt resolved)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
+        name = std::string("C_{a#gamma#gamma}") + syst_index;
+        histo2d = new TH2D(name.c_str(), title.c_str(), 295, 0.2, 29.5, 5, 0, 2); ///numbers are: x_bins, x_min, x_max, y_bins, y_min, y_max
+        histo2d->GetXaxis()->SetTitleSize(0.04);
+        histo2d->GetYaxis()->SetTitleSize(0.04);
+        histo2d->GetZaxis()->SetTitleSize(0.04);
+        
+        histo2d->GetYaxis()->SetTitleOffset(0.7);
+        histo2d->GetZaxis()->SetTitleOffset(0.6);
+        
+        histo2d->GetYaxis()->CenterTitle(true);
+        histo2d->GetZaxis()->SetTitle("Efficiency");
+        
+        //i is indexing each mass point, and j is indexing the
+        //group of results corresponding to mass point i
+        for (int i=0, j=0; (i < massPoints_prompt.size()); i++, j+=7)
+        {
+            int bin_number = histo2d->FindFixBin(massPoints_prompt[i], ALP_photon_couplings[0]);
+            float efficiency;
+            
+            auto keys = prompt_resultmaps[j].GetKeys();
+            auto keys5 = prompt_resultmaps[j+5].GetKeys();
+            
+//            if syst_index is a systematic variation of the total # of events and
+//            the ones that passed the resolved category, then assign the efficiency
+//            the corresponding value
+            if ((std::find(keys.begin(), keys.end(), syst_index) != keys.end())
+                &&
+                (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end()))
+            {
+                efficiency = prompt_resultmaps[j][syst_index] ? prompt_resultmaps[j+5][syst_index] / prompt_resultmaps[j][syst_index] : 0.0;
+            }
+            else if (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end())
+            {
+                efficiency = prompt_resultmaps[j]["nominal"] ? prompt_resultmaps[j+5][syst_index] / prompt_resultmaps[j]["nominal"] : 0.0;
+            }
+            else //then something's wrong :(
+            {
+                efficiency = -1;
+            }
+            
+            {
+                std::cout << syst_index << ": " << massPoints_prompt[i] << " GeV, "
+                << efficiency << '\n';
+            }
+            
+            histo2d->SetBinContent(bin_number, efficiency);
+        }
+        
+        gStyle->SetPalette(1); //heat-map color style
+        histo2d->Draw("COLZ"); //draw with color-bar
+
+        gStyle->SetOptStat(0);
+        Tl.SetTextSize(0.03);
+        Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+        Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+        c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
+        gPad->SetLeftMargin(0.06);
+        title = std::string("C_{a#gamma#gamma}_prompt_resolved_") + std::string(syst_index) + ".pdf";
+        c1->SaveAs(title.c_str());
+        
     }
 }
 
@@ -3485,16 +3572,17 @@ void Coupling_and_Systematics_merged()
     
     std::vector<std::vector<std::string>> input_filenames = {
         //Signal
-//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
-//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"},
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"},
         //Displaced Signal
 //        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"},
     };
     
     std::vector<float> massPoints = {0.2, 0.5, 1, 3, 5, 10, 20, 29.5};//{0.2,0.5,1,3,5,10,10.1,20,20.1,29.5};
+    std::vector<float> massPoints_prompt = {1, 5};
     std::vector<double> ALP_photon_couplings = {1.0};
-    std::vector<RResultMap<float>> resultmaps;
+    std::vector<RResultMap<float>> resultmaps, prompt_resultmaps;
     std::vector<ROOT::RDF::RResultHandle> Nodes;
     
     auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
@@ -3795,64 +3883,83 @@ void Coupling_and_Systematics_merged()
             return (!Any(Eratio <= 0.8));
         }, {"photon_shower_shape_e_ratio"});
 
-        for (auto& mass_point: massPoints)
+        if (counter < 2)
         {
-            auto mass_point_newDf = newDf.Filter([&]
-            (float axion_mass)
+            Nodes.push_back(newDf.Count());
+            Nodes.push_back(merged_reco_photons_matched.Count());
+            Nodes.push_back(pSB.Count());
+            Nodes.push_back(pSR.Count());
+            Nodes.push_back(SB.Count());
+            Nodes.push_back(SR.Count());
+            
+            prompt_resultmaps.push_back(VariationsFor(newDf.Sum<float>("totEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(merged_reco_photons_matched.Sum<float>("totEventWeight")));
+            prompt_resultmaps.push_back(VariationsFor(pSB.Sum<float>("totEventWeight")));
+            prompt_resultmaps.push_back(VariationsFor(pSR.Sum<float>("totEventWeight")));
+            prompt_resultmaps.push_back(VariationsFor(SB.Sum<float>("totEventWeight")));
+            prompt_resultmaps.push_back(VariationsFor(SR.Sum<float>("totEventWeight")));
+        }
+        else
+        {
+            for (auto& mass_point: massPoints)
             {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                auto mass_point_newDf = newDf.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
 
-            }, {"axion_masses"});
-            
-            auto mass_point_merged_reco_photons_matched = merged_reco_photons_matched.Filter([&]
-            (float axion_mass)
-            {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                }, {"axion_masses"});
                 
-            }, {"axion_masses"});
-            
-            auto mass_point_pSB = pSB.Filter([&]
-            (float axion_mass)
-            {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                auto mass_point_merged_reco_photons_matched = merged_reco_photons_matched.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
                 
-            }, {"axion_masses"});
-            
-            auto mass_point_pSR = pSR.Filter([&]
-            (float axion_mass)
-            {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                auto mass_point_pSB = pSB.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
                 
-            }, {"axion_masses"});
-            
-            auto mass_point_SB = SB.Filter([&]
-            (float axion_mass)
-            {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                auto mass_point_pSR = pSR.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
                 
-            }, {"axion_masses"});
-            
-            auto mass_point_SR = SR.Filter([&]
-            (float axion_mass)
-            {
-                return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                auto mass_point_SB = SB.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
                 
-            }, {"axion_masses"});
-            
-            Nodes.push_back(mass_point_newDf.Count());
-            Nodes.push_back(mass_point_merged_reco_photons_matched.Count());
-            Nodes.push_back(mass_point_pSB.Count());
-            Nodes.push_back(mass_point_pSR.Count());
-            Nodes.push_back(mass_point_SB.Count());
-            Nodes.push_back(mass_point_SR.Count());
-            
-            resultmaps.push_back(VariationsFor(mass_point_newDf.Sum<float>("totEventWeightFactor")));
-            resultmaps.push_back(VariationsFor(mass_point_merged_reco_photons_matched.Sum<float>("totEventWeight")));
-            resultmaps.push_back(VariationsFor(mass_point_pSB.Sum<float>("totEventWeight")));
-            resultmaps.push_back(VariationsFor(mass_point_pSR.Sum<float>("totEventWeight")));
-            resultmaps.push_back(VariationsFor(mass_point_SB.Sum<float>("totEventWeight")));
-            resultmaps.push_back(VariationsFor(mass_point_SR.Sum<float>("totEventWeight")));
-            
+                auto mass_point_SR = SR.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                Nodes.push_back(mass_point_newDf.Count());
+                Nodes.push_back(mass_point_merged_reco_photons_matched.Count());
+                Nodes.push_back(mass_point_pSB.Count());
+                Nodes.push_back(mass_point_pSR.Count());
+                Nodes.push_back(mass_point_SB.Count());
+                Nodes.push_back(mass_point_SR.Count());
+                
+                resultmaps.push_back(VariationsFor(mass_point_newDf.Sum<float>("totEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_merged_reco_photons_matched.Sum<float>("totEventWeight")));
+                resultmaps.push_back(VariationsFor(mass_point_pSB.Sum<float>("totEventWeight")));
+                resultmaps.push_back(VariationsFor(mass_point_pSR.Sum<float>("totEventWeight")));
+                resultmaps.push_back(VariationsFor(mass_point_SB.Sum<float>("totEventWeight")));
+                resultmaps.push_back(VariationsFor(mass_point_SR.Sum<float>("totEventWeight")));
+                
+            }
         }
         counter++;
     }
@@ -3868,9 +3975,11 @@ void Coupling_and_Systematics_merged()
     //for each systematic
     for (auto& syst_index: syst_indices)
     {
+        ///displaced case
+        
         //create a plot
         c1 = new TCanvas();
-        std::string title = syst_index + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
+        std::string title = syst_index + std::string(" (displaced merged)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
         std::string name = std::string("C_{a#gamma#gamma}") + syst_index;
         histo2d = new TH2D(name.c_str(), title.c_str(), 295, 0.2, 29.5, 5, 0, 2);
         histo2d->GetXaxis()->SetTitleSize(0.04);
@@ -3928,7 +4037,72 @@ void Coupling_and_Systematics_merged()
         Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
-        title = std::string("C_{a#gamma#gamma}") + std::string(syst_index) + "_merged.pdf";
+        title = std::string("C_{a#gamma#gamma}_displaced_merged_") + std::string(syst_index) + "_merged.pdf";
+        c1->SaveAs(title.c_str());
+        
+        ///prompt case
+        
+        //create a plot
+        c1 = new TCanvas();
+        title = syst_index + std::string(" (prompt merged)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
+        name = std::string("C_{a#gamma#gamma}") + syst_index;
+        histo2d = new TH2D(name.c_str(), title.c_str(), 295, 0.2, 29.5, 5, 0, 2);
+        histo2d->GetXaxis()->SetTitleSize(0.04);
+        histo2d->GetYaxis()->SetTitleSize(0.04);
+        histo2d->GetZaxis()->SetTitleSize(0.04);
+        
+        histo2d->GetYaxis()->SetTitleOffset(0.7);
+        histo2d->GetZaxis()->SetTitleOffset(0.6);
+        
+        histo2d->GetYaxis()->CenterTitle(true);
+        histo2d->GetZaxis()->SetTitle("Efficiency");
+
+        //i is indexing each mass point, and j is indexing the
+        //group of results corresponding to mass point i
+        for (int i=0, j=0; (i < massPoints_prompt.size()); i++, j+=6)
+        {
+            int bin_number = histo2d->FindFixBin(massPoints_prompt[i], ALP_photon_couplings[0]);
+            float efficiency;
+            
+            auto keys = prompt_resultmaps[j].GetKeys();
+            auto keys5 = prompt_resultmaps[j+5].GetKeys();
+            
+//            if syst_index is a systematic variation of the total # of events and
+//            the ones that passed the resolved category, then assign the efficiency
+//            the corresponding value
+            if ((std::find(keys.begin(), keys.end(), syst_index) != keys.end())
+                &&
+                (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end()))
+            {
+                efficiency = prompt_resultmaps[j][syst_index] ? prompt_resultmaps[j+5][syst_index] / prompt_resultmaps[j][syst_index] : 0.0;
+            }
+            else if (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end())
+            {
+                efficiency = prompt_resultmaps[j]["nominal"] ? prompt_resultmaps[j+5][syst_index] / prompt_resultmaps[j]["nominal"] : 0.0;
+            }
+            else //then something's wrong :(
+            {
+                efficiency = -1;
+            }
+            
+            {
+                std::cout << syst_index << ": " << massPoints_prompt[i] << " GeV, "
+                << efficiency << '\n';
+            }
+            
+            histo2d->SetBinContent(bin_number, efficiency);
+        }
+        
+        gStyle->SetPalette(1); //heat-map color style
+        histo2d->Draw("COLZ"); //draw with color-bar
+
+        gStyle->SetOptStat(0);
+        Tl.SetTextSize(0.03);
+        Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+        Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+        c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
+        gPad->SetLeftMargin(0.06);
+        title = std::string("C_{a#gamma#gamma}_prompt_merged_") + std::string(syst_index) + "_merged.pdf";
         c1->SaveAs(title.c_str());
     }
 }
@@ -3944,7 +4118,7 @@ void CutFlow()
 //    Table8_Displaced_Axions();
 //    Table11_Displaced_Axions();
 //    Coupling();
-//    Coupling_and_Systematics();
+    Coupling_and_Systematics_resolved();
     Coupling_and_Systematics_merged();
     
     auto end_time = Clock::now();

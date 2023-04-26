@@ -27,7 +27,7 @@ using namespace ROOT::VecOps;
 //Function to make an RVec of photons. We define it outside the call
 //to Define because we want to use it more than once
 template <typename T>
-RVec<T> MakePhotons (const RVec<float>& photon_pt, const RVec<float>& photon_e, const RVec<float>& photon_eta, const RVec<float>& photon_phi, const RVec<float>& photon_etcone40, const RVec<int>& photon_id, const RVec<int>& photon_id_loose, const RVec<int>& photon_id_tight, const RVec<float>& photon_cluster_eta_be_2 /*, const RVec<int>& photon_id_nn */)
+RVec<T> MakePhotons (const RVec<float>& photon_pt, const RVec<float>& photon_e, const RVec<float>& photon_eta, const RVec<float>& photon_phi, /*const RVec<float>& photon_etcone40,*/ const RVec<int>& photon_id, const RVec<int>& photon_id_loose, const RVec<int>& photon_id_tight, const RVec<float>& photon_cluster_eta_be_2 /*, const RVec<int>& photon_id_nn */)
 {
     RVec<T> x;
     x.reserve(photon_pt.size());
@@ -38,7 +38,7 @@ RVec<T> MakePhotons (const RVec<float>& photon_pt, const RVec<float>& photon_e, 
         temp.photon_e =  photon_e[i];
         temp.photon_eta =  photon_eta[i];
         temp.photon_phi =  photon_phi[i];
-        temp.photon_etcone40 =  photon_etcone40[i];
+//        temp.photon_etcone40 =  photon_etcone40[i];
         temp.photon_id =  photon_id[i];
         temp.photon_id_loose =  photon_id_loose[i];
         temp.photon_id_tight =  photon_id_tight[i];
@@ -52,7 +52,7 @@ RVec<T> MakePhotons (const RVec<float>& photon_pt, const RVec<float>& photon_e, 
 //Function to make an RVec of electrons. We define it outside the call
 //to Define because we want to use it more than once
 template <typename T>
-RVec<T> MakeElectrons (const RVec<float>& electron_charge, const RVec<float>& electron_pt, const RVec<float>& electron_e, const RVec<float>& electron_eta, const RVec<float>& electron_phi, /*const RVec<float>& electron_id,*/ const RVec<float>& electron_isolation, const RVec<float>& electron_d0, const RVec<float>& electron_z0 , const RVec<int>& electron_id_medium)
+RVec<T> MakeElectrons (const RVec<float>& electron_charge, const RVec<float>& electron_pt, const RVec<float>& electron_e, const RVec<float>& electron_eta, const RVec<float>& electron_phi, /*const RVec<float>& electron_id, const RVec<float>& electron_isolation,*/ const RVec<float>& electron_d0, const RVec<float>& electron_z0 , const RVec<int>& electron_id_medium)
 {
     RVec<T> x;
     x.reserve(electron_pt.size());
@@ -65,7 +65,7 @@ RVec<T> MakeElectrons (const RVec<float>& electron_charge, const RVec<float>& el
         temp.electron_eta =  electron_eta[i];
         temp.electron_phi =  electron_phi[i];
 //            temp.electron_id =  electron_id[i];
-        temp.electron_isolation =  electron_isolation[i];
+//        temp.electron_isolation =  electron_isolation[i];
         temp.electron_d0 =  electron_d0[i];
         temp.electron_z0 =  electron_z0[i];
         temp.electron_id_medium =  electron_id_medium[i];
@@ -102,7 +102,7 @@ RVec<RVec<T>> VaryPhotons(const RVec<T>& photons, const RVec<float>& photon_pt, 
             temp.photon_e = photon_syst_e[i][index];
             temp.photon_eta =  photons[i].photon_eta;
             temp.photon_phi =  photons[i].photon_phi;
-            temp.photon_etcone40 =  photons[i].photon_etcone40;
+//            temp.photon_etcone40 =  photons[i].photon_etcone40;
             temp.photon_id =  photons[i].photon_id;
             temp.photon_id_loose =  photons[i].photon_id_loose;
             temp.photon_id_tight =  photons[i].photon_id_tight;
@@ -148,7 +148,7 @@ RVec<RVec<T>> VaryElectrons(const RVec<T>& electrons, const RVec<float>& electro
             temp.electron_eta =  electrons[i].electron_eta;
             temp.electron_phi =  electrons[i].electron_phi;
 //            temp.electron_id =  electrons[i].electron_id;
-            temp.electron_isolation =  electrons[i].electron_isolation;
+//            temp.electron_isolation =  electrons[i].electron_isolation;
             temp.electron_d0 =  electrons[i].electron_d0;
             temp.electron_z0 =  electrons[i].electron_z0;
             temp.electron_id_medium =  electrons[i].electron_id_medium;
@@ -235,7 +235,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         }
         return x;
     }, {"mc_pdg_id", "mc_barcode", "mc_parent_barcode", "mc_status", "mc_pt", "mc_charge", "mc_eta", "mc_phi", "mc_e", "mc_mass", "mc_decay_time"})
-    .Define("electrons",MakeElectrons<Electron>, {"electron_charge", "electron_pt", "electron_e", "electron_eta", "electron_phi", /*"electron_id",*/ "electron_isolation", "electron_d0", "electron_z0", "electron_id_medium",})
+    .Define("electrons",MakeElectrons<Electron>, {"electron_charge", "electron_pt", "electron_e", "electron_eta", "electron_phi", /*"electron_id", "electron_isolation",*/ "electron_d0", "electron_z0", "electron_id_medium",})
     .Define("muons",[&](const RVec<int>& muon_charge, const RVec<float>& muon_pt, const RVec<float>& muon_e, const RVec<float>& muon_eta, const RVec<float>& muon_phi)
     {
         RVec<Muon> x;
@@ -252,7 +252,7 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         }
         return x;
     }, {"muon_charge", "muon_pt", "muon_e", "muon_eta", "muon_phi"})
-    .Define("photons",MakePhotons<Photon>, {"photon_pt", "photon_e", "photon_eta", "photon_phi", "photon_etcone40", "photon_id", "photon_id_loose", "photon_id_tight", "photon_cluster_eta_be_2", /*"photon_id_nn"*/})
+    .Define("photons",MakePhotons<Photon>, {"photon_pt", "photon_e", "photon_eta", "photon_phi", /*"photon_etcone40",*/ "photon_id", "photon_id_loose", "photon_id_tight", "photon_cluster_eta_be_2", /*"photon_id_nn"*/})
     .Define("clusters",[&](const RVec<float>& cluster_pt, const RVec<float>& cluster_phi, const RVec<float>& cluster_e, const RVec<float>& cluster_eta)
     {
         RVec<Cluster> x;
@@ -290,8 +290,8 @@ SchottDataFrame MakeRDF(const std::vector<std::string>& files, short numThreads)
         }
         return x;
     }, {"track_type", "track_pt", "track_eta", "track_phi", /*"track_e",*/ "track_charge", "track_num_pixel_hits", "track_num_sct_hits"})
-    .Define("abstract_photons",MakePhotons<AbstractParticle>, {"photon_pt", "photon_e", "photon_eta", "photon_phi", "photon_etcone40", "photon_id", "photon_id_loose", "photon_id_tight", "photon_cluster_eta_be_2", /*"photon_id_nn"*/})
-    .Define("abstract_electrons",MakeElectrons<AbstractParticle>, {"electron_charge", "electron_pt", "electron_e", "electron_eta", "electron_phi", /*"electron_id",*/ "electron_isolation", "electron_d0", "electron_z0", "electron_id_medium",})
+    .Define("abstract_photons",MakePhotons<AbstractParticle>, {"photon_pt", "photon_e", "photon_eta", "photon_phi", /*"photon_etcone40",*/ "photon_id", "photon_id_loose", "photon_id_tight", "photon_cluster_eta_be_2", /*"photon_id_nn"*/})
+    .Define("abstract_electrons",MakeElectrons<AbstractParticle>, {"electron_charge", "electron_pt", "electron_e", "electron_eta", "electron_phi", /*"electron_id", "electron_isolation",*/ "electron_d0", "electron_z0", "electron_id_medium",})
     .Vary("photons", VaryPhotons<Photon>, {"photons", "photon_pt", "photon_syst_name", "photon_syst_pt", "photon_syst_e"}, Event::systematics)
     .Vary("electrons", VaryElectrons<Electron>, {"electrons", "electron_pt", "electron_syst_name", "electron_syst_pt", "electron_syst_e"}, Event::systematics)
     .Vary({"abstract_photons", "abstract_electrons"},

@@ -2944,6 +2944,9 @@ void fig29()
     SchottDataFrame df(MakeRDF(input_filenames, 8));
 
 //    df.Describe().Print();
+    
+    std::vector<float> massPoints = {0.2,0.5,1,3,5,10,10.1,20,20.1,29.5};
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
 
     std::cout << '\n';
 
@@ -3069,6 +3072,20 @@ void fig29()
     {
         return !truth_particles.empty();
     }, {"truth_axions"});
+    
+    for (auto& mass_point: massPoints)
+    {
+        auto mass_point_truth_photons_from_axions = truth_photons_from_axions.Filter([&]
+        (float axion_mass)
+        {
+            return (roundToOneDecimalPlace(axion_mass) == mass_point);
+            
+        }, {"axion_masses"});
+
+        Nodes.push_back(mass_point_truth_photons_from_axions.Histo1D<std::vector<float>>({"MC decay lengths", "MC decay lengths", 60u, 0, 0}, "mc_decay_length"));
+    }
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
 
     auto vals = truth_photons_from_axions.Take<float, RVec<float>>("axion_masses");
 
@@ -3171,6 +3188,41 @@ void fig29()
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Axion_masses.pdf");
+    
+    for (int i = 0; i < Nodes.size(); i++)
+    {
+        if (Nodes[i].GetResultPtr<TH1D>()->GetEntries() == 0.0)
+        {
+            std::cout << "works\n";
+            continue;
+        }
+        
+        c1 = new TCanvas();
+        legend = new TLegend(0.2, 0.5, 0.45, 0.8);
+        
+        std::string title_string = std::to_string(massPoints[i]) + " GeV;decay length (Wonder what the units are);Events";
+        
+        
+        
+        Nodes[i].GetResultPtr<TH1D>()->SetTitle(title_string.c_str());
+        Nodes[i].GetResultPtr<TH1D>()->SetTitleOffset(1.2);
+        
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
+        
+        Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
+        
+        gStyle->SetOptStat(0);
+        Tl.SetTextSize(0.03);
+        Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+        Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+        
+        std::string MassString = std::string("ggF m_{A} = {") + std::to_string(massPoints[i]) + "} GeV";
+        Tl.DrawLatexNDC(0.6, 0.7,MassString.c_str());
+        legend->SetBorderSize(0);
+        legend->Draw();
+        
+        c1->SaveAs((title_string+".pdf").c_str());
+    }
 
 }
 
