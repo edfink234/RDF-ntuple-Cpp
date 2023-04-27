@@ -3280,7 +3280,7 @@ void Table24_Displaced_Axions()
     constexpr std::array<const char*,15> prefixes = {R"--(Prompt Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Prompt Signal $m_{\text{A}}$ = 5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 0.2 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 0.5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 3 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 5 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 10 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 10.1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 20 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 20.1 GeV)--", R"--(Displaced Signal $m_{\text{A}}$ = 29.5 GeV)--", };
 
     std::vector<float> massPoints = {0.2,0.5,1,3,5,10,10.1,20,20.1,29.5};
-    std::vector<ROOT::RDF::RResultHandle> Totals, Nodes;
+    std::vector<ROOT::RDF::RResultHandle> Totals, Nodes, NoCatNodes;
     std::vector<RResultMap<float>> resultmaps;
     std::stringstream ss, cs;
 
@@ -3422,7 +3422,7 @@ void Table24_Displaced_Axions()
             size_t length = combs[0].size();
             double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
 
-            for (size_t i=0; i<length; i++)
+            for (size_t i = 0; i < length; i++)
             {
                 delta_r = DeltaR(reco_photons_matched[combs[0][i]].PhotonVector(), reco_photons_matched[combs[1][i]].PhotonVector());
                 m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
@@ -3507,6 +3507,7 @@ void Table24_Displaced_Axions()
         {
             Totals.push_back(EventWeight.Sum<float>("EventWeight"));
             resultmaps.push_back(VariationsFor(totEventWeight.Sum<float>("totEventWeight")));
+            NoCatNodes.push_back(photon_passes_cuts.Count());
         }
         else
         {
@@ -3537,6 +3538,11 @@ void Table24_Displaced_Axions()
     }
 
     ROOT::RDF::RunGraphs(Totals); // running all computation nodes concurrently
+    
+    for (int i = 0; i < NoCatNodes.size(); i++)
+    {
+        std::cout << *NoCatNodes[i].GetResultPtr<ULong64_t>() << '\n';
+    }
 
     std::cout << "Resolved Category Down\n======================\n";
     for (int i = 0; i < Nodes.size(); i++)
@@ -3647,10 +3653,10 @@ void Section7_TablesPlots()
 //    Table22();
 //    Table23();
 //    Table24();
-    Table21_Displaced_Axions();
+//    Table21_Displaced_Axions();
 //    Table22_Displaced_Axions();
 //    Table23_Displaced_Axions();
-//    Table24_Displaced_Axions();
+    Table24_Displaced_Axions();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " seconds" << std::endl;

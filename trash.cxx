@@ -771,11 +771,13 @@ void Table11()
         return truthSelected;
     };
     
- 
+    int counter = 0;
 
     for (auto& file: input_filenames)
     {
         SchottDataFrame df(MakeRDF(file, 8));
+        
+        df.Describe().Print();
         
         auto trigger_selection = df.Filter(
         [](const RVec<std::string>& trigger_passed_triggers)
@@ -790,27 +792,47 @@ void Table11()
 
         }, {"trigger_passed_triggers"});
         
-        auto two_leptons = df.Define("di_muons",
+        auto two_leptons = df.Define("di_muon_indices",
         [](RVec<Muon>& muons, RVec<int> muon_id_medium)
         {
-            RVec<Muon> new_muons;
-            new_muons.reserve(muons.size());
+            RVec<int> di_muon_indices;
+            di_muon_indices.reserve(muons.size());
             
             for (auto i = 0; i < muons.size(); i++)
             {
                 if  ((muons[i].muon_pt/1e3 <= 10) ||
-                     (muons[i].muon_pt/1e3 <= 15 && muon_id_medium[i] == 1) ||
-                     (abs(muons[i].muon_eta) >= 2.5) ||
-                     (muon_id_medium[i] != 1))
+                (muons[i].muon_pt/1e3 <= 15 && muon_id_medium[i] == 1) ||
+                (abs(muons[i].muon_eta) >= 2.5) ||
+                (muon_id_medium[i] != 1))
                 {
                     continue;
                 }
-                new_muons.push_back(muons[i]);
+                di_muon_indices.push_back(i);
             }
-            
-            return new_muons;
 
-        },{"muons", "muon_id_medium"}).Filter([](RVec<Electron>& electrons, RVec<Muon>& di_muons)
+            return di_muon_indices; //Stores indices of good muons
+
+        },{"muons", "muon_id_medium"}).Define("di_muons",
+        [](RVec<Muon>& muons, RVec<int> di_muon_indices)
+        {
+            return Take(muons, di_muon_indices); //get the good muons corresponding to the good muon indices
+
+        },{"muons", "di_muon_indices"}).Define("di_muon_sf_total",
+        [](RVec<float>& muon_sf_total, RVec<int> di_muon_indices)
+        {
+           return Take(muon_sf_total, di_muon_indices); //get the scale factors corresponding to the good muons
+
+        }, {"muon_sf_total", "di_muon_indices"}).Define("di_muon_sf",
+        [](RVec<float>& muon_sf_total)
+        {
+            float total = 1.0f;
+            for (int i = 0; i < muon_sf_total.size(); i++)
+            {
+                total *= muon_sf_total[i];
+            }
+            return total; //product of scale factors for two muons
+        }, {"di_muon_sf_total"})
+        .Filter([](RVec<Electron>& electrons, RVec<Muon>& di_muons)
         {            
             return (di_muons.size()==2 && electrons.empty() && DeltaR(di_muons[0].Vector(), di_muons[1].Vector()) > 0.01);
             
@@ -818,7 +840,7 @@ void Table11()
         
         auto opp_charge = two_leptons.Filter([](RVec<Muon>& di_muons)
         {
-            return (di_muons[0].muon_charge*di_muons[1].muon_charge < 0);
+            return (di_muons[0].muon_charge*di_muons[1].muon_charge < 0); //opposite charge
             
         }, {"di_muons"});
         
@@ -832,14 +854,14 @@ void Table11()
 //            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
 //        }, {"di_electrons"});
         
-        auto same_flavour = leading_pt.Filter([] (RVec<Muon>& muons)
+        auto same_flavour = leading_pt.Filter([] (RVec<Muon>& muons) //doing nothing
         {
             return true; //abs(electrons[0].electron_pdg_id) == abs(electrons[1].electron_pdg_id) == 11;
         }, {"di_muons"});
         
         auto dilep = same_flavour.Define("dilep",[] (RVec<Muon>& muons)
         {
-            return (muons[0].Vector() + muons[1].Vector());
+            return (muons[0].Vector() + muons[1].Vector()); //adding the two four-vectors
         }, {"di_muons"})
         .Define("dilep_mass", [] (PtEtaPhiEVector& dilep)
         {
@@ -868,8 +890,8 @@ void Table11()
             }), photons.end());
             return photons;
         }, {"photons"}).Filter(
-       [&](RVec<Photon>& reco_photons_matched)
-       {
+        [&](RVec<Photon>& reco_photons_matched)
+        {
             if (reco_photons_matched.size() < 2)
             {
               return false;
@@ -895,7 +917,7 @@ void Table11()
             }
             return (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3);
 
-       }, {"photonPtDeltaR"});
+        }, {"photonPtDeltaR"});
                 
         auto X_window = photonPtDeltaR.Define("chosen_two",
         [](RVec<Photon>& reco_photons_matched)
@@ -958,8 +980,8 @@ void Table11()
         Nodes.push_back(SR.Count());
         Nodes.push_back(SR_ID.Count());
         
-//        histo = ptCut.Histo1D<double>({"Dimuon Invariant Mass", "Dimuon Invariant Mass", 60u, 60, 120}, "dilep_mass", "muon_sf_total");
-        histo = ptCut.Histo1D<double>({"Dimuon Invariant Mass", "Dimuon Invariant Mass", 60u, 60, 120}, "dilep_mass");
+        histo = ptCut.Histo1D<double>({"Dimuon Invariant Mass", "Dimuon Invariant Mass", 60u, 60, 120}, "dilep_mass", "di_muon_sf");
+//        histo = ptCut.Histo1D<double>({"Dimuon Invariant Mass", "Dimuon Invariant Mass", 60u, 60, 120}, "dilep_mass");
         
     }
     
@@ -1017,7 +1039,11 @@ void Table11()
     Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 5 GeV");
     legend->SetBorderSize(0);
     legend->Draw();
-    c1->SaveAs("Dimuon_Invariant_Mass_unweighted.pdf");
+    
+    auto* x = new TFile("output.root", "RECREATE");
+    histo->Write();
+//    c1->SaveAs("Dimuon_Invariant_Mass_unweighted.pdf");
+//    c1->SaveAs("Dimuon_Invariant_Mass_weighted.pdf");
 
     std::cout << R"--(\section*{Table 11 Signal Ratios})--" << '\n';
     std::cout << R"--(\hspace{-3cm}\scalebox{0.65}{)--" << '\n';

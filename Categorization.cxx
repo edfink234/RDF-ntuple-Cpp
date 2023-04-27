@@ -1184,7 +1184,21 @@ void Fig19()
     for (auto& file: input_filenames)
     {
         SchottDataFrame df(MakeRDF({file}, 8));
-        auto two_leptons = df.Filter(
+        
+        auto trigger_selection = df.Filter(
+        [](const RVec<std::string>& trigger_passed_triggers)
+        {
+           bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+
+           if (!trigger_found)
+           {
+               return false;
+           }
+           return true;
+
+        }, {"trigger_passed_triggers"});
+        
+        auto two_leptons = trigger_selection.Filter(
         [](RVec<Muon>& muons, RVec<Electron> electrons)
         {
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
@@ -1243,13 +1257,14 @@ void Fig19()
             return pT > 10;
         }, {"di_electrons"});
         
+        //Not Checking photon id_loose here!!!
         auto photon_passes_cuts = ptCut.Define("photons_pass_cuts",
         [&](RVec<Photon> photons)
         {
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52)); //or (not p[i].photon_id_loose)))
 
             }), photons.end());
 
@@ -1274,7 +1289,7 @@ void Fig19()
                 m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
                 pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || ((abs(1-X) < abs(1-best_X)) and (delta_r < 1.5)))
                 {
                     best_X = X;
                     pt1 = photons_pass_cuts[combs[0][i]].photon_pt;
@@ -1318,7 +1333,7 @@ void Fig19()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || ((abs(1-X) < abs(1-best_X)) and (delta_r < 1.5)))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -1360,6 +1375,9 @@ void Fig19()
         
         out << noCat / total << '\n' << numMerged / total  << '\n'
             << numResolved / total << '\n';
+        
+        std::cout << noCat << '\n' << numMerged  << '\n'
+        << numResolved << "\n\n";
     }
     
     
@@ -2048,9 +2066,9 @@ void Categorization()
 //    Table5();
 //    Table14();
 //    Table15();
-//    Fig19();
-    Table4_Displaced_Axions();
-    Table5_Displaced_Axions();
+    Fig19();
+//    Table4_Displaced_Axions();
+//    Table5_Displaced_Axions();
     auto end_time = Clock::now();
     std::cout << "Time difference: "
        << std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count()/1e9 << " seconds" << std::endl;
