@@ -31,7 +31,7 @@ void RDF_analyse_h_Za()
     auto start_time = Clock::now();
     
     //Input files
-    std::vector<std::string> input_filenames = {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"};
+    std::vector<std::string> input_filenames = {"../user.kschmied.28655874._000025.LGNTuple.root", "../user.kschmied.28655874._000024.LGNTuple.root"};
     
     //Construct the RDataFrame, specifying we want to run with 8 threads
     SchottDataFrame df(MakeRDF(input_filenames,8));
@@ -94,14 +94,14 @@ void RDF_analyse_h_Za()
     {
         truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),[](const TruthParticle& x)
             {
-                return (((abs(x.mc_pdg_id)!=11)
-                     && (abs(x.mc_pdg_id)!=12)
-                     && (abs(x.mc_pdg_id)!=13)
-                     && (abs(x.mc_pdg_id)!=14)
-                     && (abs(x.mc_pdg_id)!=15)
-                     && (abs(x.mc_pdg_id)!=16)
-                     && (abs(x.mc_pdg_id)!=17)
-                     && (abs(x.mc_pdg_id)!=18))
+                return (((std::abs(x.mc_pdg_id)!=11)
+                     && (std::abs(x.mc_pdg_id)!=12)
+                     && (std::abs(x.mc_pdg_id)!=13)
+                     && (std::abs(x.mc_pdg_id)!=14)
+                     && (std::abs(x.mc_pdg_id)!=15)
+                     && (std::abs(x.mc_pdg_id)!=16)
+                     && (std::abs(x.mc_pdg_id)!=17)
+                     && (std::abs(x.mc_pdg_id)!=18))
                     || (x.mc_status!=1));
             
             }), truth_particles.end());
@@ -205,8 +205,8 @@ void RDF_analyse_h_Za()
         photons.erase(std::remove_if(photons.begin(),photons.end(),
         [](Photon& x)
         {
-            return ((!x.photon_id)|| (x.photon_pt<=10000) || (x.photon_eta >= 2.37)
-                    || (abs(x.photon_eta)>1.37 && abs(x.photon_eta)<1.52));
+            return ((!x.photon_id)|| (x.photon_pt<=10000) || (std::abs(x.photon_eta) >= 2.37)
+                    || (std::abs(x.photon_eta)>1.37 && std::abs(x.photon_eta)<1.52));
             
         }), photons.end());
         
@@ -284,10 +284,6 @@ void RDF_analyse_h_Za()
 
 //    std::cout << '\n' << passed_selected_photons_eta.Display<RVec<Photon>,RVec<Photon>,RVec<float>>({"photons", "selected_photons", "passed_selected_photons_eta"},100)->AsString() << '\n';
     
-//    Get number of events that passed
-    auto nEntriesAfterCuts = passed_selected_photons_eta.Count();
-    std::cout << "# events for nominal = " << *nEntriesAfterCuts << '\n';
-    
     std::vector<ROOT::RDF::RResultPtr<TH1D>> histos;
     histos.reserve(12); //Good practice to reserve space for a vector.
 
@@ -306,6 +302,10 @@ void RDF_analyse_h_Za()
         passed_selected_photons_pt.Histo1D<RVec<float>>({"passed_selected_photons_pt", "histTitle", 20u, 0, 200}, "passed_selected_photons_pt"),
         passed_selected_photons_eta.Histo1D<RVec<float>>({"passed_selected_photons_eta", "histTitle", 40u, -6, 6}, "passed_selected_photons_eta"),
     };
+    
+    //    Get number of events that passed
+    auto nEntriesAfterCuts = passed_selected_photons_eta.Count();
+    std::cout << "# events for nominal = " << *nEntriesAfterCuts << '\n';
     
     TCanvas *c1;
     for (auto& h: histos) //For each histogram
