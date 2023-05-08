@@ -34,6 +34,10 @@ RVec<T> MakePhotons (const RVec<float>& photon_pt, const RVec<float>& photon_e, 
     T temp;
     for (size_t i = 0; i < photon_pt.size(); i++)
     {
+        if (photon_pt[i] < 0)
+        {
+            continue;
+        }
         temp.photon_pt =  photon_pt[i];
         temp.photon_e =  photon_e[i];
         temp.photon_eta =  photon_eta[i];
@@ -45,6 +49,7 @@ RVec<T> MakePhotons (const RVec<float>& photon_pt, const RVec<float>& photon_e, 
         temp.photon_cluster_eta_be_2 =  photon_cluster_eta_be_2[i];
 //            temp.photon_id_nn = photon_id_nn[i];
         x.push_back(temp);
+        
     }
     return x;
 }

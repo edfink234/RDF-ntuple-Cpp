@@ -90,12 +90,12 @@ bool photon_selection(Photon& photon)
         return false;
     }
     
-    if (abs(photon.photon_eta) > 2.37)
+    if (std::abs(photon.photon_eta) > 2.37)
     {
         return false;
     }
     
-    if ((1.37 < abs(photon.photon_eta)) && (abs(photon.photon_eta) < 1.52))
+    if ((1.37 < std::abs(photon.photon_eta)) && (std::abs(photon.photon_eta) < 1.52))
     {
         return false;
     }
@@ -112,12 +112,12 @@ bool truth_photon_selection(TruthParticle& truth_photon)
         return false;
     }
     
-    if (abs(truth_photon.mc_eta) > 2.37)
+    if (std::abs(truth_photon.mc_eta) > 2.37)
     {
         return false;
     }
     
-    if ((1.37 < abs(truth_photon.mc_eta)) && (abs(truth_photon.mc_eta) < 1.52))
+    if ((1.37 < std::abs(truth_photon.mc_eta)) && (std::abs(truth_photon.mc_eta) < 1.52))
     {
         return false;
     }
@@ -132,7 +132,7 @@ bool track_selection(Track& track)
         return false;
     }
     
-    if (abs(track.track_eta) > 2.5)
+    if (std::abs(track.track_eta) > 2.5)
     {
         return false;
     }

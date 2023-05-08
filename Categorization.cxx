@@ -161,9 +161,9 @@ void Table4()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                        abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+                return (std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                        std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                        std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18);
                 
             }), truth_particles.end());
             
@@ -210,7 +210,7 @@ void Table4()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 22);
+                return (std::abs(x.mc_pdg_id) != 22);
                 
             }), truth_particles.end());
             
@@ -222,7 +222,7 @@ void Table4()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 35);
+                return (std::abs(x.mc_pdg_id) != 35);
                 
             }), truth_particles.end());
             
@@ -244,7 +244,7 @@ void Table4()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+                return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52));
             }), photons.end());
             
             return photons;
@@ -264,7 +264,7 @@ void Table4()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -414,9 +414,9 @@ void Table5()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                        abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+                return (std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                        std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                        std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18);
                 
             }), truth_particles.end());
             
@@ -465,7 +465,7 @@ void Table5()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 22);
+                return (std::abs(x.mc_pdg_id) != 22);
                 
             }), truth_particles.end());
             
@@ -477,7 +477,7 @@ void Table5()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 35);
+                return (std::abs(x.mc_pdg_id) != 35);
                 
             }), truth_particles.end());
             
@@ -499,7 +499,7 @@ void Table5()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+                return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52));
             }), photons.end());
             
             return photons;
@@ -525,7 +525,7 @@ void Table5()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -655,8 +655,8 @@ void Table14()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                           && (ep.electron_id_medium == 1)));
                 
             }), electrons.end());
@@ -671,8 +671,8 @@ void Table14()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -714,7 +714,7 @@ void Table14()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return ((abs(x.mc_pdg_id) != 22) || (abs(x.mc_eta) >= 2.37));
+                return ((std::abs(x.mc_pdg_id) != 22) || (std::abs(x.mc_eta) >= 2.37));
 
             }), truth_particles.end());
             
@@ -745,7 +745,7 @@ void Table14()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].mc_pt;
@@ -886,8 +886,8 @@ void Table15()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                           && (ep.electron_id_medium == 1)));
                 
             }), electrons.end());
@@ -902,8 +902,8 @@ void Table15()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -945,7 +945,7 @@ void Table15()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-              return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+              return ((std::abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
 
@@ -975,7 +975,7 @@ void Table15()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -1204,8 +1204,8 @@ void Fig19()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                           && (ep.electron_id_medium == 1)));
                 
             }), electrons.end());
@@ -1220,8 +1220,8 @@ void Fig19()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -1264,7 +1264,7 @@ void Fig19()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52)); //or (not p[i].photon_id_loose)))
+                return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52)); //or (not p[i].photon_id_loose)))
 
             }), photons.end());
 
@@ -1289,7 +1289,7 @@ void Fig19()
                 m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
                 pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || ((abs(1-X) < abs(1-best_X)) and (delta_r < 1.5)))
+                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
                 {
                     best_X = X;
                     pt1 = photons_pass_cuts[combs[0][i]].photon_pt;
@@ -1333,7 +1333,7 @@ void Fig19()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || ((abs(1-X) < abs(1-best_X)) and (delta_r < 1.5)))
+                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -1505,9 +1505,9 @@ void Table4_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                        abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+                return (std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                        std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                        std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18);
                 
             }), truth_particles.end());
             
@@ -1554,7 +1554,7 @@ void Table4_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 22);
+                return (std::abs(x.mc_pdg_id) != 22);
                 
             }), truth_particles.end());
             
@@ -1566,7 +1566,7 @@ void Table4_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 35 && abs(x.mc_pdg_id) != 36);
+                return (std::abs(x.mc_pdg_id) != 35 && std::abs(x.mc_pdg_id) != 36);
                 
             }), truth_particles.end());
             
@@ -1588,7 +1588,7 @@ void Table4_Displaced_Axions()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+                return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52));
             }), photons.end());
             
             return photons;
@@ -1608,7 +1608,7 @@ void Table4_Displaced_Axions()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -1816,9 +1816,9 @@ void Table5_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                        abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+                return (std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                        std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                        std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18);
                 
             }), truth_particles.end());
             
@@ -1867,7 +1867,7 @@ void Table5_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 22);
+                return (std::abs(x.mc_pdg_id) != 22);
                 
             }), truth_particles.end());
             
@@ -1879,7 +1879,7 @@ void Table5_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 35);
+                return (std::abs(x.mc_pdg_id) != 35);
                 
             }), truth_particles.end());
             
@@ -1901,7 +1901,7 @@ void Table5_Displaced_Axions()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+                return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52));
             }), photons.end());
             
             return photons;
@@ -1927,7 +1927,7 @@ void Table5_Displaced_Axions()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;

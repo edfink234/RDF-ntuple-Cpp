@@ -175,7 +175,7 @@ void Table11MuonElectron()
                      (muons[i].muon_pt/1e3 <= 15) ||
 //                     (muons[i].muon_pt/1e3 <= 10) ||
 //                     (muons[i].muon_pt/1e3 <= 15 && muon_id_medium[i] == 1) ||
-                     (abs(muons[i].muon_eta) >= 2.5) ||
+                     (std::abs(muons[i].muon_eta) >= 2.5) ||
                      (muon_id_medium[i] != 1))
                 {
                     continue;
@@ -192,8 +192,8 @@ void Table11MuonElectron()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return ((ep.electron_pt/1e3 <= 20) || (abs(ep.electron_eta) >= 2.37)
-                        || ((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52))
+                return ((ep.electron_pt/1e3 <= 20) || (std::abs(ep.electron_eta) >= 2.37)
+                        || ((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52))
                         || (ep.electron_id_medium != 1));
                 
 
@@ -439,7 +439,7 @@ void Table11MuonElectron()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+                return ((std::abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52));
                 
             }), photons.end());
             return photons;
@@ -460,7 +460,7 @@ void Table11MuonElectron()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -477,7 +477,7 @@ void Table11MuonElectron()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 22);
+                return (std::abs(x.mc_pdg_id) != 22);
 
             }), truth_particles.end());
 
@@ -489,7 +489,7 @@ void Table11MuonElectron()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 35);
+                return (std::abs(x.mc_pdg_id) != 35);
 
             }), truth_particles.end());
 
@@ -533,7 +533,7 @@ void Table11MuonElectron()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -802,7 +802,7 @@ void Table11()
             {
                 if  ((muons[i].muon_pt/1e3 <= 10) ||
                 (muons[i].muon_pt/1e3 <= 15 && muon_id_medium[i] == 1) ||
-                (abs(muons[i].muon_eta) >= 2.5) ||
+                (std::abs(muons[i].muon_eta) >= 2.5) ||
                 (muon_id_medium[i] != 1))
                 {
                     continue;
@@ -856,7 +856,7 @@ void Table11()
         
         auto same_flavour = leading_pt.Filter([] (RVec<Muon>& muons) //doing nothing
         {
-            return true; //abs(electrons[0].electron_pdg_id) == abs(electrons[1].electron_pdg_id) == 11;
+            return true; //std::abs(electrons[0].electron_pdg_id) == std::abs(electrons[1].electron_pdg_id) == 11;
         }, {"di_muons"});
         
         auto dilep = same_flavour.Define("dilep",[] (RVec<Muon>& muons)
@@ -885,7 +885,7 @@ void Table11()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52));
+                return ((std::abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52));
                 
             }), photons.end());
             return photons;
@@ -906,7 +906,7 @@ void Table11()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -937,7 +937,7 @@ void Table11()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;

@@ -188,8 +188,8 @@ void Table21()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](AbstractParticle& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                           && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -204,8 +204,8 @@ void Table21()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](AbstractParticle& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -247,7 +247,7 @@ void Table21()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](AbstractParticle& x)
             {
-              return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+              return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
 
@@ -277,7 +277,7 @@ void Table21()
                 m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
                 pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -656,8 +656,8 @@ void Table22()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](AbstractParticle& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                           && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -672,8 +672,8 @@ void Table22()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](AbstractParticle& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -715,7 +715,7 @@ void Table22()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](AbstractParticle& x)
             {
-              return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+              return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
 
@@ -745,7 +745,7 @@ void Table22()
                 m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
                 pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -1125,8 +1125,8 @@ void Table23()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](AbstractParticle& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                           && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -1141,8 +1141,8 @@ void Table23()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](AbstractParticle& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -1184,7 +1184,7 @@ void Table23()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](AbstractParticle& x)
             {
-              return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+              return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
 
@@ -1209,7 +1209,7 @@ void Table23()
                 m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
                 pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -1554,8 +1554,8 @@ void Table24()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](AbstractParticle& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                           && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -1570,8 +1570,8 @@ void Table24()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](AbstractParticle& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -1613,7 +1613,7 @@ void Table24()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](AbstractParticle& x)
             {
-              return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+              return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
 
@@ -1638,7 +1638,7 @@ void Table24()
                 m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
                 pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -1961,7 +1961,7 @@ void Table21_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 36); //axions are pdg_id = 36 in displaced samples, but we don't use them in the prompt samples, so it doesn't matter that in the prompt samples, the pdg_id of the axions is 35
+                return (std::abs(x.mc_pdg_id) != 36); //axions are pdg_id = 36 in displaced samples, but we don't use them in the prompt samples, so it doesn't matter that in the prompt samples, the pdg_id of the axions is 35
 
             }), truth_particles.end());
 
@@ -1978,7 +1978,7 @@ void Table21_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-               return (abs(x.mc_pdg_id) != 36); //axions are pdg_id = 36 in displaced samples, but we don't use them in the prompt samples, so it doesn't matter that in the prompt samples, the pdg_id of the axions is 35
+               return (std::abs(x.mc_pdg_id) != 36); //axions are pdg_id = 36 in displaced samples, but we don't use them in the prompt samples, so it doesn't matter that in the prompt samples, the pdg_id of the axions is 35
 
             }), truth_particles.end());
 
@@ -2009,8 +2009,8 @@ void Table21_Displaced_Axions()
             {
                 //keep electron if it has pt > 20 GeV, |eta| < 2.37, not (1.37 < |eta| < 1.52), and id_medium = 1
 
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -2057,7 +2057,7 @@ void Table21_Displaced_Axions()
 
             for (auto i = 0; i < p.size(); i++)
             {
-                if (not ((abs(p[i].photon_eta) >= 2.37) or (abs(p[i].photon_eta) > 1.37 and abs(p[i].photon_eta) < 1.52) or (not p[i].photon_id_loose)))
+                if (not ((std::abs(p[i].photon_eta) >= 2.37) or (std::abs(p[i].photon_eta) > 1.37 and std::abs(p[i].photon_eta) < 1.52) or (not p[i].photon_id_loose)))
                 {
                     x.push_back(i);
                 }
@@ -2098,7 +2098,7 @@ void Table21_Displaced_Axions()
                 m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
                 pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || ((abs(1-X) < abs(1-best_X)) and (delta_r < 1.5)))
+                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -2283,7 +2283,7 @@ void Table21_Displaced_Axions()
                     std::cout << "; deltaR = " << delta_r <<
                     "; X = " << X << "}, ";
                     
-                    if (i==0 || ((abs(1-X) < abs(1-best_X)) and (delta_r < 1.5)))
+                    if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
                     {
                         best_X = X;
                         pt1 = j.second[combs[0][i]].photon_pt;
@@ -2459,7 +2459,7 @@ void Table22_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-             return (abs(x.mc_pdg_id) != 36);
+             return (std::abs(x.mc_pdg_id) != 36);
 
             }), truth_particles.end());
 
@@ -2476,7 +2476,7 @@ void Table22_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-               return (abs(x.mc_pdg_id) != 36);
+               return (std::abs(x.mc_pdg_id) != 36);
 
             }), truth_particles.end());
 
@@ -2507,8 +2507,8 @@ void Table22_Displaced_Axions()
             {
                 //keep electron if it has pt > 20 GeV, |eta| < 2.37, not (1.37 < |eta| < 1.52), and id_medium = 1
 
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -2555,7 +2555,7 @@ void Table22_Displaced_Axions()
 
             for (auto i = 0; i < p.size(); i++)
             {
-                if (not ((abs(p[i].photon_eta) >= 2.37) or (abs(p[i].photon_eta) > 1.37 and abs(p[i].photon_eta) < 1.52) or (not p[i].photon_id_loose)))
+                if (not ((std::abs(p[i].photon_eta) >= 2.37) or (std::abs(p[i].photon_eta) > 1.37 and std::abs(p[i].photon_eta) < 1.52) or (not p[i].photon_id_loose)))
                 {
                     x.push_back(i);
                 }
@@ -2592,7 +2592,7 @@ void Table22_Displaced_Axions()
                 m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
                 pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || ((abs(1-X) < abs(1-best_X)) and (delta_r < 1.5)))
+                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -2909,7 +2909,7 @@ void Table23_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-             return (abs(x.mc_pdg_id) != 36);
+             return (std::abs(x.mc_pdg_id) != 36);
 
             }), truth_particles.end());
 
@@ -2926,7 +2926,7 @@ void Table23_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-               return (abs(x.mc_pdg_id) != 36);
+               return (std::abs(x.mc_pdg_id) != 36);
 
             }), truth_particles.end());
 
@@ -2957,8 +2957,8 @@ void Table23_Displaced_Axions()
             {
                 //keep electron if it has pt > 20 GeV, |eta| < 2.37, not (1.37 < |eta| < 1.52), and id_medium = 1
 
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -3005,7 +3005,7 @@ void Table23_Displaced_Axions()
 
             for (auto i = 0; i < p.size(); i++)
             {
-                if (not ((abs(p[i].photon_eta) >= 2.37) or (abs(p[i].photon_eta) > 1.37 and abs(p[i].photon_eta) < 1.52) or (not p[i].photon_id_loose)))
+                if (not ((std::abs(p[i].photon_eta) >= 2.37) or (std::abs(p[i].photon_eta) > 1.37 and std::abs(p[i].photon_eta) < 1.52) or (not p[i].photon_id_loose)))
                 {
                     x.push_back(i);
                 }
@@ -3037,7 +3037,7 @@ void Table23_Displaced_Axions()
                 m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
                 pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || ((abs(1-X) < abs(1-best_X)) and (delta_r < 1.5)))
+                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -3300,7 +3300,7 @@ void Table24_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-             return (abs(x.mc_pdg_id) != 36);
+             return (std::abs(x.mc_pdg_id) != 36);
 
             }), truth_particles.end());
 
@@ -3317,7 +3317,7 @@ void Table24_Displaced_Axions()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-               return (abs(x.mc_pdg_id) != 36);
+               return (std::abs(x.mc_pdg_id) != 36);
 
             }), truth_particles.end());
 
@@ -3348,8 +3348,8 @@ void Table24_Displaced_Axions()
             {
                 //keep electron if it has pt > 20 GeV, |eta| < 2.37, not (1.37 < |eta| < 1.52), and id_medium = 1
 
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -3396,7 +3396,7 @@ void Table24_Displaced_Axions()
 
             for (auto i = 0; i < p.size(); i++)
             {
-                if (not ((abs(p[i].photon_eta) >= 2.37) or (abs(p[i].photon_eta) > 1.37 and abs(p[i].photon_eta) < 1.52) or (not p[i].photon_id_loose)))
+                if (not ((std::abs(p[i].photon_eta) >= 2.37) or (std::abs(p[i].photon_eta) > 1.37 and std::abs(p[i].photon_eta) < 1.52) or (not p[i].photon_id_loose)))
                 {
                     x.push_back(i);
                 }
@@ -3428,7 +3428,7 @@ void Table24_Displaced_Axions()
                 m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
                 pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || ((abs(1-X) < abs(1-best_X)) and (delta_r < 1.5)))
+                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;

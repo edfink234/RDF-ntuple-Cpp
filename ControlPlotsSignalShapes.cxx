@@ -163,8 +163,8 @@ void fig1A()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                           && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -179,8 +179,8 @@ void fig1A()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -438,9 +438,9 @@ void fig5()
         truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
         [](TruthParticle& x)
         {
-            return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                    abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                    abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+            return (std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                    std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                    std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18);
 
         }), truth_particles.end());
         //must be exactly two leptons/anti-leptons
@@ -487,7 +487,7 @@ void fig5()
         truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
         [](TruthParticle& x)
         {
-            return (abs(x.mc_pdg_id) != 22);
+            return (std::abs(x.mc_pdg_id) != 22);
 
         }), truth_particles.end());
 
@@ -680,9 +680,9 @@ void fig6()
         truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
         [](TruthParticle& x)
         {
-            return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                    abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                    abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+            return (std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                    std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                    std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18);
 
         }), truth_particles.end());
 
@@ -731,7 +731,7 @@ void fig6()
         truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
         [](TruthParticle& x)
         {
-            return (abs(x.mc_pdg_id) != 22);
+            return (std::abs(x.mc_pdg_id) != 22);
 
         }), truth_particles.end());
 
@@ -743,7 +743,7 @@ void fig6()
         truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
         [&](TruthParticle& x)
         {
-            return (abs(x.mc_pdg_id) != 35 && abs(x.mc_pdg_id) != 36);
+            return (std::abs(x.mc_pdg_id) != 35 && std::abs(x.mc_pdg_id) != 36);
 
         }), truth_particles.end());
 
@@ -765,7 +765,7 @@ void fig6()
         photons.erase(std::remove_if(photons.begin(),photons.end(),
         [](Photon& x)
         {
-            return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+            return ((std::abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
         }), photons.end());
 
@@ -968,9 +968,9 @@ void fig8()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                        abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+                return (std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                        std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                        std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18);
 
             }), truth_particles.end());
 
@@ -1017,7 +1017,7 @@ void fig8()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 22);
+                return (std::abs(x.mc_pdg_id) != 22);
 
             }), truth_particles.end());
 
@@ -1029,7 +1029,7 @@ void fig8()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 35);
+                return (std::abs(x.mc_pdg_id) != 35);
 
             }), truth_particles.end());
 
@@ -1051,7 +1051,7 @@ void fig8()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+                return ((std::abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
 
@@ -1106,9 +1106,9 @@ void fig8()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (((abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                         abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18)) || (x.mc_status != 1));
+                return (((std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                        std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                         std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18)) || (x.mc_status != 1));
 
             }), truth_particles.end());
 
@@ -1157,7 +1157,7 @@ void fig8()
             PtEtaPhiEVector four_momentum_photons = truth_photons_from_axions[0].Vector() + truth_photons_from_axions[1].Vector();
             PtEtaPhiEVector four_momentum_leptons = stable_truth_leptons[0].Vector() + stable_truth_leptons[1].Vector();
 
-            return abs((four_momentum_photons - four_momentum_leptons).Eta());
+            return std::abs((four_momentum_photons - four_momentum_leptons).Eta());
         }, {"truth_photons_from_axions", "stable_truth_leptons"});
 
         Nodes.push_back(stable_truth_dileptons_and_diphotons.Histo1D<double>({prefixes[count], prefixes[count], 50u, 0, 200}, "reconstructed_Z", "totEventWeight"));
@@ -1452,9 +1452,9 @@ void fig10()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                        abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+                return (std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                        std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                        std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18);
 
             }), truth_particles.end());
 
@@ -1501,7 +1501,7 @@ void fig10()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 22);
+                return (std::abs(x.mc_pdg_id) != 22);
 
             }), truth_particles.end());
 
@@ -1513,7 +1513,7 @@ void fig10()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 35);
+                return (std::abs(x.mc_pdg_id) != 35);
 
             }), truth_particles.end());
 
@@ -1535,7 +1535,7 @@ void fig10()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+                return ((std::abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
 
@@ -1592,9 +1592,9 @@ void fig10()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (((abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                         abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18)) || (x.mc_status != 1));
+                return (((std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                        std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                         std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18)) || (x.mc_status != 1));
 
             }), truth_particles.end());
 
@@ -1760,9 +1760,9 @@ void fig18()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                        abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+                return (std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                        std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                        std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18);
 
             }), truth_particles.end());
 
@@ -1809,7 +1809,7 @@ void fig18()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 22);
+                return (std::abs(x.mc_pdg_id) != 22);
 
             }), truth_particles.end());
 
@@ -1821,7 +1821,7 @@ void fig18()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 35);
+                return (std::abs(x.mc_pdg_id) != 35);
 
             }), truth_particles.end());
 
@@ -1843,7 +1843,7 @@ void fig18()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+                return ((std::abs(x.photon_eta) >= 2.37) || (x.photon_pt <= 10e3) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
 
@@ -2109,8 +2109,8 @@ void fig24()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                           && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -2125,8 +2125,8 @@ void fig24()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -2168,7 +2168,7 @@ void fig24()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+                return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
 
@@ -2193,7 +2193,7 @@ void fig24()
                 m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
                 pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = photons_pass_cuts[combs[0][i]].photon_pt;
@@ -2496,9 +2496,9 @@ void fig54()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                        abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+                return (std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                        std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                        std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18);
 
             }), truth_particles.end());
 
@@ -2545,7 +2545,7 @@ void fig54()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 22);
+                return (std::abs(x.mc_pdg_id) != 22);
 
             }), truth_particles.end());
 
@@ -2557,7 +2557,7 @@ void fig54()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (abs(x.mc_pdg_id) != 35);
+                return (std::abs(x.mc_pdg_id) != 35);
 
             }), truth_particles.end());
 
@@ -2579,7 +2579,7 @@ void fig54()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-                return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+                return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
 
@@ -2635,7 +2635,7 @@ void fig54()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
@@ -2679,9 +2679,9 @@ void fig54()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [](TruthParticle& x)
             {
-                return (((abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                        abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                         abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18)) || (x.mc_status != 1));
+                return (((std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                        std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                         std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18)) || (x.mc_status != 1));
 
             }), truth_particles.end());
 
@@ -2935,7 +2935,9 @@ void fig29()
 
     std::vector<std::string> input_filenames = { //"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Test_oneMassPoint.root",
 //        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root"
+        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p01.root"
     };
 
     TCanvas* c1 = new TCanvas();
@@ -2962,9 +2964,9 @@ void fig29()
         truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
         [](TruthParticle& x)
         {
-            return (abs(x.mc_pdg_id) != 11 && abs(x.mc_pdg_id) != 12 && abs(x.mc_pdg_id) != 13 &&
-                    abs(x.mc_pdg_id) != 14 && abs(x.mc_pdg_id) != 15 && abs(x.mc_pdg_id) != 16 &&
-                    abs(x.mc_pdg_id) != 17 && abs(x.mc_pdg_id) != 18);
+            return (std::abs(x.mc_pdg_id) != 11 && std::abs(x.mc_pdg_id) != 12 && std::abs(x.mc_pdg_id) != 13 &&
+                    std::abs(x.mc_pdg_id) != 14 && std::abs(x.mc_pdg_id) != 15 && std::abs(x.mc_pdg_id) != 16 &&
+                    std::abs(x.mc_pdg_id) != 17 && std::abs(x.mc_pdg_id) != 18);
 
         }), truth_particles.end());
 
@@ -3011,7 +3013,7 @@ void fig29()
         truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
         [](TruthParticle& x)
         {
-            return (abs(x.mc_pdg_id) != 22);
+            return (std::abs(x.mc_pdg_id) != 22);
 
         }), truth_particles.end());
 
@@ -3023,7 +3025,7 @@ void fig29()
         truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
         [](TruthParticle& x)
         {
-            return (abs(x.mc_pdg_id) != 36);
+            return (std::abs(x.mc_pdg_id) != 36);
 
         }), truth_particles.end());
 

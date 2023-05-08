@@ -97,8 +97,8 @@ void Fig34()
         electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
         [](Electron& ep)
         {
-            return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                      (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+            return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                      (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                       && (ep.electron_id_medium == 1)));
             
         }), electrons.end());
@@ -113,8 +113,8 @@ void Fig34()
         electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
         [](Electron& ep)
         {
-            return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-            (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+            return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+            (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
             && (ep.electron_id_medium == 1)));
 
         }), electrons.end());
@@ -156,7 +156,7 @@ void Fig34()
         photons.erase(std::remove_if(photons.begin(),photons.end(),
         [](Photon& x)
         {
-            return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+            return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
         }), photons.end());
 
@@ -181,7 +181,7 @@ void Fig34()
             m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
             pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
             X = delta_r*(pt/(2.0*m));
-            if (i==0 || abs(1-X) < abs(1-best_X))
+            if (i==0 || std::abs(1-X) < std::abs(1-best_X))
             {
                 best_X = X;
                 pt1 = photons_pass_cuts[combs[0][i]].photon_pt;
@@ -294,8 +294,8 @@ void Fig52()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                          (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                          (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                           && (ep.electron_id_medium == 1)));
                 
             }), electrons.end());
@@ -310,8 +310,8 @@ void Fig52()
             electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
             [](Electron& ep)
             {
-                return (!((ep.electron_pt/1e3 > 20) && (abs(ep.electron_eta) < 2.37) &&
-                (!((1.37 < abs(ep.electron_eta)) && (abs(ep.electron_eta) < 1.52)))
+                return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
                 && (ep.electron_id_medium == 1)));
 
             }), electrons.end());
@@ -353,7 +353,7 @@ void Fig52()
             photons.erase(std::remove_if(photons.begin(),photons.end(),
             [](Photon& x)
             {
-              return ((abs(x.photon_eta) >= 2.37) || (abs(x.photon_eta) > 1.37 && abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
+              return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52) || (!x.photon_id_loose));
 
             }), photons.end());
 
@@ -383,7 +383,7 @@ void Fig52()
                 m = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).M();
                 pt = (reco_photons_matched[combs[0][i]].Vector() + reco_photons_matched[combs[1][i]].Vector()).Pt();
                 X = delta_r*(pt/(2.0*m));
-                if (i==0 || abs(1-X) < abs(1-best_X))
+                if (i==0 || std::abs(1-X) < std::abs(1-best_X))
                 {
                     best_X = X;
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
