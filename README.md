@@ -16,7 +16,7 @@ To run, have all .h and .cxx files in the same directory, then run:
 
 After the dictionary is created for vector vector, then compile
 
- - `g++ -g -o RDF_analyse_h_Za RDF_analyse_h_Za.cxx MakeRDF.cxx RDFObjects.cxx RDFevent.cxx -O2 $(root-config --libs --cflags) -std=c++14`
+ - `g++ -g -o RDF_analyse_h_Za RDF_analyse_h_Za.cxx MakeRDF.cxx RDFObjects.cxx RDFevent.cxx -O2 $(root-config --libs --cflags) -std=c++17`
 
 
 And run
