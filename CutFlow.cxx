@@ -589,7 +589,7 @@ void Table3()
     << ptCutZGamma << R"--($\, \pm \,$)--" << sqrt(ptCutZGammaStatUnc)
     << R"--( \\ \hline )--" << '\n';
 
-    os << R"--(Total $Z$ jets & )--"
+    os << R"--(Total $Z$+jets & )--"
     << beforePreselecZJets << R"--($\, \pm \,$)--" << sqrt(beforePreselecZJetsStatUnc) << " & "
     << twoLeptonsZJets << R"--($\, \pm \,$)--" << sqrt(twoLeptonsZJetsStatUnc) << " & "
     << oppChargeZJets << R"--($\, \pm \,$)--" << sqrt(oppChargeZJetsStatUnc) << " & "
@@ -918,7 +918,7 @@ void Table8()
     << R"--($\, \pm \,$)--" << sqrt(SREventsZgammaStatUnc)
     << R"--( \\ \hline )--" << '\n';
 
-    os << R"--(Total $Z$ jets & )--" << totalEventsZJets
+    os << R"--(Total $Z$+jets & )--" << totalEventsZJets
     << R"--($\, \pm \,$)--" << sqrt(totalEventsZJetsStatUnc)
     << " & " << resolvedEventsZJets
     << R"--($\, \pm \,$)--" << sqrt(resolvedEventsZJetsStatUnc)
@@ -1460,7 +1460,7 @@ void Table11()
     << R"--($\, \pm \,$)--" << sqrt(srIDCountZgammaStatUnc)
     << R"--( \\ \hline )--" << '\n';
 
-    os << R"--(Total $Z$ jets & )--" << totalEventsZjets
+    os << R"--(Total $Z$+jets & )--" << totalEventsZjets
     << R"--($\, \pm \,$)--" << sqrt(totalEventsZjetsStatUnc)
     << " & " << passPreselectionZjets
     << R"--($\, \pm \,$)--" << sqrt(passPreselectionZjetsStatUnc)

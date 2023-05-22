@@ -520,7 +520,7 @@ void Table21()
     << ( (ZgammaNominal && ZgammaPH_EFF_TRIGGER_Uncertainty) ? ((ZgammaPH_EFF_TRIGGER_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
     << R"--( \\ \hline)--" << '\n';
 
-    ss << R"--(Total $Z$ jets & )--";
+    ss << R"--(Total $Z$+jets & )--";
     ss << std::setprecision(4) << std::fixed
     << ( (ZjetsNominal && ZjetsEG_RESOLUTION_ALL) ? ((ZjetsEG_RESOLUTION_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
@@ -988,7 +988,7 @@ void Table22()
     << ( (ZgammaNominal && ZgammaPH_EFF_TRIGGER_Uncertainty) ? ((ZgammaPH_EFF_TRIGGER_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
     << R"--( \\ \hline)--" << '\n';
 
-    ss << R"--(Total $Z$ jets & )--";
+    ss << R"--(Total $Z$+jets & )--";
     ss << std::setprecision(4) << std::fixed
     << ( (ZjetsNominal && ZjetsEG_RESOLUTION_ALL) ? ((ZjetsEG_RESOLUTION_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
@@ -1418,7 +1418,7 @@ void Table23()
     << ( (ZgammaNominal && ZgammaPH_EFF_TRIGGER_Uncertainty) ? ((ZgammaPH_EFF_TRIGGER_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
     << R"--( \\ \hline)--" << '\n';
 
-    ss << R"--(Total $Z$ jets & )--";
+    ss << R"--(Total $Z$+jets & )--";
     ss << std::setprecision(4) << std::fixed
     << ( (ZjetsNominal && ZjetsEG_RESOLUTION_ALL) ? ((ZjetsEG_RESOLUTION_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
@@ -1848,7 +1848,7 @@ void Table24()
     << ( (ZgammaNominal && ZgammaPH_EFF_TRIGGER_Uncertainty) ? ((ZgammaPH_EFF_TRIGGER_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
     << R"--( \\ \hline)--" << '\n';
 
-    ss << R"--(Total $Z$ jets & )--";
+    ss << R"--(Total $Z$+jets & )--";
     ss << std::setprecision(4) << std::fixed
     << ( (ZjetsNominal && ZjetsEG_RESOLUTION_ALL) ? ((ZjetsEG_RESOLUTION_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
