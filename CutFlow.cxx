@@ -2729,11 +2729,11 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         {
             for (auto& particle: truth_axions)
             {
-                if (counter <= 1 && particle.mc_pdg_id == 35) //then it's a prompt ALP
+                if (counter <= 4 && particle.mc_pdg_id == 35) //then it's a prompt ALP
                 {
                     return particle.mc_mass/1e3f;
                 }
-                else if (counter > 1 && particle.mc_pdg_id == 36) //then it's a displaced ALP
+                else if (counter > 4 && particle.mc_pdg_id == 36) //then it's a displaced ALP
                 {
                     return particle.mc_mass/1e3f;
                 }
@@ -3109,6 +3109,7 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
     TCanvas* c1;
     TH2D* histo2d;
     std::string name, title;
+    std::unordered_map<float,float> efficiencies = {{1.0f, 1.0f}, {0.01f, 1.0f}, {0.001f, 0.284f}};
 
     //for each systematic
     for (auto& syst_index: syst_indices)
@@ -3164,6 +3165,8 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
                 {
                     throw std::runtime_error(std::string("Something's wrong at ") + syst_index + ": " + std::to_string(massPoints[i]) + " GeV, coupling = " + std::to_string(coupling));
                 }
+                
+                efficiency *= efficiencies[coupling]; //mutiply efficiency by Pythia Filter Efficiency
 
                 if (syst_index == "nominal") //nominal case: Store the efficiency in the unordered_map
                 {
@@ -3188,7 +3191,7 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         Tl.DrawLatexNDC(0.7, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
-        title = std::string("C_{a#gamma#gamma}") + "_displaced_resolved_" + syst_index + ".pdf";
+        title = std::string("Cayy") + "DisplacedResolved" + syst_index + ".pdf";
         c1->SaveAs(title.c_str());
         //open -a Safari C_{a#gamma#gamma}_displaced_resolved_* C_{a#gamma#gamma}_prompt_resolved_*
         delete c1;
@@ -3198,9 +3201,11 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
 
         //create a new plot
         c1 = new TCanvas();
+        c1->SetLogy(); //Set log scale for y-axis
         title = syst_index + std::string(" (prompt resolved)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
         name = std::string("C_{a#gamma#gamma}") + syst_index;
-        histo2d = new TH2D(name.c_str(), title.c_str(), 295, 0.2, 29.5, 5, 0, 2); //numbers are: x_bins, x_min, x_max, y_bins, y_min, y_max
+        double prompt_y_bins[] = {0.008, 0.0099, 0.08, 0.1}; //y bins
+        histo2d = new TH2D(name.c_str(), title.c_str(), 25, 0.1, 10, 3, prompt_y_bins); //numbers are: x_bins, x_min, x_max, y_bins, y_min, y_max
         histo2d->GetXaxis()->SetTitleSize(0.04);
         histo2d->GetYaxis()->SetTitleSize(0.04);
         histo2d->GetZaxis()->SetTitleSize(0.04);
@@ -3213,7 +3218,7 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         //group of results corresponding to mass point i
         for (int i=0, j=0; (i < massPoints_prompt.size()); i++, j+=7)
         {
-            int bin_number = histo2d->FindFixBin(massPoints_prompt[i], ALP_photon_couplings[0]);
+            int bin_number = histo2d->FindFixBin(massPoints_prompt[i], ALP_photon_couplings[1]);
             float efficiency;
 
             auto keys = prompt_resultmaps[j].GetKeys();
@@ -3255,7 +3260,7 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
-        title = std::string("C_{a#gamma#gamma}_prompt_resolved_") + std::string(syst_index) + ".pdf";
+        title = std::string("CayyPromptResolved") + syst_index + ".pdf";
         c1->SaveAs(title.c_str());
 
     }
@@ -3437,11 +3442,11 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         {
             for (auto& particle: truth_axions)
             {
-                if (counter <= 1 && particle.mc_pdg_id == 35) //then it's a prompt ALP
+                if (counter <= 4 && particle.mc_pdg_id == 35) //then it's a prompt ALP
                 {
                     return particle.mc_mass/1e3f;
                 }
-                else if (counter > 1 && particle.mc_pdg_id == 36) //then it's a displaced ALP
+                else if (counter > 4 && particle.mc_pdg_id == 36) //then it's a displaced ALP
                 {
                     return particle.mc_mass/1e3f;
                 }
@@ -3772,6 +3777,8 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
     TLatex Tl;
     TCanvas* c1;
     TH2D* histo2d;
+    std::string name, title;
+    std::unordered_map<float,float> efficiencies = {{1.0f, 1.0f}, {0.01f, 1.0f}, {0.001f, 0.284f}};
 
     //for each systematic
     for (auto& syst_index: syst_indices)
@@ -3782,8 +3789,8 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         //create a plot
         c1 = new TCanvas();
         c1->SetLogy(); //Set log scale for y-axis
-        std::string title = syst_index + std::string(" (displaced merged)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
-        std::string name = std::string("C_{a#gamma#gamma}") + syst_index;
+        title = syst_index + std::string(" (displaced merged)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
+        name = std::string("C_{a#gamma#gamma}") + syst_index;
         double y_bins[] = {0.001, 0.008, 0.0099, 0.08, 0.1, 0.8, 1, 8, 10}; //y bins
         histo2d = new TH2D(name.c_str(), title.c_str(), 299, 0.1, 31, 8, y_bins);
         histo2d->GetYaxis()->SetMoreLogLabels();
@@ -3808,7 +3815,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
             {
                 int bin_number = histo2d->FindFixBin(massPoints[i], coupling);
                 float efficiency;
-
+                
                 auto keys = resultmaps[j].GetKeys();
                 auto keys5 = resultmaps[j+5].GetKeys();
 
@@ -3829,10 +3836,11 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
                 {
                     efficiency = -1;
                 }
+                
+                efficiency *= efficiencies[coupling]; //mutiply efficiency by Pythia Filter Efficiency
 
                 if (syst_index == "nominal")
                 {
-                    merged_long_lived[coupling][massPoints[i]] = efficiency;
                     merged_long_lived_N[coupling][massPoints[i]] = resultmaps[j]["nominal"];
                 }
                 histo2d->SetBinContent(bin_number, efficiency);
@@ -3849,7 +3857,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         Tl.DrawLatexNDC(0.7, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
-        title = std::string("C_{a#gamma#gamma}_displaced_merged_") + std::string(syst_index) + "_merged.pdf";
+        title = std::string("CayyDisplacedMerged") + syst_index + ".pdf";
         c1->SaveAs(title.c_str());
         //open -a Safari C_{a#gamma#gamma}_displaced_merged_* C_{a#gamma#gamma}_prompt_merged_*
         delete c1;
@@ -3859,13 +3867,15 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
 
         //create a plot
         c1 = new TCanvas();
+        c1->SetLogy(); //Set log scale for y-axis
         title = syst_index + std::string(" (prompt merged)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
         name = std::string("C_{a#gamma#gamma}") + syst_index;
-        histo2d = new TH2D(name.c_str(), title.c_str(), 295, 0.2, 29.5, 5, 0, 2);
+        double prompt_y_bins[] = {0.008, 0.0099, 0.08, 0.1}; //y bins
+        histo2d = new TH2D(name.c_str(), title.c_str(), 25, 0.1, 10, 3, prompt_y_bins);
         histo2d->GetXaxis()->SetTitleSize(0.04);
         histo2d->GetYaxis()->SetTitleSize(0.04);
         histo2d->GetZaxis()->SetTitleSize(0.04);
-
+        histo2d->SetOption("LOGZ");
         histo2d->GetYaxis()->SetTitleOffset(0.7);
         histo2d->GetZaxis()->SetTitleOffset(0.6);
 
@@ -3876,7 +3886,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         //group of results corresponding to mass point i
         for (int i=0, j=0; (i < massPoints_prompt.size()); i++, j+=6)
         {
-            int bin_number = histo2d->FindFixBin(massPoints_prompt[i], ALP_photon_couplings[0]);
+            int bin_number = histo2d->FindFixBin(massPoints_prompt[i], ALP_photon_couplings[1]);
             float efficiency;
 
             auto keys = prompt_resultmaps[j].GetKeys();
@@ -3900,11 +3910,6 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
                 efficiency = -1;
             }
 
-//            {
-//                std::cout << syst_index << ": " << massPoints_prompt[i] << " GeV, "
-//                << efficiency << '\n';
-//            }
-
             if (syst_index == "nominal")
             {
                 merged_prompt[massPoints_prompt[i]] = efficiency;
@@ -3923,7 +3928,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
-        title = std::string("C_{a#gamma#gamma}_prompt_merged_") + std::string(syst_index) + "_merged.pdf";
+        title = std::string("CayyPromptMerged") + syst_index + ".pdf";
         c1->SaveAs(title.c_str());
     }
 }
@@ -4198,15 +4203,15 @@ void CutFlow()
     auto start_time = Clock::now();
 
 //    Table3();
-    Table8();
-    Table11();
+//    Table8();
+//    Table11();
 //    Table3_Displaced_Axions();
 //    Table8_Displaced_Axions();
 //    Table11_Displaced_Axions();
 //    Coupling();
 //    Coupling_and_Systematics_resolved();
 //    Coupling_and_Systematics_merged();
-//    LimitPlot();
+    LimitPlot();
 
     auto end_time = Clock::now();
     std::cout << "Time difference: "
