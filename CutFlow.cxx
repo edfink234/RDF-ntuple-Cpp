@@ -3841,6 +3841,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
 
                 if (syst_index == "nominal")
                 {
+                    merged_long_lived[coupling][massPoints[i]] = efficiency;
                     merged_long_lived_N[coupling][massPoints[i]] = resultmaps[j]["nominal"];
                 }
                 histo2d->SetBinContent(bin_number, efficiency);
@@ -4055,10 +4056,11 @@ void LimitPlot()
     // Create a TCanvas to hold the plot
     TCanvas* canvas = new TCanvas("canvas", "Lines Plot", 800, 600);
     canvas->SetLogy();
+//    canvas->SetLogx();
     // Create an empty multi-graph to hold all the lines
     TMultiGraph* mg = new TMultiGraph();
     // Create a legend for the limit plot
-    TLegend *legend = new TLegend(0.6, 0.6, 0.9, 0.9);
+    TLegend *legend = new TLegend(0.53, 0.65, 0.83, 0.9);
     // no fill color
     legend->SetFillColor(0);
     legend->SetTextSize(0.03); // Adjust the font size here
@@ -4182,14 +4184,17 @@ void LimitPlot()
     // Add the graph to the multi-graph
     mg->Add(graph);
     legend->AddEntry(graph, "Paper Draft Limit", "p");
+    mg->GetHistogram()->SetMaximum(2);
 
     mg->SetTitle(";m_{a}  [GeV];Br(H#rightarrow Za) #times Br(a#rightarrow#gamma#gamma)");
     mg->GetYaxis()->SetTitleOffset(1.4); //By default, the title offset is 1.0
     mg->GetXaxis()->SetTitleOffset(1.1); //By default, the title offset is 1.0
+    mg->GetXaxis()->SetTitle("m_{a}  [GeV]");
+    mg->GetYaxis()->SetTitle("Br(H#rightarrow Za) #times Br(a#rightarrow#gamma#gamma)");
     // Draw the multi-graph
     mg->Draw("ALP");  // "ALP" means draw lines with points
 
-    legend->Draw();
+    legend->Draw("same");
     // Update the canvas
     canvas->Update();
     // Save the plot
