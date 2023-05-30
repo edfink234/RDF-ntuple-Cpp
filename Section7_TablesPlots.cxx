@@ -546,7 +546,7 @@ float roundToOneDecimalPlace(float num) {
 //        }
 //    }
 //
-//    ss << R"--(Total $Z\gamma$ & )--";
+//    ss << R"--(Total $Z\gamma\gamma$ & )--";
 //    ss << std::setprecision(4) << std::fixed
 //    << ( (ZgammaNominal && ZgammaEG_RESOLUTION_ALL) ? ((ZgammaEG_RESOLUTION_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
 //    << " & " << std::setprecision(4) << std::fixed
@@ -1053,7 +1053,7 @@ float roundToOneDecimalPlace(float num) {
 //        }
 //    }
 //
-//    ss << R"--(Total $Z\gamma$ & )--";
+//    ss << R"--(Total $Z\gamma\gamma$ & )--";
 //    ss << std::setprecision(4) << std::fixed
 //    << ( (ZgammaNominal && ZgammaEG_RESOLUTION_ALL) ? ((ZgammaEG_RESOLUTION_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
 //    << " & " << std::setprecision(4) << std::fixed
@@ -1546,7 +1546,7 @@ float roundToOneDecimalPlace(float num) {
 //        }
 //    }
 //
-//    ss << R"--(Total $Z\gamma$ & )--";
+//    ss << R"--(Total $Z\gamma\gamma$ & )--";
 //    ss << std::setprecision(4) << std::fixed
 //    << ( (ZgammaNominal && ZgammaEG_RESOLUTION_ALL) ? ((ZgammaEG_RESOLUTION_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
 //    << " & " << std::setprecision(4) << std::fixed
@@ -2039,7 +2039,7 @@ void Table24()
         }
     }
 
-    ss << R"--(Total $Z\gamma$ & )--";
+    ss << R"--(Total $Z\gamma\gamma$ & )--";
     ss << std::setprecision(4) << std::fixed
     << ( (ZgammaNominal && ZgammaEG_RESOLUTION_ALL) ? ((ZgammaEG_RESOLUTION_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
     << " & " << std::setprecision(4) << std::fixed
