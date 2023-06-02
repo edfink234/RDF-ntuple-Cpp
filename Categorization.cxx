@@ -582,7 +582,8 @@ void Table5()
         {
             PtEtaPhiEVector tp1 = truth_photons_from_axions[0].Vector();
             PtEtaPhiEVector tp2 = truth_photons_from_axions[1].Vector();
-
+            RVec<TruthParticle> temp;
+            
             for (auto& rp: merged)
             {
                 if ((DeltaR(rp.Vector(), tp1) < 0.1 && DeltaR(rp.Vector(), tp2) < 0.1))
