@@ -2593,15 +2593,15 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
 //        "MUON_SCALE",
         "EG_RESOLUTION_ALL__1up",
         "EG_SCALE_ALL__1up",
-        "PH_EFF_ISO_Uncertainty__1up",
+//        "PH_EFF_ISO_Uncertainty__1up",
         "PH_EFF_ID_Uncertainty__1up",
-        "PH_EFF_TRIGGER_Uncertainty__1up",
+//        "PH_EFF_TRIGGER_Uncertainty__1up",
 
         "EG_RESOLUTION_ALL__1down",
         "EG_SCALE_ALL__1down",
-        "PH_EFF_ISO_Uncertainty__1down",
+//        "PH_EFF_ISO_Uncertainty__1down",
         "PH_EFF_ID_Uncertainty__1down",
-        "PH_EFF_TRIGGER_Uncertainty__1down",
+//        "PH_EFF_TRIGGER_Uncertainty__1down",
     };
 
     std::vector<std::vector<std::string>> input_filenames =
@@ -2616,7 +2616,7 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
 //        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
         {
             "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
-        },      //C_{ayy} = 1
+        }, //C_{ayy} = 1
         {
             "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p01.root",
             "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p01.root"
@@ -2625,11 +2625,15 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
             "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root",
             "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p001.root"
         },     //C_{ayy} = 0.001
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p0001.root"
+            //C_{ayy} = 0.0001
+        }
     };
 
-    std::vector<float> massPoints = {0.2, 0.5, 1, 2, 3, 4, 5, 7, 8.1, 10, 15, 20, 25, 25.2, 29.5, 30,}; //mass points for displaced samples
+    std::vector<float> massPoints = {0.2, 0.5, 1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30}; //mass points for displaced samples
     std::vector<float> massPoints_prompt = {1, 5, 2, 3, 9};
-    std::vector<float> ALP_photon_couplings = {1.0f, 0.01f, 0.001f};
+    std::vector<float> ALP_photon_couplings = {1.0f, 0.01f, 0.001f, 0.0001f};
     std::vector<RResultMap<float>> resultmaps, prompt_resultmaps; //long-lived and prompt resultmaps for sys variations
     std::vector<ROOT::RDF::RResultHandle> Nodes; //Hold nominal nodes so we can use RunGraphs to run the computational graph from multiple RDF objects (samples)
 
@@ -3103,13 +3107,115 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently, this will trigger the resultmaps as well.
 
     //systematics' names
-    std::vector<std::string> syst_indices = {"nominal", "photons_and_electrons:EG_RESOLUTION_ALL__1down", "photons_and_electrons:EG_SCALE_ALL__1down", "photon_iso_eff:PH_EFF_ISO_Uncertainty__1down", "photon_id_eff:PH_EFF_ID_Uncertainty__1down", "photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down", "photons_and_electrons:EG_RESOLUTION_ALL__1up", "photons_and_electrons:EG_SCALE_ALL__1up", "photon_iso_eff:PH_EFF_ISO_Uncertainty__1up", "photon_id_eff:PH_EFF_ID_Uncertainty__1up", "photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"};
-
+    std::vector<std::string> syst_indices = {"nominal", "photons_and_electrons:EG_RESOLUTION_ALL__1down", "photons_and_electrons:EG_SCALE_ALL__1down", /*"photon_iso_eff:PH_EFF_ISO_Uncertainty__1down",*/ "photon_id_eff:PH_EFF_ID_Uncertainty__1down", /*"photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down",*/ "photons_and_electrons:EG_RESOLUTION_ALL__1up", "photons_and_electrons:EG_SCALE_ALL__1up", /*"photon_iso_eff:PH_EFF_ISO_Uncertainty__1up",*/ "photon_id_eff:PH_EFF_ID_Uncertainty__1up", /*"photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"*/};
+    
     TLatex Tl;
     TCanvas* c1;
     TH2D* histo2d;
     std::string name, title;
-    std::unordered_map<float,float> efficiencies = {{1.0f, 1.0f}, {0.01f, 1.0f}, {0.001f, 0.284f}};
+    
+    std::unordered_map<float, std::unordered_map<float, float>> efficiencies;
+
+    std::unordered_map<float,float> C_ayy_1_efficiencies =
+    {
+        {0.2f, 1.0f},
+        {0.5f, 1.0f},
+        {1.0f, 1.0f},
+        {2.0f, 1.0f},
+        {3.0f, 1.0f},
+        {4.0f, 1.0f},
+        {5.0f, 1.0f},
+        {7.0f, 1.0f},
+        {10.0f, 1.0f},
+        {15.0f, 1.0f},
+        {20.0f, 1.0f},
+        {25.0f, 1.0f},
+        {30.0f, 1.0f},
+    };
+
+    std::unordered_map<float,float> C_ayy_0p01_efficiencies =
+    {
+        {0.2f, 0.057f},
+        {0.5f, 0.810f},
+        {1.0f, 1.0f},
+        {2.0f, 1.0f},
+        {3.0f, 1.0f},
+        {4.0f, 1.0f},
+        {5.0f, 1.0f},
+        {7.0f, 1.0f},
+        {10.0f, 1.0f},
+        {15.0f, 1.0f},
+        {20.0f, 1.0f},
+        {25.0f, 1.0f},
+        {30.0f, 1.0f},
+    };
+
+    std::unordered_map<float,float> C_ayy_0p001_efficiencies =
+    {
+        {0.2f, 0.675f},
+        {0.5f, 0.812f},
+        {1.0f, 0.857f},
+        {2.0f, 0.876f},
+        {3.0f, 0.882f},
+        {4.0f, 0.899f},
+        {5.0f, 0.885f},
+        {7.0f, 0.889f},
+        {10.0f, 0.886f},
+        {15.0f, 0.873f},
+        {20.0f, 0.885f},
+        {25.0f, 0.911f},
+        {30.0f, 0.918f},
+    };
+
+    std::unordered_map<float,float> C_ayy_0p0001_efficiencies =
+    {
+        {0.2f, 0.0f},
+        {0.5f, 0.0f},
+        {1.0f, 0.003f},
+        {2.0f, 0.055f},
+        {3.0f, 0.238f},
+        {4.0f, 0.553f},
+        {5.0f, 0.810f},
+        {7.0f, 0.984f},
+        {10.0f, 1.0f},
+        {15.0f, 1.0f},
+        {20.0f, 1.0f},
+        {25.0f, 1.0f},
+        {30.0f, 1.0f},
+    };
+
+    efficiencies[1.0f] = C_ayy_1_efficiencies;
+    efficiencies[0.01f] = C_ayy_0p01_efficiencies;
+    efficiencies[0.001f] = C_ayy_0p001_efficiencies;
+    efficiencies[0.0001f] = C_ayy_0p0001_efficiencies;
+    
+    std::cout << R"--(\begin{table})--" << '\n';
+    std::cout << R"--(\centering)--" << '\n';
+    std::cout << R"--(\hspace{0cm}\scalebox{1}{)--" << '\n';
+    std::cout << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    
+    std::cout << R"--($m_a$ (GeV) & $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 1$ &   $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| =  0.01$ &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.001$  &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.0001$  \\ \hline)--" << '\n';
+    
+    for (auto& i: massPoints)
+    {
+        std::cout << i
+        << " & " << efficiencies[1.0f][i]
+        << " & " << efficiencies[0.01f][i]
+        << " & " << efficiencies[0.001f][i]
+        << " & " << efficiencies[0.00001f][i]
+        << R"--(\\ \hline)--" << '\n';
+    }
+    
+    std::cout << R"--(\end{tabular}})--" << '\n';
+    std::cout << R"--(\caption{Pythia filter efficiencies for the different mass points and couplings utilized for the signal samples in this section \ref{sec:Long_lived_Signal_Samples}. })--" << '\n';
+    std::cout << R"--(\label{tab:filter_eff_for_long_lived_mass_points_considered})--" << '\n';
+    std::cout << R"--(\end{table})--" << '\n';
+    
+//    std::ofstream out("Efficiency_Table_ALP_couplings.txt");
+    
+    
 
     //for each systematic
     for (auto& syst_index: syst_indices)
@@ -3122,9 +3228,8 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         c1->SetLogy(); //Set log scale for y-axis
         title = syst_index + std::string(" (displaced resolved)") + ";m_{a} [GeV];C_{a#gamma#gamma}" + ";Efficiency";
         name = std::string("C_{a#gamma#gamma}") + syst_index;
-        double y_bins[] = {0.001, 0.008, 0.0099, 0.08, 0.1, 0.8, 1, 8, 10}; //y bins
-
-        histo2d = new TH2D(name.c_str(), title.c_str(), 299, 0.1, 31, 8, y_bins); //numbers are: x_bins, x_min, x_max, y_bins, y_min, y_max
+        double y_bins[] = {0.000099, 0.0008, 0.001, 0.008, 0.0099, 0.08, 0.1, 0.8, 1, 8, 10}; //y bins
+        histo2d = new TH2D(name.c_str(), title.c_str(), 299, 0.1, 31, 10, y_bins); //numbers are: x_bins, x_min, x_max, y_bins, y_min, y_max
         histo2d->GetYaxis()->SetMoreLogLabels();
         histo2d->GetYaxis()->SetNoExponent();
         histo2d->SetOption("LOGZ");
@@ -3166,21 +3271,16 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
                     throw std::runtime_error(std::string("Something's wrong at ") + syst_index + ": " + std::to_string(massPoints[i]) + " GeV, coupling = " + std::to_string(coupling));
                 }
 
-                efficiency *= efficiencies[coupling]; //mutiply efficiency by Pythia Filter Efficiency
+                efficiency *= efficiencies[coupling][massPoints[i]]; //mutiply efficiency by Pythia Filter Efficiency
 
                 if (syst_index == "nominal") //nominal case: Store the efficiency in the unordered_map
                 {
                     resolved_long_lived[coupling][massPoints[i]] = efficiency;
                     resolved_long_lived_N[coupling][massPoints[i]] = resultmaps[j]["nominal"];
-
-                    if (massPoints[i] == 1)
-                    {
-                        std::cout << resolved_long_lived_N[coupling][massPoints[i]] << '\n';
-                    }
                 }
                 histo2d->SetBinContent(bin_number, efficiency);
             }
-            start_index += 112; //to the next displaced file (with a different coupling)
+            start_index += 91; //to the next displaced file (with a different coupling)
         }
 
         gStyle->SetPalette(1); //heat-map color style
@@ -3265,18 +3365,6 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
 
     }
 
-    ///loop over the results for the long-lived nominal case for different couplings to see the results
-    for (auto& coupling: resolved_long_lived)
-    {
-        std::cout << coupling.first << ": ";
-        for (auto& masspoint: coupling.second)
-        {
-            std::cout << '{' << masspoint.first << ','
-            << masspoint.second << "}, ";
-        }
-        std::cout << '\n';
-    }
-
 }
 
 void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_prompt = c, std::unordered_map<float, std::unordered_map<float, float>>& merged_long_lived = d, std::unordered_map<float, float>& merged_prompt_N = g, std::unordered_map<float, std::unordered_map<float, float>>& merged_long_lived_N = h)
@@ -3308,15 +3396,15 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
 //        "MUON_SCALE",
         "EG_RESOLUTION_ALL__1up",
         "EG_SCALE_ALL__1up",
-        "PH_EFF_ISO_Uncertainty__1up",
+//        "PH_EFF_ISO_Uncertainty__1up",
         "PH_EFF_ID_Uncertainty__1up",
-        "PH_EFF_TRIGGER_Uncertainty__1up",
+//        "PH_EFF_TRIGGER_Uncertainty__1up",
 
         "EG_RESOLUTION_ALL__1down",
         "EG_SCALE_ALL__1down",
-        "PH_EFF_ISO_Uncertainty__1down",
+//        "PH_EFF_ISO_Uncertainty__1down",
         "PH_EFF_ID_Uncertainty__1down",
-        "PH_EFF_TRIGGER_Uncertainty__1down",
+//        "PH_EFF_TRIGGER_Uncertainty__1down",
     };
 
     std::vector<std::vector<std::string>> input_filenames =
@@ -3329,7 +3417,9 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600756.PhPy8EG_AZNLO_ggH125_mA9p0_v1.root"}, // 9 GeV
         //Displaced Signal
 //        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"}, //C_{ayy} = 1
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
+        }, //C_{ayy} = 1
         {
             "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p01.root",
             "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p01.root"
@@ -3338,11 +3428,15 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
             "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root",
             "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p001.root"
         },     //C_{ayy} = 0.001
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p0001.root"
+            //C_{ayy} = 0.0001
+        }
     };
 
-    std::vector<float> massPoints = {0.2, 0.5, 1, 2, 3, 4, 5, 7, 8.1, 10, 15, 20, 25, 25.2, 29.5, 30,}; //mass points for displaced samples
+    std::vector<float> massPoints = {0.2, 0.5, 1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30}; //mass points for displaced samples
     std::vector<float> massPoints_prompt = {1, 5, 2, 3, 9};
-    std::vector<float> ALP_photon_couplings = {1.0f, 0.01f, 0.001f};
+    std::vector<float> ALP_photon_couplings = {1.0f, 0.01f, 0.001f, 0.0001f};
     std::vector<RResultMap<float>> resultmaps, prompt_resultmaps; //long-lived and prompt resultmaps for sys variations
     std::vector<ROOT::RDF::RResultHandle> Nodes; //Hold nominal nodes so we can use RunGraphs to run the computational graph from multiple RDF objects (samples)
 
@@ -3773,13 +3867,87 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
 
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently, this will trigger resultmaps as well.
 
-    std::vector<std::string> syst_indices = {"nominal", "photons_and_electrons:EG_RESOLUTION_ALL__1down", "photons_and_electrons:EG_SCALE_ALL__1down", "photon_iso_eff:PH_EFF_ISO_Uncertainty__1down", "photon_id_eff:PH_EFF_ID_Uncertainty__1down", "photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down", "photons_and_electrons:EG_RESOLUTION_ALL__1up", "photons_and_electrons:EG_SCALE_ALL__1up", "photon_iso_eff:PH_EFF_ISO_Uncertainty__1up", "photon_id_eff:PH_EFF_ID_Uncertainty__1up", "photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"};
+    std::vector<std::string> syst_indices = {"nominal", "photons_and_electrons:EG_RESOLUTION_ALL__1down", "photons_and_electrons:EG_SCALE_ALL__1down", /*"photon_iso_eff:PH_EFF_ISO_Uncertainty__1down",*/ "photon_id_eff:PH_EFF_ID_Uncertainty__1down", /*"photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down",*/ "photons_and_electrons:EG_RESOLUTION_ALL__1up", "photons_and_electrons:EG_SCALE_ALL__1up", /*"photon_iso_eff:PH_EFF_ISO_Uncertainty__1up",*/ "photon_id_eff:PH_EFF_ID_Uncertainty__1up", /*"photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"*/};
 
     TLatex Tl;
     TCanvas* c1;
     TH2D* histo2d;
     std::string name, title;
-    std::unordered_map<float,float> efficiencies = {{1.0f, 1.0f}, {0.01f, 1.0f}, {0.001f, 0.284f}};
+
+    std::unordered_map<float, std::unordered_map<float, float>> efficiencies;
+
+    std::unordered_map<float,float> C_ayy_1_efficiencies =
+    {
+        {0.2f, 1.0f},
+        {0.5f, 1.0f},
+        {1.0f, 1.0f},
+        {2.0f, 1.0f},
+        {3.0f, 1.0f},
+        {4.0f, 1.0f},
+        {5.0f, 1.0f},
+        {7.0f, 1.0f},
+        {10.0f, 1.0f},
+        {15.0f, 1.0f},
+        {20.0f, 1.0f},
+        {25.0f, 1.0f},
+        {30.0f, 1.0f},
+    };
+
+    std::unordered_map<float,float> C_ayy_0p01_efficiencies =
+    {
+        {0.2f, 0.057f},
+        {0.5f, 0.810f},
+        {1.0f, 1.0f},
+        {2.0f, 1.0f},
+        {3.0f, 1.0f},
+        {4.0f, 1.0f},
+        {5.0f, 1.0f},
+        {7.0f, 1.0f},
+        {10.0f, 1.0f},
+        {15.0f, 1.0f},
+        {20.0f, 1.0f},
+        {25.0f, 1.0f},
+        {30.0f, 1.0f},
+    };
+
+    std::unordered_map<float,float> C_ayy_0p001_efficiencies =
+    {
+        {0.2f, 0.675f},
+        {0.5f, 0.812f},
+        {1.0f, 0.857f},
+        {2.0f, 0.876f},
+        {3.0f, 0.882f},
+        {4.0f, 0.899f},
+        {5.0f, 0.885f},
+        {7.0f, 0.889f},
+        {10.0f, 0.886f},
+        {15.0f, 0.873f},
+        {20.0f, 0.885f},
+        {25.0f, 0.911f},
+        {30.0f, 0.918f},
+    };
+
+    std::unordered_map<float,float> C_ayy_0p0001_efficiencies =
+    {
+        {0.2f, 0.0f},
+        {0.5f, 0.0f},
+        {1.0f, 0.003f},
+        {2.0f, 0.055f},
+        {3.0f, 0.238f},
+        {4.0f, 0.553f},
+        {5.0f, 0.810f},
+        {7.0f, 0.984f},
+        {10.0f, 1.0f},
+        {15.0f, 1.0f},
+        {20.0f, 1.0f},
+        {25.0f, 1.0f},
+        {30.0f, 1.0f},
+    };
+
+    efficiencies[1.0f] = C_ayy_1_efficiencies;
+    efficiencies[0.01f] = C_ayy_0p01_efficiencies;
+    efficiencies[0.001f] = C_ayy_0p001_efficiencies;
+    efficiencies[0.0001f] = C_ayy_0p0001_efficiencies;
 
     //for each systematic
     for (auto& syst_index: syst_indices)
@@ -3792,21 +3960,18 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         c1->SetLogy(); //Set log scale for y-axis
         title = syst_index + std::string(" (displaced merged)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
         name = std::string("C_{a#gamma#gamma}") + syst_index;
-        double y_bins[] = {0.001, 0.008, 0.0099, 0.08, 0.1, 0.8, 1, 8, 10}; //y bins
-        histo2d = new TH2D(name.c_str(), title.c_str(), 299, 0.1, 31, 8, y_bins);
+        double y_bins[] = {0.000099, 0.0008, 0.001, 0.008, 0.0099, 0.08, 0.1, 0.8, 1, 8, 10}; //y bins
+        histo2d = new TH2D(name.c_str(), title.c_str(), 299, 0.1, 31, 10, y_bins);
         histo2d->GetYaxis()->SetMoreLogLabels();
         histo2d->GetYaxis()->SetNoExponent();
         histo2d->SetOption("LOGZ");
         histo2d->GetXaxis()->SetTitleSize(0.04);
         histo2d->GetYaxis()->SetTitleSize(0.04);
         histo2d->GetZaxis()->SetTitleSize(0.04);
-
         histo2d->GetYaxis()->SetTitleOffset(0.7);
         histo2d->GetZaxis()->SetTitleOffset(0.6);
-
         histo2d->GetYaxis()->CenterTitle(true);
         histo2d->GetZaxis()->SetTitle("Efficiency");
-
         //for each coupling
         for (auto& coupling: ALP_photon_couplings)
         {
@@ -3835,10 +4000,10 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
                 }
                 else //then something's wrong :(
                 {
-                    efficiency = -1;
+                    efficiency = 0;
                 }
 
-                efficiency *= efficiencies[coupling]; //mutiply efficiency by Pythia Filter Efficiency
+                efficiency *= efficiencies[coupling][massPoints[i]]; //mutiply efficiency by Pythia Filter Efficiency
 
                 if (syst_index == "nominal")
                 {
@@ -3847,7 +4012,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
                 }
                 histo2d->SetBinContent(bin_number, efficiency);
             }
-            start_index += 96; //to the next displaced file (with a different coupling)
+            start_index += 78; //to the next displaced file (with a different coupling)
         }
 
         gStyle->SetPalette(1); //heat-map color style
@@ -3950,45 +4115,11 @@ void LimitPlot()
     Coupling_and_Systematics_resolved(resolved_prompt_eff, resolved_long_lived_eff, resolved_prompt_N, resolved_long_lived_N);
     Coupling_and_Systematics_merged(merged_prompt_eff, merged_long_lived_eff, merged_prompt_N, merged_long_lived_N);
 
-    std::cout << "\n\n\n";
-    std::cout << "Resolved Prompt\n===============\n";
-    for (auto& i: resolved_prompt_eff)
-    {
-        std::cout << i.first << " GeV: " << i.second << '\n';
-    }
-    std::cout << "\n\n\n";
-    std::cout << "Resolved Long Lived\n===================\n";
-    for (auto& i: resolved_long_lived_eff)
-    {
-        std::cout << "\nCoupling = " << i.first << "\n======\n";
-        for (auto& j: i.second)
-        {
-            std::cout << j.first << " GeV: " << j.second << '\n';
-        }
-    }
-    std::cout << "\n\n\n";
-    std::cout << "Merged Prompt\n=============\n";
-    for (auto& i: merged_prompt_eff)
-    {
-        std::cout << i.first << " GeV: " << i.second << '\n';
-    }
-    std::cout << "\n\n\n";
-    std::cout << "Merged Long Lived\n=================\n";
-    for (auto& i: merged_long_lived_eff)
-    {
-        std::cout << "\nCoupling = " << i.first << "\n======\n";
-        for (auto& j: i.second)
-        {
-            std::cout << j.first << " GeV: " << j.second << '\n';
-        }
-    }
-    std::cout << "\n\n\n";
-
     std::map<float, float> BR_prompt_merged = {{1.0f, 0.0324852f}, {2.0f, 0.02782953f}};
     std::map<float, float> BR_prompt_resolved = {{2.0f, 0.0198092f}, {3.0f, 0.00362767f}, {5.0f, 0.001756f}};
 
     std::map<float, std::map<float, float>> BR_ll_merged, BR_ll_resolved, BR_ll_merged_unc, BR_ll_resolved_unc;
-    std::vector<float> ALP_photon_couplings = {1.0f, 0.01f, 0.001f};
+    std::vector<float> ALP_photon_couplings = {1.0f, 0.01f, 0.001f, 0.0001f};
 
     ///Now, time to populate the branching ratios for the long-lived case
     for (auto& coupling: ALP_photon_couplings)
@@ -4019,41 +4150,6 @@ void LimitPlot()
         }
     }
 
-    std::cout << "Branching Ratios Long Lived\n=================\n";
-
-    std::cout << "Merged\n======\n";
-    for (auto& i: BR_ll_merged)
-    {
-        std::cout << "\nCoupling = " << i.first << "\n=======\n";
-        for (auto& j: i.second)
-        {
-            std::cout << j.first << " GeV: " << j.second << '\n';
-        }
-    }
-    std::cout << "\n\n\n";
-    std::cout << "Resolved\n========\n";
-    for (auto& i: BR_ll_resolved)
-    {
-        std::cout << "\nCoupling = " << i.first << "\n=======\n";
-        for (auto& j: i.second)
-        {
-            std::cout << j.first << " GeV: " << j.second << '\n';
-        }
-    }
-    std::cout << "\n\n\n";
-
-    std::cout << "Branching Ratios Prompt\n=================\n";
-    for (auto& i: BR_prompt_merged)
-    {
-        std::cout << i.first << " GeV: " << i.second << '\n';
-    }
-    for (auto& i: BR_prompt_resolved)
-    {
-        std::cout << i.first << " GeV: " << i.second << '\n';
-    }
-
-    std::cout << "\n\n\n";
-
     // Create a TCanvas to hold the plot
     TCanvas* canvas = new TCanvas("canvas", "Lines Plot", 800, 600);
     canvas->SetLogy();
@@ -4066,7 +4162,7 @@ void LimitPlot()
     legend->SetFillColor(0);
     legend->SetTextSize(0.03); // Adjust the font size here
     //colors for the ALP_photon_couplings
-    std::vector<EColor> colors = {kRed, kBlue, kGreen};
+    std::vector<EColor> colors = {kMagenta, kRed, kBlue, kGreen};
     //index for colors and ALP_photon_couplings
     int index = 0;
     // Iterate over the outer unordered_map BR_ll_merged to get the couplings and inner unordered_maps (masses and branching ratios)
@@ -4092,14 +4188,9 @@ void LimitPlot()
                 yErrValues[i] = BR_ll_merged_unc[coupling][innerPair.first]; //uncertainty on branching ratio
                 if (std::isinf(BR_ll_merged_unc[coupling][innerPair.first]))
                 {
-                    yErrValues[i] = 0;
+                    yErrValues[i] = 10;
                 }
-                std::cout << coupling << ' ' << xValues[i] << ' ' << yValues[i]  << ' ' << yErrValues[i] << '\n';
                 ++i;
-            }
-            else
-            {
-                std::cout << "inf!\n";
             }
         }
 
@@ -4107,11 +4198,14 @@ void LimitPlot()
         TGraphErrors* graph = new TGraphErrors(i, xValues, yValues, 0, yErrValues);
 
         // Set line color, style, and width (adjust as desired)
-        graph->SetLineColor(colors[index]); //red, blue, green
-        graph->SetMarkerColor(colors[index]); //red, blue, green
-        graph->SetMarkerStyle(20+index); // filled circle, square, diamond
+        graph->SetLineColor(colors[index]); //red, blue, green, magenta
+        graph->SetMarkerColor(colors[index]); //red, blue, green, magenta
+        graph->SetMarkerStyle(20+index); // filled circle, square, up-triangle, down-triangle
         index++;
         graph->SetLineWidth(2);
+        double currentSize = graph->GetMarkerSize();
+        double newSize = currentSize * 1.4;
+        graph->SetMarkerSize(newSize);
 
         // Add the graph to the multi-graph
         mg->Add(graph);
@@ -4142,15 +4236,9 @@ void LimitPlot()
                 xValues[i] = innerPair.first;
                 yValues[i] = innerPair.second;
                 yErrValues[i] = BR_ll_resolved_unc[coupling][innerPair.first];
-                std::cout << coupling << ' ' << xValues[i] << ' ' << yValues[i]  << ' ' << yErrValues[i] << '\n';
                 ++i;
             }
-            else
-            {
-                std::cout << "inf!\n";
-            }
         }
-        std::cout << '\n';
 
         // Create a TGraph for the current line
         TGraphErrors* graph = new TGraphErrors(i, xValues, yValues, 0, yErrValues);
@@ -4161,10 +4249,13 @@ void LimitPlot()
         graph->SetMarkerStyle(20+index); // filled circle, square, diamond
         index++;
         graph->SetLineWidth(2);
+        double currentSize = graph->GetMarkerSize();
+        double newSize = currentSize * 1.4;
+        graph->SetMarkerSize(newSize);
 
         // Add the graph to the multi-graph
         mg->Add(graph);
-        legend->AddEntry(graph, Form("Limit for C_{a#gamma#gamma} = %.3f", coupling), "p");
+        legend->AddEntry(graph, Form("Limit for C_{a#gamma#gamma} = %.4f", coupling), "p");
 
         // Clean up dynamic memory
         delete[] xValues;
@@ -4181,11 +4272,14 @@ void LimitPlot()
     graph->SetMarkerColor(kBlack); //red, blue, green
     graph->SetMarkerStyle(47); // filled cross
     graph->SetLineWidth(2);
+    double currentSize = graph->GetMarkerSize();
+    double newSize = currentSize * 1.4;
+    graph->SetMarkerSize(newSize);
 
     // Add the graph to the multi-graph
     mg->Add(graph);
     legend->AddEntry(graph, "Paper Draft Limit", "p");
-    mg->GetHistogram()->SetMaximum(2);
+    mg->GetHistogram()->SetMaximum(4);
 
     mg->SetTitle(";m_{a}  [GeV];Br(H#rightarrow Za) #times Br(a#rightarrow#gamma#gamma)");
     mg->GetYaxis()->SetTitleOffset(1.4); //By default, the title offset is 1.0

@@ -3587,7 +3587,8 @@ float roundToOneDecimalPlace(float num) {
 //        //"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Test_oneMassPoint.root",
 ////        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"
 ////        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
-//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root"
+////        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root"
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p0001.root"
 ////        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
 ////        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p01.root",
 ////        {
@@ -3898,7 +3899,11 @@ float roundToOneDecimalPlace(float num) {
 //        {
 //            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root",
 //            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p001.root"
-//        },     //C_{ayy} = 0.001
+//        },      //C_{ayy} = 0.001
+//        {
+//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p0001.root",
+//                //C_{ayy} = 0.0001
+//        }
 //    };
 //
 //    std::vector<ROOT::RDF::RResultHandle> Nodes;
@@ -3944,7 +3949,7 @@ float roundToOneDecimalPlace(float num) {
 //
 //    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
 //
-//    std::map<float, int> unique_vals_1, unique_vals_0p01, unique_vals_0p001;
+//    std::map<float, int> unique_vals_1, unique_vals_0p01, unique_vals_0p001, unique_vals_0p0001;
 //    std::set<float> allVals;
 //
 //    for (auto& i: *Nodes[0].GetResultPtr<RVec<float>>()) //C_ayy = 1
@@ -3965,6 +3970,12 @@ float roundToOneDecimalPlace(float num) {
 //        allVals.emplace(roundToOneDecimalPlace(i));
 //    }
 //
+//    for (auto& i: *Nodes[3].GetResultPtr<RVec<float>>()) //C_ayy = 0.0001
+//    {
+//        unique_vals_0p0001[roundToOneDecimalPlace(i)]++;
+//        allVals.emplace(roundToOneDecimalPlace(i));
+//    }
+//
 //    std::cout << allVals.size() << '\n';
 //    std::ofstream out("massPoints2.txt");
 //    for (auto& val: allVals)
@@ -3972,473 +3983,15 @@ float roundToOneDecimalPlace(float num) {
 //        out << val << " & "
 //        << unique_vals_1[val] << " & "
 //        << unique_vals_0p01[val] << " & "
-//        << unique_vals_0p001[val] << R"--( \\ \hline %)--"
+//        << unique_vals_0p001[val] << " & "
+//        << unique_vals_0p0001[val] << R"--( \\ \hline %)--"
 //        << val << '\n';
 //    }
 //    out.close();
 //
 //}
 
-//void SignalShapes()
-//{
-//    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
-//    {
-//        RVec<TruthParticle> truthSelected;
-//        bool foundParent;
-//        if (truthChain.size() >= 1)
-//        {
-//            TruthParticle tp;
-//            for (auto& tpe: startParticles)
-//            {
-//                tp = tpe;
-//                while (true)
-//                {
-//                    if (tp.mc_parent_barcode == targetBarcode)
-//                    {
-//                        truthSelected.push_back(tp);
-//                        break;
-//                    }
-//                    else
-//                    {
-//                        foundParent = false;
-//                        for (auto& tmp: truthChain)
-//                        {
-//                            if (tp.mc_parent_barcode == tmp.mc_barcode)
-//                            {
-//                                tp = tmp;
-//                                foundParent = true;
-//                                break;
-//                            }
-//                        }
-//                        if (foundParent == false)
-//                        {
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return truthSelected;
-//    };
-//
-//    std::vector<std::vector<std::string>> input_filenames =
-//    {
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
-//        },      // 1 GeV
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600752.PhPy8EG_AZNLO_ggH125_mA3p0_v1.root"
-//        },       // 3 GeV
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"
-//        },      // 5 GeV
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
-//        },      //C_{ayy} = 1
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p01.root",
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p01.root"
-//        },      //C_{ayy} = 0.01
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root",
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p001.root"
-//        },     //C_{ayy} = 0.001
-//    };
-//
-//    TCanvas* c1;
-//    TLegend* legend;
-//    TLatex Tl;
-//    std::vector<float> massPoints = {1, 3, 5};
-//    std::vector<ROOT::RDF::RResultHandle> Nodes;
-//    int count = 0;
-//
-//    for (auto& input_file: input_filenames)
-//    {
-//        SchottDataFrame df(MakeRDF(input_file, 8));
-//
-//        auto truth_photons_from_axions = df.Define("truth_photons",[&](RVec<TruthParticle> truth_particles)
-//        {
-//            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-//            [](TruthParticle& x)
-//            {
-//                return (std::abs(x.mc_pdg_id) != 22);
-//
-//            }), truth_particles.end());
-//
-//            return truth_particles;
-//
-//        }, {"truth_particles"})
-//        .Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
-//        {
-//            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-//            [&](TruthParticle& x)
-//            {
-//                return (count <= 2 ? (std::abs(x.mc_pdg_id) != 35) : (std::abs(x.mc_pdg_id) != 36));
-//
-//            }), truth_particles.end());
-//
-//            return truth_particles;
-//
-//        }, {"truth_particles"}).Define("truth_photons_from_axions",
-//        [&](RVec<TruthParticle>& truth_photons, RVec<TruthParticle> truth_axions)
-//        {
-//            std::sort(truth_axions.begin(),truth_axions.end(),
-//            [](TruthParticle& x, TruthParticle& y)
-//            {
-//                return x.mc_barcode < y.mc_barcode;
-//            });
-//
-//            return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
-//
-//        }, {"truth_photons", "truth_axions"})
-//        .Define("diphoton_inv_mass", [&](RVec<TruthParticle> truth_photons_from_axions)
-//        {
-//            auto four_momentum = truth_photons_from_axions[0].Vector() + truth_photons_from_axions[1].Vector();
-//            return four_momentum.M()/1e3f;
-//        }, {"truth_photons"})
-//        .Define("axion_masses", [&](RVec<TruthParticle>& truth_axions)
-//        {
-//            return truth_axions[0].mc_mass/1e3f;
-//
-//        }, {"truth_axions"});
-//
-//        if (count <= 2)
-//        {
-//            Nodes.push_back(truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0.2, 5.8}, "diphoton_inv_mass"));
-//        }
-//        else
-//        {
-//            for (auto& mass_point: massPoints)
-//            {
-//                auto mass_point_truth_photons_from_axions = truth_photons_from_axions.Filter([&]
-//                (float axion_mass)
-//                {
-//                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-//
-//                }, {"axion_masses"});
-//
-//                Nodes.push_back(mass_point_truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0.2, 5.8}, "diphoton_inv_mass"));
-//            }
-//        }
-//        count++;
-//    }
-//
-////    0           //1 GeV prompt
-////    1           //3 GeV prompt
-////    2           //5 GeV prompt
-////    3  4   5    //1, 3, 5 GeV for Cayy=1
-////    6  7   8    //1, 3, 5 GeV for Cayy=0.01
-////    9  10  11   //1, 3, 5 GeV for Cayy=0.001
-//
-//    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
-//    gStyle->SetOptStat(0);
-//    c1 = new TCanvas();
-//    legend = new TLegend(0.275, 0.55, 0.525, 0.8);
-//    constexpr std::array<EColor,3> colors = {kBlue, static_cast<EColor>(kGreen + 2), kViolet};
-//    constexpr std::array<int,3> massVals = {1, 3, 5};
-//    std::string legendTitle;
-//    double normFactor;
-//
-//    //prompt samples
-//
-//    for (int i = 0; i <= 2; i++)
-//    {
-//        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[i]);
-//        legendTitle = std::string("m_{a} = ") + std::to_string(massVals[i]) + "  GeV (prompt)";
-//        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), legendTitle.c_str(), "l");
-//        if (i == 0)
-//        {
-//            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
-//            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.4);
-//            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
-//            Nodes[i].GetResultPtr<TH1D>()->SetMaximum(38000);
-//            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-//            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
-//            normFactor = Nodes[i].GetResultPtr<TH1D>()->Integral();
-//        }
-//        else
-//        {
-//            Nodes[i].GetResultPtr<TH1D>()->Scale(normFactor/Nodes[i].GetResultPtr<TH1D>()->Integral());
-//            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
-//        }
-//    }
-//
-//    Tl.SetTextSize(0.03);
-//    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-//    Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-//    legend->SetBorderSize(0);
-//    legend->Draw();
-//    c1->SaveAs("Axion_masses_prompt.pdf");
-//
-//    //Displaced Samples
-//    constexpr std::array<const char*, 3> legendLabels = {" (C_{a#gamma#gamma} = 1)", " (C_{a#gamma#gamma} = 0.01)", " (C_{a#gamma#gamma} = 0.001)"};
-//    constexpr std::array<const char*, 3> fileNames = {"Axion_masses_Cayy_1.pdf", "Axion_masses_Cayy_0p01.pdf", "Axion_masses_Cayy_0p001.pdf"};
-//    constexpr std::array<float, 3> maxima = {130, 1700, 1400};
-//
-//    for (int i = 3, k = 0; i <= 9; i += 3, k++)
-//    {
-//        c1 = new TCanvas();
-//        legend = new TLegend(0.25, 0.55, 0.5, 0.85);
-//        for (int j = 0; j <= 2; j++)
-//        {
-//            Nodes[i+j].GetResultPtr<TH1D>()->SetLineColor(colors[j]);
-//            legendTitle = std::string("m_{a} = ") + std::to_string(massVals[j]) + "  GeV" + legendLabels[k];
-//            legend->AddEntry(&(*Nodes[i+j].GetResultPtr<TH1D>()), legendTitle.c_str(), "l");
-//            if (j == 0) //1 Gev
-//            {
-//                normFactor = Nodes[i+j].GetResultPtr<TH1D>()->Integral();
-//                Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-//                Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.2);
-//                Nodes[i+j].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
-//                Nodes[i+j].GetResultPtr<TH1D>()->SetMaximum(maxima[k]);
-//                Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
-//                Nodes[i+j].GetResultPtr<TH1D>()->Draw("HIST");
-//            }
-//            else
-//            {
-//                Nodes[i+j].GetResultPtr<TH1D>()->Scale(normFactor/Nodes[i+j].GetResultPtr<TH1D>()->Integral());
-//                Nodes[i+j].GetResultPtr<TH1D>()->Draw("HISTsame");
-//            }
-//        }
-//        Tl.SetTextSize(0.03);
-//        Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-//        Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-//        legend->SetBorderSize(0);
-//        legend->Draw();
-//        c1->SaveAs(fileNames[k]);
-//    }
-//
-//}
-//
-//void SignalShapesDeltaR()
-//{
-//    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
-//    {
-//        RVec<TruthParticle> truthSelected;
-//        bool foundParent;
-//        if (truthChain.size() >= 1)
-//        {
-//            TruthParticle tp;
-//            for (auto& tpe: startParticles)
-//            {
-//                tp = tpe;
-//                while (true)
-//                {
-//                    if (tp.mc_parent_barcode == targetBarcode)
-//                    {
-//                        truthSelected.push_back(tp);
-//                        break;
-//                    }
-//                    else
-//                    {
-//                        foundParent = false;
-//                        for (auto& tmp: truthChain)
-//                        {
-//                            if (tp.mc_parent_barcode == tmp.mc_barcode)
-//                            {
-//                                tp = tmp;
-//                                foundParent = true;
-//                                break;
-//                            }
-//                        }
-//                        if (foundParent == false)
-//                        {
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return truthSelected;
-//    };
-//
-//    std::vector<std::vector<std::string>> input_filenames =
-//    {
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
-//        },      // 1 GeV
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600752.PhPy8EG_AZNLO_ggH125_mA3p0_v1.root"
-//        },       // 3 GeV
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"
-//        },      // 5 GeV
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
-//        },      //C_{ayy} = 1
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p01.root",
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p01.root"
-//        },      //C_{ayy} = 0.01
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root",
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p001.root"
-//        },     //C_{ayy} = 0.001
-//    };
-//
-//    TCanvas* c1;
-//    TLegend* legend;
-//    TLatex Tl;
-//    std::vector<float> massPoints = {1, 3, 5};
-//    std::vector<ROOT::RDF::RResultHandle> Nodes;
-//    int count = 0;
-//
-//    for (auto& input_file: input_filenames)
-//    {
-//        SchottDataFrame df(MakeRDF(input_file, 8));
-//
-//        auto truth_photons_from_axions = df.Define("truth_photons",[&](RVec<TruthParticle> truth_particles)
-//        {
-//            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-//            [](TruthParticle& x)
-//            {
-//                return (std::abs(x.mc_pdg_id) != 22);
-//
-//            }), truth_particles.end());
-//
-//            return truth_particles;
-//
-//        }, {"truth_particles"})
-//        .Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
-//        {
-//            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-//            [&](TruthParticle& x)
-//            {
-//                return (count <= 2 ? (std::abs(x.mc_pdg_id) != 35) : (std::abs(x.mc_pdg_id) != 36));
-//
-//            }), truth_particles.end());
-//
-//            return truth_particles;
-//
-//        }, {"truth_particles"}).Define("truth_photons_from_axions",
-//        [&](RVec<TruthParticle>& truth_photons, RVec<TruthParticle> truth_axions)
-//        {
-//            std::sort(truth_axions.begin(),truth_axions.end(),
-//            [](TruthParticle& x, TruthParticle& y)
-//            {
-//                return x.mc_barcode < y.mc_barcode;
-//            });
-//
-//            return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
-//
-//        }, {"truth_photons", "truth_axions"})
-//        .Define("DeltaR_truth_photons_from_axion", [&](RVec<TruthParticle> truth_photons_from_axions)
-//        {
-//            return DeltaR(truth_photons_from_axions[0].Vector(), truth_photons_from_axions[1].Vector());
-//
-//        }, {"truth_photons"})
-//        .Define("axion_masses", [&](RVec<TruthParticle>& truth_axions)
-//        {
-//            return truth_axions[0].mc_mass/1e3f;
-//
-//        }, {"truth_axions"});
-//
-//        if (count <= 2)
-//        {
-//            Nodes.push_back(truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0, 1.2}, "DeltaR_truth_photons_from_axion"));
-//        }
-//        else
-//        {
-//            for (auto& mass_point: massPoints)
-//            {
-//                auto mass_point_truth_photons_from_axions = truth_photons_from_axions.Filter([&]
-//                (float axion_mass)
-//                {
-//                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-//
-//                }, {"axion_masses"});
-//
-//                Nodes.push_back(mass_point_truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0, 1.2}, "DeltaR_truth_photons_from_axion"));
-//            }
-//        }
-//        count++;
-//    }
-//
-////    0           //1 GeV prompt
-////    1           //3 GeV prompt
-////    2           //5 GeV prompt
-////    3  4   5    //1, 3, 5 GeV for Cayy=1
-////    6  7   8    //1, 3, 5 GeV for Cayy=0.01
-////    9  10  11   //1, 3, 5 GeV for Cayy=0.001
-//
-//    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
-//    gStyle->SetOptStat(0);
-//    c1 = new TCanvas();
-//    legend = new TLegend(0.25, 0.55, 0.5, 0.8);
-//    constexpr std::array<EColor,3> colors = {kBlue, static_cast<EColor>(kGreen + 2), kViolet};
-//    constexpr std::array<int,3> massVals = {1, 3, 5};
-//    std::string legendTitle;
-//    double normFactor;
-//
-//    //prompt samples
-//
-//    for (int i = 0; i <= 2; i++)
-//    {
-//        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[i]);
-//        legendTitle = std::string("m_{a} = ") + std::to_string(massVals[i]) + "  GeV (prompt)";
-//        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), legendTitle.c_str(), "l");
-//        if (i == 0)
-//        {
-//            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("#Delta R_{#gamma#gamma}");
-//            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.4);
-//            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
-//            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-//            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
-//            normFactor = Nodes[i].GetResultPtr<TH1D>()->Integral();
-//        }
-//        else
-//        {
-//            Nodes[i].GetResultPtr<TH1D>()->Scale(normFactor/Nodes[i].GetResultPtr<TH1D>()->Integral());
-//            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
-//        }
-//    }
-//
-//    Tl.SetTextSize(0.03);
-//    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-//    Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-//    legend->SetBorderSize(0);
-//    legend->Draw();
-//    c1->SaveAs("DeltaR_prompt.pdf");
-//
-//    //Displaced Samples
-//    constexpr std::array<const char*, 3> legendLabels = {"  (C_{a#gamma#gamma} = 1)", "  (C_{a#gamma#gamma} = 0.01)", "  (C_{a#gamma#gamma} = 0.001)"};
-//    constexpr std::array<const char*, 3> fileNames = {"DeltaR_Cayy_1.pdf", "DeltaR_Cayy_0p01.pdf", "DeltaR_Cayy_0p001.pdf"};
-//
-//    for (int i = 3, k = 0; i <= 9; i += 3, k++)
-//    {
-//        c1 = new TCanvas();
-//        legend = new TLegend(0.25, 0.55, 0.5, 0.85);
-//        for (int j = 0; j <= 2; j++)
-//        {
-//            Nodes[i+j].GetResultPtr<TH1D>()->SetLineColor(colors[j]);
-//            legendTitle = std::string("m_{a} = ") + std::to_string(massVals[j]) + "  GeV" + legendLabels[k];
-//            legend->AddEntry(&(*Nodes[i+j].GetResultPtr<TH1D>()), legendTitle.c_str(), "l");
-//            if (j == 0) //1 Gev
-//            {
-//                normFactor = Nodes[i+j].GetResultPtr<TH1D>()->Integral();
-//                Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-//                Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.2);
-//                Nodes[i+j].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("#Delta R_{#gamma#gamma}");
-//                Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
-//                Nodes[i+j].GetResultPtr<TH1D>()->Draw("HIST");
-//            }
-//            else
-//            {
-//                Nodes[i+j].GetResultPtr<TH1D>()->Scale(normFactor/Nodes[i+j].GetResultPtr<TH1D>()->Integral());
-//                Nodes[i+j].GetResultPtr<TH1D>()->Draw("HISTsame");
-//            }
-//        }
-//        Tl.SetTextSize(0.03);
-//        Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-//        Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-//        legend->SetBorderSize(0);
-//        legend->Draw();
-//        c1->SaveAs(fileNames[k]);
-//    }
-//
-//}
-
-void ALP_Decay_Lengths()
+void SignalShapes()
 {
     auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
     {
@@ -4483,6 +4036,15 @@ void ALP_Decay_Lengths()
     std::vector<std::vector<std::string>> input_filenames =
     {
         {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"
+        },      // 5 GeV
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600752.PhPy8EG_AZNLO_ggH125_mA3p0_v1.root"
+        },       // 3 GeV
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
+        },      // 1 GeV
+        {
             "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
         },      //C_{ayy} = 1
         {
@@ -4493,8 +4055,15 @@ void ALP_Decay_Lengths()
             "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root",
             "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p001.root"
         },     //C_{ayy} = 0.001
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p0001.root"
+        }     //C_{ayy} = 0.0001
     };
 
+    TCanvas* c1;
+    TLegend* legend;
+    TLatex Tl;
+    std::vector<float> massPoints = {5, 3, 1};
     std::vector<ROOT::RDF::RResultHandle> Nodes;
     int count = 0;
 
@@ -4519,7 +4088,7 @@ void ALP_Decay_Lengths()
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
             [&](TruthParticle& x)
             {
-                return (std::abs(x.mc_pdg_id) != 36);
+                return (count <= 2 ? (std::abs(x.mc_pdg_id) != 35) : (std::abs(x.mc_pdg_id) != 36));
 
             }), truth_particles.end());
 
@@ -4537,110 +4106,570 @@ void ALP_Decay_Lengths()
             return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
 
         }, {"truth_photons", "truth_axions"})
-        .Define("truth_higgs", [&](RVec<TruthParticle> truth_particles)
+        .Define("diphoton_inv_mass", [&](RVec<TruthParticle> truth_photons_from_axions)
+        {
+            auto four_momentum = truth_photons_from_axions[0].Vector() + truth_photons_from_axions[1].Vector();
+            return four_momentum.M()/1e3f;
+        }, {"truth_photons"})
+        .Define("axion_masses", [&](RVec<TruthParticle>& truth_axions)
+        {
+            return truth_axions[0].mc_mass/1e3f;
+
+        }, {"truth_axions"});
+
+        if (count <= 2)
+        {
+            Nodes.push_back(truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0.2, 5.8}, "diphoton_inv_mass"));
+        }
+        else
+        {
+            for (auto& mass_point: massPoints)
+            {
+                auto mass_point_truth_photons_from_axions = truth_photons_from_axions.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+
+                }, {"axion_masses"});
+
+                Nodes.push_back(mass_point_truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0.2, 5.8}, "diphoton_inv_mass"));
+            }
+        }
+        count++;
+    }
+
+//    0           //1 GeV prompt
+//    1           //3 GeV prompt
+//    2           //5 GeV prompt
+//    3  4   5    //1, 3, 5 GeV for Cayy=1
+//    6  7   8    //1, 3, 5 GeV for Cayy=0.01
+//    9  10  11   //1, 3, 5 GeV for Cayy=0.001
+//    12 13  14   //1, 3, 5 GeV for Cayy=0.0001
+
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+    gStyle->SetOptStat(0);
+    c1 = new TCanvas();
+    legend = new TLegend(0.275, 0.55, 0.525, 0.8);
+    constexpr std::array<EColor,3> colors = {kBlue, static_cast<EColor>(kGreen + 2), kViolet};
+    constexpr std::array<int,3> massVals = {5, 3, 1};
+    std::string legendTitle;
+    double normFactor;
+
+    //prompt samples
+
+    for (int i = 0; i <= 2; i++)
+    {
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[i]);
+        legendTitle = std::string("m_{a} = ") + std::to_string(massVals[i]) + "  GeV (prompt)";
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), legendTitle.c_str(), "l");
+        if (i == 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.4);
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
+            Nodes[i].GetResultPtr<TH1D>()->SetMaximum(38000);
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
+            normFactor = Nodes[i].GetResultPtr<TH1D>()->Integral();
+        }
+        else
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(normFactor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
+        }
+    }
+
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("Axion_masses_prompt.pdf");
+
+    //Displaced Samples
+    constexpr std::array<const char*, 4> legendLabels = {" (C_{a#gamma#gamma} = 1)", " (C_{a#gamma#gamma} = 0.01)", " (C_{a#gamma#gamma} = 0.001)", " (C_{a#gamma#gamma} = 0.0001)"};
+    constexpr std::array<const char*, 4> fileNames = {"Axion_masses_Cayy_1.pdf", "Axion_masses_Cayy_0p01.pdf", "Axion_masses_Cayy_0p001.pdf", "Axion_masses_Cayy_0p0001.pdf"};
+    constexpr std::array<float, 4> maxima = {130, 1700, 1400, 1000};
+
+    for (int i = 3, k = 0; i <= 12; i += 3, k++)
+    {
+        c1 = new TCanvas();
+        legend = new TLegend(0.25, 0.55, 0.5, 0.85);
+        for (int j = 0; j <= 2; j++)
+        {
+            Nodes[i+j].GetResultPtr<TH1D>()->SetLineColor(colors[j]);
+            legendTitle = std::string("m_{a} = ") + std::to_string(massVals[j]) + "  GeV" + legendLabels[k];
+            legend->AddEntry(&(*Nodes[i+j].GetResultPtr<TH1D>()), legendTitle.c_str(), "l");
+            if (j == 0) //1 Gev
+            {
+                normFactor = Nodes[i+j].GetResultPtr<TH1D>()->Integral();
+                Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+                Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.2);
+                Nodes[i+j].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
+                Nodes[i+j].GetResultPtr<TH1D>()->SetMaximum(maxima[k]);
+                Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
+                Nodes[i+j].GetResultPtr<TH1D>()->Draw("HIST");
+            }
+            else
+            {
+                Nodes[i+j].GetResultPtr<TH1D>()->Scale(normFactor/Nodes[i+j].GetResultPtr<TH1D>()->Integral());
+                Nodes[i+j].GetResultPtr<TH1D>()->Draw("HISTsame");
+            }
+        }
+        Tl.SetTextSize(0.03);
+        Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+        Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+        legend->SetBorderSize(0);
+        legend->Draw();
+        c1->SaveAs(fileNames[k]);
+    }
+
+}
+
+void SignalShapesDeltaR()
+{
+    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+    {
+        RVec<TruthParticle> truthSelected;
+        bool foundParent;
+        if (truthChain.size() >= 1)
+        {
+            TruthParticle tp;
+            for (auto& tpe: startParticles)
+            {
+                tp = tpe;
+                while (true)
+                {
+                    if (tp.mc_parent_barcode == targetBarcode)
+                    {
+                        truthSelected.push_back(tp);
+                        break;
+                    }
+                    else
+                    {
+                        foundParent = false;
+                        for (auto& tmp: truthChain)
+                        {
+                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+                            {
+                                tp = tmp;
+                                foundParent = true;
+                                break;
+                            }
+                        }
+                        if (foundParent == false)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return truthSelected;
+    };
+
+    std::vector<std::vector<std::string>> input_filenames =
+    {
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"
+        },      // 5 GeV
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600752.PhPy8EG_AZNLO_ggH125_mA3p0_v1.root"
+        },       // 3 GeV
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"
+        },      // 1 GeV
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
+        },      //C_{ayy} = 1
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p01.root",
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p01.root"
+        },      //C_{ayy} = 0.01
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root",
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p001.root"
+        },     //C_{ayy} = 0.001
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p0001.root"
+        }     //C_{ayy} = 0.0001
+    };
+
+    TCanvas* c1;
+    TLegend* legend;
+    TLatex Tl;
+    std::vector<float> massPoints = {5, 3, 1};
+    std::vector<ROOT::RDF::RResultHandle> Nodes;
+    int count = 0;
+
+    for (auto& input_file: input_filenames)
+    {
+        SchottDataFrame df(MakeRDF(input_file, 8));
+
+        auto truth_photons_from_axions = df.Define("truth_photons",[&](RVec<TruthParticle> truth_particles)
         {
             truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-            [&](TruthParticle& x)
+            [](TruthParticle& x)
             {
-                return (std::abs(x.mc_pdg_id) != 35);
+                return (std::abs(x.mc_pdg_id) != 22);
 
             }), truth_particles.end());
 
             return truth_particles;
 
         }, {"truth_particles"})
-        .Define("ALP_decay_length",
-        [&](RVec<TruthParticle>& truth_higgs, RVec<TruthParticle>& truth_axions, ROOT::VecOps::RVec<std::vector<int>>& mc_vertex_incoming_barcodes, RVec<float>& mc_vertex_x, RVec<float>& mc_vertex_y)
+        .Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
         {
-            int startX = 0, startY = 0;
-            int truth_higgs_barcode = truth_higgs[truth_higgs.size() - 1].mc_barcode;
-            
-            for (int i = 0; i < mc_vertex_incoming_barcodes.size(); i++)
+            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+            [&](TruthParticle& x)
             {
-                if (mc_vertex_incoming_barcodes[i].size() > 0 && mc_vertex_incoming_barcodes[i][0] == truth_higgs_barcode)
-                {
-                    startX = mc_vertex_x[i];
-                    startY = mc_vertex_y[i];
-                    break;
-                }
-            }
-            
-            double decayLength_a1 = 0;
-            for (int i = 0; i < mc_vertex_incoming_barcodes.size(); i++)
+                return (count <= 2 ? (std::abs(x.mc_pdg_id) != 35) : (std::abs(x.mc_pdg_id) != 36));
+
+            }), truth_particles.end());
+
+            return truth_particles;
+
+        }, {"truth_particles"}).Define("truth_photons_from_axions",
+        [&](RVec<TruthParticle>& truth_photons, RVec<TruthParticle> truth_axions)
+        {
+            std::sort(truth_axions.begin(),truth_axions.end(),
+            [](TruthParticle& x, TruthParticle& y)
             {
-                if (mc_vertex_incoming_barcodes[i].size() < 1)
-                {
-                    continue;
-                }
-                if (mc_vertex_incoming_barcodes[i][0] == truth_axions[0].mc_barcode)
-                {
-                    decayLength_a1 = sqrt(pow((mc_vertex_x[i] - startX),2) + pow((mc_vertex_y[i] - startY),2));
-                    break;
-                }
-            }
-            return decayLength_a1;
-        }, {"truth_higgs", "truth_axions", "mc_vertex_incoming_barcodes", "mc_vertex_x", "mc_vertex_y"})
+                return x.mc_barcode < y.mc_barcode;
+            });
+
+            return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
+
+        }, {"truth_photons", "truth_axions"})
+        .Define("DeltaR_truth_photons_from_axion", [&](RVec<TruthParticle> truth_photons_from_axions)
+        {
+            return DeltaR(truth_photons_from_axions[0].Vector(), truth_photons_from_axions[1].Vector());
+
+        }, {"truth_photons"})
         .Define("axion_masses", [&](RVec<TruthParticle>& truth_axions)
         {
             return truth_axions[0].mc_mass/1e3f;
 
         }, {"truth_axions"});
-        
-        Nodes.push_back(truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0, 0}, "ALP_decay_length"));
 
-//        if (count <= 2)
-//        {
-//            Nodes.push_back(truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0.2, 5.8}, "diphoton_inv_mass"));
-//        }
-//        else
-//        {
-//            for (auto& mass_point: massPoints)
-//            {
-//                auto mass_point_truth_photons_from_axions = truth_photons_from_axions.Filter([&]
-//                (float axion_mass)
-//                {
-//                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-//
-//                }, {"axion_masses"});
-//
-//                Nodes.push_back(mass_point_truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0.2, 5.8}, "diphoton_inv_mass"));
-//            }
-//        }
+        if (count <= 2)
+        {
+            Nodes.push_back(truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0, 1.2}, "DeltaR_truth_photons_from_axion"));
+        }
+        else
+        {
+            for (auto& mass_point: massPoints)
+            {
+                auto mass_point_truth_photons_from_axions = truth_photons_from_axions.Filter([&]
+                (float axion_mass)
+                {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+
+                }, {"axion_masses"});
+
+                Nodes.push_back(mass_point_truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0, 0}, "DeltaR_truth_photons_from_axion"));
+            }
+        }
         count++;
     }
 
-    std::cout << Nodes.size() << '\n';
+//    0           //1 GeV prompt
+//    1           //3 GeV prompt
+//    2           //5 GeV prompt
+//    3  4   5    //1, 3, 5 GeV for Cayy=1
+//    6  7   8    //1, 3, 5 GeV for Cayy=0.01
+//    9  10  11   //1, 3, 5 GeV for Cayy=0.001
+//    12 13  14   //1, 3, 5 GeV for Cayy=0.0001
+
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
-    
-    constexpr std::array<const char*, 3> titles = {"C_{a#gamma#gamma} = 1", "C_{a#gamma#gamma} = 0.01", "C_{a#gamma#gamma} = 0.001"};
-    constexpr std::array<const char*, 3> filenames = {"Cayy_1_ALP_decay_lengths.pdf", "Cayy_0p01_ALP_decay_lengths.pdf", "Cayy_0p001_ALP_decay_lengths.pdf"};
-    constexpr std::array<EColor, 3> colors = {kBlue, static_cast<EColor>(kGreen + 2), kViolet};
-    TCanvas* c1;
-    TLegend* legend;
-    TLatex Tl;
-    
-    for (int i = 0; i < Nodes.size(); i++)
+    gStyle->SetOptStat(0);
+    c1 = new TCanvas();
+    legend = new TLegend(0.25, 0.55, 0.5, 0.8);
+    constexpr std::array<EColor,3> colors = {kBlue, static_cast<EColor>(kGreen + 2), kViolet};
+    constexpr std::array<int,3> massVals = {5, 3, 1};
+    std::string legendTitle;
+    double normFactor;
+
+    //prompt samples
+
+    for (int i = 0; i <= 2; i++)
+    {
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[i]);
+        legendTitle = std::string("m_{a} = ") + std::to_string(massVals[i]) + "  GeV (prompt)";
+        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), legendTitle.c_str(), "l");
+        if (i == 0)
+        {
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("#Delta R_{#gamma#gamma}");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.4);
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
+            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
+            normFactor = Nodes[i].GetResultPtr<TH1D>()->Integral();
+        }
+        else
+        {
+            Nodes[i].GetResultPtr<TH1D>()->Scale(normFactor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
+        }
+    }
+
+    Tl.SetTextSize(0.03);
+    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+    Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    legend->SetBorderSize(0);
+    legend->Draw();
+    c1->SaveAs("DeltaR_prompt.pdf");
+
+    //Displaced Samples
+    constexpr std::array<const char*, 4> legendLabels = {" (C_{a#gamma#gamma} = 1)", " (C_{a#gamma#gamma} = 0.01)", " (C_{a#gamma#gamma} = 0.001)", " (C_{a#gamma#gamma} = 0.0001)"};
+    constexpr std::array<const char*, 4> fileNames = {"DeltaR_Cayy_1.pdf", "DeltaR_Cayy_0p01.pdf", "DeltaR_Cayy_0p001.pdf", "DeltaR_Cayy_0p0001.pdf"};
+
+    for (int i = 3, k = 0; i <= 12; i += 3, k++)
     {
         c1 = new TCanvas();
-        legend = new TLegend(0.275, 0.55, 0.525, 0.8);
-        gStyle->SetOptStat(0);
-        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[i]);
-        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), titles[i], "l");
-        
-        Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("ALP Decay Lengths  (mm)");
-        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.4);
-        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
-        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-        Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
-        
+        legend = new TLegend(0.25, 0.55, 0.5, 0.85);
+//        if (i == 12)
+//        {
+//            Nodes[i].GetResultPtr<TH1D>()->SetMaximum(2);
+//        }
+        for (int j = 0; j <= 2; j++)
+        {
+            Nodes[i+j].GetResultPtr<TH1D>()->SetLineColor(colors[j]);
+            legendTitle = std::string("m_{a} = ") + std::to_string(massVals[j]) + "  GeV" + legendLabels[k];
+            legend->AddEntry(&(*Nodes[i+j].GetResultPtr<TH1D>()), legendTitle.c_str(), "l");
+            if (j == 0) //1 Gev
+            {
+                normFactor = Nodes[i+j].GetResultPtr<TH1D>()->Integral();
+                Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+               
+                Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.2);
+                Nodes[i+j].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("#Delta R_{#gamma#gamma}");
+                Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
+                Nodes[i+j].GetResultPtr<TH1D>()->Draw("HIST");
+            }
+            else
+            {
+                Nodes[i+j].GetResultPtr<TH1D>()->Scale(normFactor/Nodes[i+j].GetResultPtr<TH1D>()->Integral());
+                Nodes[i+j].GetResultPtr<TH1D>()->Draw("HISTsame");
+            }
+        }
         Tl.SetTextSize(0.03);
         Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
         Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
         legend->SetBorderSize(0);
         legend->Draw();
-        c1->SaveAs(filenames[i]);
+        c1->SaveAs(fileNames[k]);
     }
+
 }
+
+//void ALP_Decay_Lengths()
+//{
+//    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+//    {
+//        RVec<TruthParticle> truthSelected;
+//        bool foundParent;
+//        if (truthChain.size() >= 1)
+//        {
+//            TruthParticle tp;
+//            for (auto& tpe: startParticles)
+//            {
+//                tp = tpe;
+//                while (true)
+//                {
+//                    if (tp.mc_parent_barcode == targetBarcode)
+//                    {
+//                        truthSelected.push_back(tp);
+//                        break;
+//                    }
+//                    else
+//                    {
+//                        foundParent = false;
+//                        for (auto& tmp: truthChain)
+//                        {
+//                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+//                            {
+//                                tp = tmp;
+//                                foundParent = true;
+//                                break;
+//                            }
+//                        }
+//                        if (foundParent == false)
+//                        {
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return truthSelected;
+//    };
+//
+//    std::vector<std::vector<std::string>> input_filenames =
+//    {
+//        {
+//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
+//        },      //C_{ayy} = 1
+//        {
+//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p01.root",
+//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p01.root"
+//        },      //C_{ayy} = 0.01
+//        {
+//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root",
+//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p001.root"
+//        },     //C_{ayy} = 0.001
+//        {
+//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p0001.root"
+//            //C_{ayy} = 0.0001
+//        }
+//    };
+//
+//    std::vector<ROOT::RDF::RResultHandle> Nodes;
+//    int count = 0;
+//
+//    for (auto& input_file: input_filenames)
+//    {
+//        SchottDataFrame df(MakeRDF(input_file, 8));
+//
+//        auto truth_photons_from_axions = df.Define("truth_photons",[&](RVec<TruthParticle> truth_particles)
+//        {
+//            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+//            [](TruthParticle& x)
+//            {
+//                return (std::abs(x.mc_pdg_id) != 22);
+//
+//            }), truth_particles.end());
+//
+//            return truth_particles;
+//
+//        }, {"truth_particles"})
+//        .Define("truth_axions", [&](RVec<TruthParticle> truth_particles)
+//        {
+//            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+//            [&](TruthParticle& x)
+//            {
+//                return (std::abs(x.mc_pdg_id) != 36);
+//
+//            }), truth_particles.end());
+//
+//            return truth_particles;
+//
+//        }, {"truth_particles"}).Define("truth_photons_from_axions",
+//        [&](RVec<TruthParticle>& truth_photons, RVec<TruthParticle> truth_axions)
+//        {
+//            std::sort(truth_axions.begin(),truth_axions.end(),
+//            [](TruthParticle& x, TruthParticle& y)
+//            {
+//                return x.mc_barcode < y.mc_barcode;
+//            });
+//
+//            return findParentInChain(truth_axions[0].mc_barcode, truth_photons, truth_axions);
+//
+//        }, {"truth_photons", "truth_axions"})
+//        .Define("truth_higgs", [&](RVec<TruthParticle> truth_particles)
+//        {
+//            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+//            [&](TruthParticle& x)
+//            {
+//                return (std::abs(x.mc_pdg_id) != 35);
+//
+//            }), truth_particles.end());
+//
+//            return truth_particles;
+//
+//        }, {"truth_particles"})
+//        .Define("ALP_decay_length",
+//        [&](RVec<TruthParticle>& truth_higgs, RVec<TruthParticle>& truth_axions, ROOT::VecOps::RVec<std::vector<int>>& mc_vertex_incoming_barcodes, RVec<float>& mc_vertex_x, RVec<float>& mc_vertex_y)
+//        {
+//            int startX = 0, startY = 0;
+//            int truth_higgs_barcode = truth_higgs[truth_higgs.size() - 1].mc_barcode;
+//
+//            for (int i = 0; i < mc_vertex_incoming_barcodes.size(); i++)
+//            {
+//                if (mc_vertex_incoming_barcodes[i].size() > 0 && mc_vertex_incoming_barcodes[i][0] == truth_higgs_barcode)
+//                {
+//                    startX = mc_vertex_x[i];
+//                    startY = mc_vertex_y[i];
+//                    break;
+//                }
+//            }
+//
+//            double decayLength_a1 = 0;
+//            for (int i = 0; i < mc_vertex_incoming_barcodes.size(); i++)
+//            {
+//                if (mc_vertex_incoming_barcodes[i].size() < 1)
+//                {
+//                    continue;
+//                }
+//                if (mc_vertex_incoming_barcodes[i][0] == truth_axions[0].mc_barcode)
+//                {
+//                    decayLength_a1 = sqrt(pow((mc_vertex_x[i] - startX),2) + pow((mc_vertex_y[i] - startY),2));
+//                    break;
+//                }
+//            }
+//            return decayLength_a1;
+//        }, {"truth_higgs", "truth_axions", "mc_vertex_incoming_barcodes", "mc_vertex_x", "mc_vertex_y"})
+//        .Define("axion_masses", [&](RVec<TruthParticle>& truth_axions)
+//        {
+//            return truth_axions[0].mc_mass/1e3f;
+//
+//        }, {"truth_axions"});
+//
+//        Nodes.push_back(truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0, 0}, "ALP_decay_length"));
+//
+////        if (count <= 2)
+////        {
+////            Nodes.push_back(truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0.2, 5.8}, "diphoton_inv_mass"));
+////        }
+////        else
+////        {
+////            for (auto& mass_point: massPoints)
+////            {
+////                auto mass_point_truth_photons_from_axions = truth_photons_from_axions.Filter([&]
+////                (float axion_mass)
+////                {
+////                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+////
+////                }, {"axion_masses"});
+////
+////                Nodes.push_back(mass_point_truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0.2, 5.8}, "diphoton_inv_mass"));
+////            }
+////        }
+//        count++;
+//    }
+//
+//    std::cout << Nodes.size() << '\n';
+//    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+//
+//    constexpr std::array<const char*, 4> titles = {"C_{a#gamma#gamma} = 1", "C_{a#gamma#gamma} = 0.01", "C_{a#gamma#gamma} = 0.001", "C_{a#gamma#gamma} = 0.0001"};
+//    constexpr std::array<const char*, 4> filenames = {"Cayy_1_ALP_decay_lengths.pdf", "Cayy_0p01_ALP_decay_lengths.pdf", "Cayy_0p001_ALP_decay_lengths.pdf", "Cayy_0p0001_ALP_decay_lengths.pdf"};
+//    constexpr std::array<EColor, 4> colors = {kBlue, static_cast<EColor>(kGreen + 2), kViolet, kRed};
+//    TCanvas* c1;
+//    TLegend* legend;
+//    TLatex Tl;
+//
+//    for (int i = 0; i < Nodes.size(); i++)
+//    {
+//        c1 = new TCanvas();
+//        legend = new TLegend(0.275, 0.55, 0.525, 0.8);
+//        gStyle->SetOptStat(0);
+//        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[i]);
+//        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), titles[i], "l");
+//
+//        Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("ALP Decay Lengths  (mm)");
+//        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.4);
+//        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
+//        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+//        Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
+//
+//        Tl.SetTextSize(0.03);
+//        Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+//        Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+//        legend->SetBorderSize(0);
+//        legend->Draw();
+//        c1->SaveAs(filenames[i]);
+//    }
+//}
 
 
 void ControlPlotsSignalShapes()
@@ -4657,9 +4686,9 @@ void ControlPlotsSignalShapes()
 //    fig54();
 //    fig29();
 //    AxionMassEventCounter();
-//    SignalShapes();
-//    SignalShapesDeltaR();
-    ALP_Decay_Lengths();
+    SignalShapes();
+    SignalShapesDeltaR();
+//    ALP_Decay_Lengths();
     
     auto end_time = Clock::now();
     std::cout << "Time difference: "
