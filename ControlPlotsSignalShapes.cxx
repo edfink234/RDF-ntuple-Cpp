@@ -4149,7 +4149,7 @@ void SignalShapes()
     ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
     gStyle->SetOptStat(0);
     c1 = new TCanvas();
-    legend = new TLegend(0.275, 0.55, 0.525, 0.8);
+    legend = new TLegend(0.25, 0.55, 0.5, 0.8);
     constexpr std::array<EColor,3> colors = {kBlue, static_cast<EColor>(kGreen + 2), kViolet};
     constexpr std::array<int,3> massVals = {5, 3, 1};
     std::string legendTitle;
@@ -4165,9 +4165,10 @@ void SignalShapes()
         if (i == 0)
         {
             Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleSize(1.25 * Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->GetTitleSize());
             Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.4);
             Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
-            Nodes[i].GetResultPtr<TH1D>()->SetMaximum(38000);
+            Nodes[i].GetResultPtr<TH1D>()->SetMaximum(10200);
             Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
             Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
             normFactor = Nodes[i].GetResultPtr<TH1D>()->Integral();
@@ -4189,7 +4190,7 @@ void SignalShapes()
     //Displaced Samples
     constexpr std::array<const char*, 4> legendLabels = {" (C_{a#gamma#gamma} = 1)", " (C_{a#gamma#gamma} = 0.01)", " (C_{a#gamma#gamma} = 0.001)", " (C_{a#gamma#gamma} = 0.0001)"};
     constexpr std::array<const char*, 4> fileNames = {"Axion_masses_Cayy_1.pdf", "Axion_masses_Cayy_0p01.pdf", "Axion_masses_Cayy_0p001.pdf", "Axion_masses_Cayy_0p0001.pdf"};
-    constexpr std::array<float, 4> maxima = {130, 1700, 1400, 1000};
+    constexpr std::array<float, 4> maxima = {103, 168, 138.5, 705};
 
     for (int i = 3, k = 0; i <= 12; i += 3, k++)
     {
@@ -4206,6 +4207,7 @@ void SignalShapes()
                 Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
                 Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.2);
                 Nodes[i+j].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
+                Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleSize(1.25 * Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->GetTitleSize());
                 Nodes[i+j].GetResultPtr<TH1D>()->SetMaximum(maxima[k]);
                 Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
                 Nodes[i+j].GetResultPtr<TH1D>()->Draw("HIST");
@@ -4367,7 +4369,7 @@ void SignalShapesDeltaR()
 
                 }, {"axion_masses"});
 
-                Nodes.push_back(mass_point_truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0, 0}, "DeltaR_truth_photons_from_axion"));
+                Nodes.push_back(mass_point_truth_photons_from_axions.Histo1D<double>({"", "", 120u, 0, 1.2}, "DeltaR_truth_photons_from_axion"));
             }
         }
         count++;
@@ -4400,8 +4402,10 @@ void SignalShapesDeltaR()
         if (i == 0)
         {
             Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("#Delta R_{#gamma#gamma}");
+            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleSize(1.25 * Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->GetTitleSize());
             Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.4);
             Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
+            Nodes[i].GetResultPtr<TH1D>()->SetMaximum(770);
             Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
             Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
             normFactor = Nodes[i].GetResultPtr<TH1D>()->Integral();
@@ -4423,15 +4427,20 @@ void SignalShapesDeltaR()
     //Displaced Samples
     constexpr std::array<const char*, 4> legendLabels = {" (C_{a#gamma#gamma} = 1)", " (C_{a#gamma#gamma} = 0.01)", " (C_{a#gamma#gamma} = 0.001)", " (C_{a#gamma#gamma} = 0.0001)"};
     constexpr std::array<const char*, 4> fileNames = {"DeltaR_Cayy_1.pdf", "DeltaR_Cayy_0p01.pdf", "DeltaR_Cayy_0p001.pdf", "DeltaR_Cayy_0p0001.pdf"};
+    constexpr std::array<float, 4> maxima = {10.5, 13.5, 11, 198};
 
     for (int i = 3, k = 0; i <= 12; i += 3, k++)
     {
         c1 = new TCanvas();
-        legend = new TLegend(0.25, 0.55, 0.5, 0.85);
-//        if (i == 12)
-//        {
-//            Nodes[i].GetResultPtr<TH1D>()->SetMaximum(2);
-//        }
+        if (i == 12)
+        {
+            legend = new TLegend(0.35, 0.35, 0.6, 0.65);
+        }
+        else
+        {
+            legend = new TLegend(0.25, 0.55, 0.5, 0.85);
+        }
+
         for (int j = 0; j <= 2; j++)
         {
             Nodes[i+j].GetResultPtr<TH1D>()->SetLineColor(colors[j]);
@@ -4441,9 +4450,10 @@ void SignalShapesDeltaR()
             {
                 normFactor = Nodes[i+j].GetResultPtr<TH1D>()->Integral();
                 Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-               
+                Nodes[i+j].GetResultPtr<TH1D>()->SetMaximum(maxima[k]);
                 Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->SetTitleOffset(1.2);
                 Nodes[i+j].GetResultPtr<TH1D>()->GetXaxis()->SetTitle("#Delta R_{#gamma#gamma}");
+                Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleSize(1.25 * Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->GetTitleSize());
                 Nodes[i+j].GetResultPtr<TH1D>()->GetYaxis()->SetTitle("Events");
                 Nodes[i+j].GetResultPtr<TH1D>()->Draw("HIST");
             }
