@@ -2568,6 +2568,923 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
 {
     Event::systematics =
     {
+        //        "PH_EFF_ISO_Uncertainty",
+        //        "PH_EFF_ISO_Uncertainty",
+        //        "EL_EFF_ID_TOTAL_1NPCOR_PLUS_UNCOR",
+        //        "PRW_DATASF",
+        //        "MUON_EFF_RECO_SYS",
+        //        "MUON_EFF_ISO_SYS",
+        //        "MUON_EFF_TrigSystUncertainty",
+        //        "EL_EFF_Reco_TOTAL_1NPCOR_PLUS_UNCOR",
+        //        "MUON_EFF_TrigStatUncertainty",
+        //        "MUON_EFF_RECO_STAT",
+        //        "MUON_EFF_TTVA_STAT",
+        //        "EL_EFF_Iso_TOTAL_1NPCOR_PLUS_UNCOR",
+        //        "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR",
+        //        "MUON_EFF_TTVA_SYS",
+        //        "MUON_EFF_ISO_STAT",
+        //        "MUON_SAGITTA_RHO",
+        //        "EG_RESOLUTION_ALL",
+        //        "EG_SCALE_ALL",
+        //        "MUON_MS",
+        //        "MUON_ID",
+        //        "EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR",
+        //        "MUON_SAGITTA_RESBIAS",
+        //        "MUON_SCALE",
+        "EG_RESOLUTION_ALL__1up",
+        "EG_SCALE_ALL__1up",
+        //        "PH_EFF_ISO_Uncertainty__1up",
+        "PH_EFF_ID_Uncertainty__1up",
+        //        "PH_EFF_TRIGGER_Uncertainty__1up",
+        
+        "EG_RESOLUTION_ALL__1down",
+        "EG_SCALE_ALL__1down",
+        //        "PH_EFF_ISO_Uncertainty__1down",
+        "PH_EFF_ID_Uncertainty__1down",
+        //        "PH_EFF_TRIGGER_Uncertainty__1down",
+    };
+    
+    std::vector<std::vector<std::string>> input_filenames =
+    {
+        //Prompt Signal
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}, //1 GeV
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"}, //5 GeV
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600751.PhPy8EG_AZNLO_ggH125_mA2p0_v1.root"}, // 2 GeV
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600752.PhPy8EG_AZNLO_ggH125_mA3p0_v1.root"}, // 3 GeV
+        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600756.PhPy8EG_AZNLO_ggH125_mA9p0_v1.root"}, // 9 GeV
+        //Displaced Signal
+        //        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
+        }, //C_{ayy} = 1
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p01.root",
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p01.root"
+        },      //C_{ayy} = 0.01
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root",
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p001.root"
+        },     //C_{ayy} = 0.001
+        {
+            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p0001.root"
+            //C_{ayy} = 0.0001
+        }
+    };
+    
+    std::vector<float> massPoints = {0.2, 0.5, 1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30}; //mass points for displaced samples
+    std::vector<float> massPoints_prompt = {1, 5, 2, 3, 9};
+    std::vector<float> ALP_photon_couplings = {1.0f, 0.01f, 0.001f, 0.0001f};
+    std::vector<RResultMap<float>> resultmaps, prompt_resultmaps; //long-lived and prompt resultmaps for sys variations
+    std::vector<ROOT::RDF::RResultHandle> Nodes; //Hold nominal nodes so we can use RunGraphs to run the computational graph from multiple RDF objects (samples)
+    
+    //Function that returns the particles from `startParticles` that have a parent with `targetBarcode`, given a `truthChain` to search through
+    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
+    {
+        RVec<TruthParticle> truthSelected;
+        bool foundParent;
+        if (truthChain.size() >= 1)
+        {
+            TruthParticle tp;
+            for (auto& tpe: startParticles)
+            {
+                tp = tpe;
+                while (true)
+                {
+                    if (tp.mc_parent_barcode == targetBarcode)
+                    {
+                        truthSelected.push_back(tp);
+                        break;
+                    }
+                    else
+                    {
+                        foundParent = false;
+                        for (auto& tmp: truthChain)
+                        {
+                            if (tp.mc_parent_barcode == tmp.mc_barcode)
+                            {
+                                tp = tmp;
+                                foundParent = true;
+                                break;
+                            }
+                        }
+                        if (foundParent == false)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return truthSelected;
+    };
+    
+    int counter = 0; //keep track of each file
+    
+    for (auto& file: input_filenames)
+    {
+        SchottDataFrame df(MakeRDF(file, 8)); //Starting dataframe, I'm running with 8 threads
+        
+        //New dataframe node that has additional columns
+        auto newDf = df.Define("EventWeight", //mc generator weight
+                               [](const RVec<float>& ei_event_weights_generator)
+                               {
+            return  ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
+            
+        }, {"ei_event_weights_generator"})
+        .Define("totEventWeight", //vector of efficiencies, product of photon_id_eff, photon_iso_eff, and photon_trg_eff
+                [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
+                {
+            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+            photon_id_eff.resize(ResizeVal,1);
+            photon_iso_eff.resize(ResizeVal,1);
+            photon_trg_eff.resize(ResizeVal,1);
+            
+            return photon_id_eff;//*photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
+            
+        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/})
+        .Define("totEventWeightFactor", //product of vector above
+                [](RVec<float>& photon_efficiencies)
+                {
+            float total = 1.0f;
+            
+            for (auto i: photon_efficiencies)
+            {
+                total *= i;
+            }
+            
+            return total; //one efficiency
+            
+        }, {"totEventWeight"})
+        .Define("truth_axions", //truth ALPs in each event, should only be 1 ALP per event
+                [&](RVec<TruthParticle> truth_particles)
+                {
+            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
+                                                 [](TruthParticle& x)
+                                                 {
+                return (std::abs(x.mc_pdg_id) != 36 && std::abs(x.mc_pdg_id) != 35); //in prompt samples, ALP pdg id = 35, in long-lived, ALP pdg id = 36
+                
+            }), truth_particles.end());
+            
+            return truth_particles;
+            
+        }, {"truth_particles"})
+        .Define("axion_masses", //masses of the truth_axions, should only be 1 ALP per event
+                [&](RVec<TruthParticle>& truth_axions)
+                {
+            for (auto& particle: truth_axions)
+            {
+                if (counter <= 4 && particle.mc_pdg_id == 35) //then it's a prompt ALP
+                {
+                    return particle.mc_mass/1e3f;
+                }
+                else if (counter > 4 && particle.mc_pdg_id == 36) //then it's a displaced ALP
+                {
+                    return particle.mc_mass/1e3f;
+                }
+            }
+            
+            return 0.0f;
+            
+        }, {"truth_axions"});
+        
+        //new dataframe node: contains only the events of newDf that pass the trigger cut
+        auto trigger_selection = newDf
+            .Filter([](const RVec<std::string>& trigger_passed_triggers)
+                    {
+                bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+                
+                if (!trigger_found)
+                {
+                    return false; //this event is filtered out
+                }
+                return true; //this event is kept because the trigger was found in its `trigger_passed_triggers` branch entry
+                
+            }, {"trigger_passed_triggers"});
+        
+        //new dataframe node: contains an additional column `di_electrons` and only the events that have 2 electrons and no muons
+        auto two_leptons = trigger_selection
+            .Define("di_electrons", //the events that pass will have exactly 2 electrons that pass the following
+                    [](RVec<AbstractParticle> electrons)
+                    {
+                //keep the electrons in each event that have pt > 20 GeV, |η| < 2.37,
+                //|η| not between 1.37 and 1.52, and that satisfy a medium id criteria `electron_id_medium`
+                electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+                                               [](AbstractParticle& ep)
+                                               {
+                    return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+                              (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
+                              && (ep.electron_id_medium == 1)));
+                    
+                }), electrons.end());
+                
+                return electrons;
+                
+            },{"abstract_electrons"}).Filter(
+                                             [](const RVec<Muon>& muons, RVec<AbstractParticle> electrons)
+                                             {
+                                                 return (electrons.size()==2 && muons.empty()); //keep events which have exactly 2 electrons for di_electrons and no muons
+                                                 
+                                             }, {"muons", "di_electrons"});
+        
+        //new dataframe node: contains only the events from `two_leptons` whose electrons in the `di_electrons` branch have opposite charge
+        auto opp_charge = two_leptons.Filter([](const RVec<AbstractParticle>& electrons)
+                                             {
+            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+            
+        }, {"di_electrons"});
+        
+        //new dataframe node: contains only the events from `opp_charge` that have 1 electron with pt > 20 GeV and the other with pt > 27 GeV
+        auto leading_pt = opp_charge.Filter([](const RVec<AbstractParticle>& electrons)
+                                            {
+            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+        }, {"di_electrons"});
+        
+        //new dataframe node: nothing changes here from `leading_pt`...
+        auto same_flavour = leading_pt.Filter([] (const RVec<AbstractParticle>& electrons)
+                                              {
+            return true; //because true is always returned in this function
+        }, {"di_electrons"});
+        
+        //new dataframe node: Contains a new column `dilep` in addition to the ones in `same_flavour` that stores the di-electron four-vector
+        auto dilep = same_flavour.Define("dilep",[] (RVec<AbstractParticle>& electrons)
+                                         {
+            return (electrons[0].ElectronVector() + electrons[1].ElectronVector());
+        }, {"di_electrons"});
+        
+        //new dataframe node: contains only the events from `dilep` that have di-electron invariant mass between 81 and 101 GeV
+        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+                                 {
+            auto mass = dilep.M()/1e3;
+            return ((mass >= 81) && (mass <= 101));
+        }, {"dilep"});
+        
+        //new dataframe node: contains only the events from `mass` that have dilepton pT > 10 GeV
+        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
+                                 {
+            auto pT = dilep.Pt()/1e3;
+            return pT > 10;
+        }, {"dilep"});
+        
+        //end pre-selection -----------
+        
+        //photon acceptance and id_loose cuts
+        auto photonPtDeltaR = ptCut
+            .Define("photons_pass_cut_indices", //new column that contains the good photon indices
+                    [&](RVec<AbstractParticle>& p) //p = photon
+                    {
+                RVec<int> x; //indices of photons that passed the cuts
+                for (auto i = 0; i < p.size(); i++)
+                {
+                    //keep reco-photons that have |η| < 2.37, p_T > 10 GeV, and |η| not between 1.37 and 1.52
+                    if (not ((std::abs(p[i].photon_eta) >= 2.37) or (p[i].photon_pt <= 10e3) or (std::abs(p[i].photon_eta) > 1.37 and std::abs(p[i].photon_eta) < 1.52)))
+                    {
+                        x.push_back(i);
+                    }
+                }
+                return x;
+                
+            }, {"abstract_photons"})
+            .Define("photonPtDeltaR", //new column that contains the good photons corresponding to the good photon indices from above
+                    [&](RVec<AbstractParticle>& photons, RVec<int>& x)
+                    {
+                return Take(photons, x); //Taking only the photons that passed the cuts in each event
+                
+            }, {"abstract_photons", "photons_pass_cut_indices"})
+            .Define("photonPtDeltaR_photons_pass_cut_indices", //new column for indices of the `photonPtDeltaR` photons that pass the photonPtDeltaR part of the resolved category
+                    [&](RVec<AbstractParticle>& reco_photons_matched)
+                    {
+                RVec<unsigned long> x; //vector of indices
+                if (reco_photons_matched.size() < 2)
+                {
+                    return x;
+                }
+                
+                auto combs = Combinations(reco_photons_matched, 2); //all combinations of 2 reco-photons
+                size_t length = combs[0].size(); //number of combinations
+                double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+                
+                for (size_t i=0; i<length; i++) //looping through all of the possible combinations of photons in each event
+                {
+                    delta_r = DeltaR(reco_photons_matched[combs[0][i]].PhotonVector(), reco_photons_matched[combs[1][i]].PhotonVector());
+                    m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
+                    pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
+                    X = delta_r*(pt/(2.0*m));
+                    //if it's the first combination or if new X is closer to 1
+                    //than current best_X and ΔR
+                    //between the two reco-photons < 1.5, then update best_X, pt1, pt2,
+                    //and the corresponding reco-photon indices x
+                    if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
+                    {
+                        best_X = X;
+                        pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                        pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                        chosen_delta_r = delta_r;
+                        x = {combs[0][i], combs[1][i]};
+                    }
+                }
+                if (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3) //two photons corresponding to best_X must both have p_T > 10 GeV and ΔR < 1.5
+                {
+                    return x;
+                }
+                
+                x.clear();
+                return x;
+                
+            }, {"photonPtDeltaR"}).Filter(//keep only events that have passed the first part of the resolved category
+                                          [&](RVec<unsigned long>& indices)
+                                          {
+                                              return (indices.size()==2);
+                                              
+                                          }, {"photonPtDeltaR_photons_pass_cut_indices"})
+            .Define("photonPtDeltaR_TotalEventWeightFactor", //New column: weight factor for events in RDF `photonPtDeltaR`
+                    [](RVec<unsigned long>& photonPtDeltaR_photons_pass_cut_indices, RVec<int>& photons_pass_cut_indices, RVec<float>& photon_efficiencies)
+                    {
+                //First, we take the elements from photon_efficiencies that correspond to the `photons_pass_cut_indices` defined
+                //earlier. Then, from that resulting vector, we take the elements corresponding to the
+                //`photonPtDeltaR_photons_pass_cut_indices` defined above
+                RVec<float> photonPtDeltaR_photon_efficiencies = Take(Take(photon_efficiencies, photons_pass_cut_indices), photonPtDeltaR_photons_pass_cut_indices);
+                //Now, multiply all of the elements of the vector we defined above
+                float total = 1.0f;
+                for (auto i: photonPtDeltaR_photon_efficiencies)
+                {
+                    total *= i;
+                }
+                //and return the result
+                return total;
+            }, {"photonPtDeltaR_photons_pass_cut_indices", "photons_pass_cut_indices", "totEventWeight"});
+        
+        //last part of the resolved category
+        auto X_window = photonPtDeltaR
+            .Define("X_window_photons_pass_cut_indices", //new column for indices of the `photonPtDeltaR` photons that pass the photonPtDeltaR and X_window part of the resolved category
+                    [](RVec<AbstractParticle>& reco_photons_matched)
+                    {
+                RVec<unsigned long> x; //vector of indices
+                if (reco_photons_matched.size() < 2)
+                {
+                    return x;
+                }
+                auto combs = Combinations(reco_photons_matched, 2); //all combinations of 2 reco-photons
+                size_t length = combs[0].size(); //all combinations
+                double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+                
+                for (size_t i=0; i<length; i++)
+                {
+                    delta_r = DeltaR(reco_photons_matched[combs[0][i]].PhotonVector(), reco_photons_matched[combs[1][i]].PhotonVector());
+                    m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
+                    pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
+                    X = delta_r*(pt/(2.0*m));
+                    //if it's the first combination or if new X is closer to 1
+                    //than current best_X and ΔR
+                    //between the two reco-photons < 1.5, then update best_X, pt1, pt2,
+                    //and the corresponding reco-photon indices x
+                    if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
+                    {
+                        best_X = X;
+                        pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+                        pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+                        chosen_delta_r = delta_r;
+                        x = {combs[0][i], combs[1][i]};
+                    }
+                }
+                if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5) //two photons corresponding to best_X must both have p_T > 10 GeV, ΔR < 1.5, and 0.96 < best_X < 1.2
+                {
+                    return x;
+                }
+                x.clear();
+                return x;
+            }, {"photonPtDeltaR"}).Filter(//keep only events that have passed the resolved category
+                                          [&](RVec<unsigned long>& X_window_photons_pass_cut_indices)
+                                          {
+                                              return (X_window_photons_pass_cut_indices.size()==2);
+                                              
+                                          }, {"X_window_photons_pass_cut_indices"})
+            .Define("chosen_two", //New column: consists of the good photons corresponding to the `X_window_photons_pass_cut_indices` defined above
+                    [&](RVec<AbstractParticle>& reco_photons_matched, RVec<unsigned long>& X_window_photons_pass_cut_indices)
+                    {
+                return Take(reco_photons_matched, X_window_photons_pass_cut_indices);
+                
+            }, {"photonPtDeltaR", "X_window_photons_pass_cut_indices"})
+            .Define("X_window_TotalEventWeightFactor", //New column: weight factor for events in RDF `X_window`
+                    [&](RVec<unsigned long>& X_window_photons_pass_cut_indices, RVec<int>& photons_pass_cut_indices, RVec<float>& photon_efficiencies)
+                    {
+                //First, we take the elements from photon_efficiencies that correspond to the `photons_pass_cut_indices` defined
+                //earlier. Then, from that resulting vector, we take the elements corresponding to the
+                //`X_window_photons_pass_cut_indices` defined above
+                RVec<float> X_window_photon_efficiencies = Take(Take(photon_efficiencies, photons_pass_cut_indices), X_window_photons_pass_cut_indices);
+                //Now, multiply all of the elements of the vector we defined above
+                float total = 1.0f;
+                for (auto i: X_window_photon_efficiencies)
+                {
+                    total *= i;
+                }
+                //and return the result
+                return total;
+            }, {"X_window_photons_pass_cut_indices", "photons_pass_cut_indices", "totEventWeight"});
+        
+        //New dataframe node: Take only the events in `X_window` that have di-electron+di-photon invariant mass between 110 and 140 GeV
+        auto SR = X_window.Filter(
+                                  [](RVec<AbstractParticle>& photons, RVec<AbstractParticle>& electrons)
+                                  {
+                                      PtEtaPhiEVector photonVec = photons[0].PhotonVector() + photons[1].PhotonVector();
+                                      PtEtaPhiEVector electronVec = electrons[0].ElectronVector() + electrons[1].ElectronVector();
+                                      auto mass = (photonVec+electronVec).M()/1e3;
+                                      return ((mass >= 110) && (mass <= 140));
+                                  },{"chosen_two","di_electrons"});
+        
+        //New dataframe node: Take only events in `SR` that have both of the `chosen_two` photons satisfying a loose id criteria
+        auto SR_ID = SR.Filter(
+                               [](RVec<AbstractParticle>& photons)
+                               {
+                                   return (photons[0].photon_id_loose && photons[1].photon_id_loose);
+                               },{"chosen_two"});
+        
+        if (counter < 5) //or however many prompt signal samples there are, each file has 1 ALP mass point
+        {
+            //These RResultHandles aren't used, per-se, but they allow us to call RunGraphs on the `Nodes` vector so that all of the RDataFrame graphs are run concurrently
+            Nodes.push_back(newDf.Count());
+            Nodes.push_back(trigger_selection.Count());
+            Nodes.push_back(ptCut.Count());
+            Nodes.push_back(photonPtDeltaR.Count());
+            Nodes.push_back(X_window.Count());
+            Nodes.push_back(SR.Count());
+            Nodes.push_back(SR_ID.Count());
+            
+            //prompt_resultmaps is the vector of RResultMaps that holds the
+            //nominal and variations for the following actions
+            
+            //VariationsFor registers systematic variations, `Sum` calculates the sum of the
+            //event weights for each of the RDF nodes that we are interested in below:
+            prompt_resultmaps.push_back(VariationsFor(newDf.Sum<float>("totEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(trigger_selection.Sum<float>("totEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(ptCut.Sum<float>("totEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(photonPtDeltaR.Sum<float>("photonPtDeltaR_TotalEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(X_window.Sum<float>("X_window_TotalEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(SR.Sum<float>("X_window_TotalEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(SR_ID.Sum<float>("X_window_TotalEventWeightFactor")));
+        }
+        else //long-lived samples, each file has multiple mass points
+        {
+            for (auto& mass_point: massPoints) //loop over mass points
+            {
+                //create versions of the RDF nodes that contain only the events
+                //with ALP mass `mass_point`
+                auto mass_point_newDf = newDf.Filter([&]
+                                                     (float axion_mass)
+                                                     {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_trigger_selection = trigger_selection.Filter([&]
+                                                                             (float axion_mass)
+                                                                             {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_ptCut = ptCut.Filter([&]
+                                                     (float axion_mass)
+                                                     {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_photonPtDeltaR = photonPtDeltaR.Filter([&]
+                                                                       (float axion_mass)
+                                                                       {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_X_window = X_window.Filter([&]
+                                                           (float axion_mass)
+                                                           {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_SR = SR.Filter([&]
+                                               (float axion_mass)
+                                               {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                auto mass_point_SR_ID = SR_ID.Filter([&]
+                                                     (float axion_mass)
+                                                     {
+                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
+                    
+                }, {"axion_masses"});
+                
+                //These RResultHandles aren't used, per-se, but they allow us to call RunGraphs on the `Nodes` vector so that all of the RDataFrame graphs are run concurrently
+                Nodes.push_back(mass_point_newDf.Count());
+                Nodes.push_back(mass_point_trigger_selection.Count());
+                Nodes.push_back(mass_point_ptCut.Count());
+                Nodes.push_back(mass_point_photonPtDeltaR.Count());
+                Nodes.push_back(mass_point_X_window.Count());
+                Nodes.push_back(mass_point_SR.Count());
+                Nodes.push_back(mass_point_SR_ID.Count());
+                
+                //prompt_resultmaps is the vector of RResultMaps that holds the
+                //nominal and variations for the following actions
+                
+                //VariationsFor registers systematic variations, `Sum` calculates the sum of the
+                //event weights for each of the RDF nodes that we are interested in below:
+                resultmaps.push_back(VariationsFor(mass_point_newDf.Sum<float>("totEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_trigger_selection.Sum<float>("totEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_ptCut.Sum<float>("totEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_photonPtDeltaR.Sum<float>("photonPtDeltaR_TotalEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_X_window.Sum<float>("X_window_TotalEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_SR.Sum<float>("X_window_TotalEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_SR_ID.Sum<float>("X_window_TotalEventWeightFactor")));
+            }
+        }
+        
+        counter++; //keep track of which file we're on
+    }
+    
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently, this will trigger the resultmaps as well.
+    
+    //systematics' names
+    std::vector<std::string> syst_indices = {"nominal", "photons_and_electrons:EG_RESOLUTION_ALL__1down", "photons_and_electrons:EG_SCALE_ALL__1down", /*"photon_iso_eff:PH_EFF_ISO_Uncertainty__1down",*/ "photon_id_eff:PH_EFF_ID_Uncertainty__1down", /*"photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down",*/ "photons_and_electrons:EG_RESOLUTION_ALL__1up", "photons_and_electrons:EG_SCALE_ALL__1up", /*"photon_iso_eff:PH_EFF_ISO_Uncertainty__1up",*/ "photon_id_eff:PH_EFF_ID_Uncertainty__1up", /*"photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"*/};
+    
+    std::vector<std::string> syst_names = {"nominal", "EG RESOLUTION ALL 1down", "EG SCALE ALL 1down", /*"PH EFF ISO Uncertainty 1down",*/ "PH EFF ID Uncertainty 1down", /*"PH EFF TRIGGER Uncertainty 1down",*/ "EG RESOLUTION ALL 1up", "EG SCALE ALL 1up", /*"PH EFF ISO Uncertainty 1up",*/ "PH EFF ID Uncertainty 1up", /*"PH EFF TRIGGER Uncertainty 1up"*/};
+    
+    std::unordered_map<std::string, std::string> syst_captions =
+    {
+        {
+            "nominal",
+            "Nominal efficiencies "
+        },
+        {
+            "photons_and_electrons:EG_RESOLUTION_ALL__1down",
+            "Down variation for EG RESOLUTION ALL Uncertainty efficiencies "
+        },
+        {
+            "photons_and_electrons:EG_SCALE_ALL__1down",
+            "Down variation for EG SCALE ALL Uncertainty efficiencies "
+        },
+        // {
+        //     "photon_iso_eff:PH_EFF_ISO_Uncertainty__1down",
+        //     "Down variation for PH EFF ISO Uncertainty efficiencies "
+        // },
+        {
+            "photon_id_eff:PH_EFF_ID_Uncertainty__1down",
+            "Down variation for PH EFF ID Uncertainty efficiencies "
+        },
+        // {
+        //     "photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down",
+        //      "Down variation for PH EFF TRIGGER Uncertainty efficiencies "
+        // },
+        {
+            "photons_and_electrons:EG_RESOLUTION_ALL__1up",
+            "Up variation for EG RESOLUTION ALL Uncertainty efficiencies "
+        },
+        {
+            "photons_and_electrons:EG_SCALE_ALL__1up",
+            "Up variation for EG SCALE ALL Uncertainty efficiencies "
+        },
+        // {
+        //     "photon_iso_eff:PH_EFF_ISO_Uncertainty__1up",
+        //      "Up variation for PH EFF ISO Uncertainty efficiencies "
+        // },
+        {
+            "photon_id_eff:PH_EFF_ID_Uncertainty__1up",
+            "Up variation for PH EFF ID Uncertainty efficiencies "
+        },
+        // {
+        //     "photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up",
+        //       "Up variation for PH EFF TRIGGER Uncertainty efficiencies "
+        // }
+    };
+    
+    TLatex Tl;
+    TCanvas* c1;
+    TH2D* histo2d;
+    std::string name, title;
+    
+    std::unordered_map<float, std::unordered_map<float, float>> efficiencies;
+
+    std::unordered_map<float,float> C_ayy_1_efficiencies =
+    {
+        {0.2f, 1.0f},
+        {0.5f, 1.0f},
+        {1.0f, 1.0f},
+        {2.0f, 1.0f},
+        {3.0f, 1.0f},
+        {4.0f, 1.0f},
+        {5.0f, 1.0f},
+        {7.0f, 1.0f},
+        {10.0f, 1.0f},
+        {15.0f, 1.0f},
+        {20.0f, 1.0f},
+        {25.0f, 1.0f},
+        {30.0f, 1.0f},
+    };
+
+    std::unordered_map<float,float> C_ayy_0p01_efficiencies =
+    {
+        {0.2f, 0.057f},
+        {0.5f, 0.810f},
+        {1.0f, 1.0f},
+        {2.0f, 1.0f},
+        {3.0f, 1.0f},
+        {4.0f, 1.0f},
+        {5.0f, 1.0f},
+        {7.0f, 1.0f},
+        {10.0f, 1.0f},
+        {15.0f, 1.0f},
+        {20.0f, 1.0f},
+        {25.0f, 1.0f},
+        {30.0f, 1.0f},
+    };
+
+    std::unordered_map<float,float> C_ayy_0p001_efficiencies =
+    {
+        {0.2f, 0.675f},
+        {0.5f, 0.812f},
+        {1.0f, 0.857f},
+        {2.0f, 0.876f},
+        {3.0f, 0.882f},
+        {4.0f, 0.899f},
+        {5.0f, 0.885f},
+        {7.0f, 0.889f},
+        {10.0f, 0.886f},
+        {15.0f, 0.873f},
+        {20.0f, 0.885f},
+        {25.0f, 0.911f},
+        {30.0f, 0.918f},
+    };
+
+    std::unordered_map<float,float> C_ayy_0p0001_efficiencies =
+    {
+        {0.2f, 0.0f},
+        {0.5f, 0.0f},
+        {1.0f, 0.003f},
+        {2.0f, 0.055f},
+        {3.0f, 0.238f},
+        {4.0f, 0.553f},
+        {5.0f, 0.810f},
+        {7.0f, 0.984f},
+        {10.0f, 1.0f},
+        {15.0f, 1.0f},
+        {20.0f, 1.0f},
+        {25.0f, 1.0f},
+        {30.0f, 1.0f},
+    };
+
+    efficiencies[1.0f] = C_ayy_1_efficiencies;
+    efficiencies[0.01f] = C_ayy_0p01_efficiencies;
+    efficiencies[0.001f] = C_ayy_0p001_efficiencies;
+    efficiencies[0.0001f] = C_ayy_0p0001_efficiencies;
+    
+    std::cout << R"--(\begin{table})--" << '\n';
+    std::cout << R"--(\centering)--" << '\n';
+    std::cout << R"--(\hspace{0cm}\scalebox{1}{)--" << '\n';
+    std::cout << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
+    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
+    std::cout << R"--(\hline)--" << '\n';
+    
+    std::cout << R"--($m_a$ (GeV) & $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 1$ &   $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| =  0.01$ &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.001$  &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.0001$  \\ \hline)--" << '\n';
+    
+    for (auto& i: massPoints)
+    {
+        std::cout << i
+        << " & " << efficiencies[1.0f][i]
+        << " & " << efficiencies[0.01f][i]
+        << " & " << efficiencies[0.001f][i]
+        << " & " << efficiencies[0.00001f][i]
+        << R"--(\\ \hline)--" << '\n';
+    }
+    
+    std::cout << R"--(\end{tabular}})--" << '\n';
+    std::cout << R"--(\caption{Pythia filter efficiencies for the different mass points and couplings utilized for the signal samples in this section \ref{sec:Long_lived_Signal_Samples}. })--" << '\n';
+    std::cout << R"--(\label{tab:filter_eff_for_long_lived_mass_points_considered})--" << '\n';
+    std::cout << R"--(\end{table})--" << '\n';
+    
+    std::ofstream out("Efficiency_Table_ALP_couplings_resolved.txt");
+    int syst_counter = 0;
+    
+    //for each systematic
+    for (auto& syst_index: syst_indices)
+    {
+        out << '\n';
+        out << R"--(\begin{table})--" << '\n';
+        out << R"--(\centering)--" << '\n';
+        out << R"--(\hspace{0cm}\scalebox{1}{)--" << '\n';
+        out << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
+        out << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
+        out << R"--(\hline)--" << '\n';
+        out << R"--(\multicolumn{5}{|c|}{\parbox{\linewidth}{\centering )--";
+        out << syst_names[syst_counter];
+        out << R"--(  (Displaced Resolved) \\ Efficiencies}}\\[5 pt] \hline)--" << '\n';
+        out << R"--($m_a$ (GeV) & $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 1$ &   $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| =  0.01$ &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.001$  &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.0001$  \\ \hline)--" << '\n';
+        ///displaced case
+        int start_index = 0;
+
+        //create a plot
+        c1 = new TCanvas();
+        c1->SetLogy(); //Set log scale for y-axis
+        title = syst_index + std::string(" (displaced resolved)") + ";m_{a} [GeV];C_{a#gamma#gamma}" + ";Efficiency";
+        name = std::string("C_{a#gamma#gamma}") + syst_index;
+        double y_bins[] = {0.000099, 0.0008, 0.001, 0.008, 0.0099, 0.08, 0.1, 0.8, 1, 8, 10}; //y bins
+        histo2d = new TH2D(name.c_str(), title.c_str(), 299, 0.1, 31, 10, y_bins); //numbers are: x_bins, x_min, x_max, y_bins, y_min, y_max
+        histo2d->GetYaxis()->SetMoreLogLabels();
+        histo2d->GetYaxis()->SetNoExponent();
+        histo2d->SetOption("LOGZ");
+        histo2d->GetXaxis()->SetTitleSize(0.04);
+        histo2d->GetYaxis()->SetTitleSize(0.04);
+        histo2d->GetZaxis()->SetTitleSize(0.04);
+        histo2d->GetYaxis()->SetTitleOffset(0.7);
+        histo2d->GetZaxis()->SetTitleOffset(0.6);
+        histo2d->GetYaxis()->CenterTitle(true);
+        histo2d->GetZaxis()->SetTitle("Efficiency");
+        std::unordered_map<float, std::unordered_map<float, float>> mass_coupling_eff;
+        //for each coupling
+        for (auto& coupling: ALP_photon_couplings)
+        {
+            //i is indexing each mass point, and j is indexing the
+            //group of results corresponding to mass point i
+            for (int i=0, j=start_index; (i < massPoints.size()); i++, j+=7)
+            {
+                int bin_number = histo2d->FindFixBin(massPoints[i], coupling);
+                float efficiency;
+
+                auto keys = resultmaps[j].GetKeys(); //gets systematic variation names for the node `mass_point_newDf`
+                auto keys5 = resultmaps[j+5].GetKeys(); //gets systematic variation names for the node `mass_point_SR`
+
+                //if syst_index is a systematic variation of the total # of events and
+                //the ones that passed the resolved category, then assign the efficiency
+                //the corresponding value, else assign it 0
+                if ((std::find(keys.begin(), keys.end(), syst_index) != keys.end())
+                    &&
+                    (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end()))
+                {
+                    efficiency = resultmaps[j][syst_index] ? resultmaps[j+5][syst_index] / resultmaps[j][syst_index] : 0.0;
+                }
+                else if (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end())
+                {
+                    efficiency = resultmaps[j]["nominal"] ? resultmaps[j+5][syst_index] / resultmaps[j]["nominal"] : 0.0;
+                }
+                else //then something's wrong :(
+                {
+                    throw std::runtime_error(std::string("Something's wrong at ") + syst_index + ": " + std::to_string(massPoints[i]) + " GeV, coupling = " + std::to_string(coupling));
+                }
+
+                efficiency *= efficiencies[coupling][massPoints[i]]; //mutiply efficiency by Pythia Filter Efficiency
+
+                if (syst_index == "nominal") //nominal case: Store the efficiency in the unordered_map
+                {
+                    resolved_long_lived[coupling][massPoints[i]] = efficiency;
+                    resolved_long_lived_N[coupling][massPoints[i]] = resultmaps[j]["nominal"];
+                }
+                histo2d->SetBinContent(bin_number, efficiency);
+                mass_coupling_eff[massPoints[i]][coupling] = efficiency;
+            }
+            start_index += 91; //to the next displaced file (with a different coupling)
+        }
+        
+        for (int i = 0; i < massPoints.size(); i++)
+        {
+            int size = ALP_photon_couplings.size();
+            out << massPoints[i] << " & ";
+            for (int j = 0; j < size; j++)
+            {
+                if (j == size - 1)
+                {
+                    out << mass_coupling_eff[massPoints[i]][ALP_photon_couplings[j]]
+                    << R"--( \\ \hline)--" << '\n';
+                }
+                else
+                {
+                    out << mass_coupling_eff[massPoints[i]][ALP_photon_couplings[j]]
+                    << " & ";
+                }
+            }
+        }
+        
+        out << R"--(\end{tabular}})--" << '\n';
+        out << R"--(\caption{\raggedright )--";
+        out << syst_captions[syst_index];
+        out << R"--(for the long-lived samples considered in table \ref{tab:long_lived_mass_points_considered} for the \textbf{resolved category} + \textbf{SR}. Some points have efficiency 0, likely due to lack of statistics. Lepton and photon preselection are performed here as prescribed in sections \ref{sec:Lepton_Preselection} (for reco-level) and \ref{sec:Photon_Preselection} (without the loose photon id cut), respectively. Photon scale factors of the form \ref{eq:Photon_scale_factors} are applied, and the efficiencies shown are multiplied by the values in Table \ref{tab:filter_eff_for_long_lived_mass_points_considered} .})--" << '\n';
+        out << R"--(\label{tab:Resolved_long_lived_efficiencies_)--";
+        out << syst_index;
+        out << R"--(})--" << '\n';
+        out << R"--(\end{table})--" << '\n';
+        
+
+        gStyle->SetPalette(1); //heat-map color style
+        histo2d->Draw("COLZ"); //draw with color-bar
+        gStyle->SetOptStat(0);
+        Tl.SetTextSize(0.03);
+        Tl.DrawLatexNDC(0.7, 0.83, "#it{ATLAS} Internal");
+        Tl.DrawLatexNDC(0.7, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+        c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
+        gPad->SetLeftMargin(0.06);
+        title = std::string("Cayy") + "DisplacedResolved" + syst_index + ".pdf";
+        c1->SaveAs(title.c_str());
+        //open -a Safari C_{a#gamma#gamma}_displaced_resolved_* C_{a#gamma#gamma}_prompt_resolved_*
+        delete c1;
+        delete histo2d;
+
+        ///Prompt case
+        
+        out << '\n';
+        out << R"--(\begin{table})--" << '\n';
+        out << R"--(\centering)--" << '\n';
+        out << R"--(\hspace{0cm}\scalebox{1}{)--" << '\n';
+        out << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
+        out << R"--(\begin{tabular}{|c|c|})--" << '\n';
+        out << R"--(\hline)--" << '\n';
+        out << R"--(\multicolumn{2}{|c|}{\parbox{\linewidth}{\centering )--";
+        out << syst_names[syst_counter];
+        out << R"--(  (Prompt Resolved) \\ Efficiencies}}\\[5 pt] \hline)--" << '\n';
+        out << R"--($m_a$ (GeV) & $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.01$  \\ \hline)--" << '\n';
+
+        //create a new plot
+        c1 = new TCanvas();
+        c1->SetLogy(); //Set log scale for y-axis
+        title = syst_index + std::string(" (prompt resolved)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
+        name = std::string("C_{a#gamma#gamma}") + syst_index;
+        double prompt_y_bins[] = {0.008, 0.0099, 0.08, 0.1}; //y bins
+        histo2d = new TH2D(name.c_str(), title.c_str(), 25, 0.1, 10, 3, prompt_y_bins); //numbers are: x_bins, x_min, x_max, y_bins, y_min, y_max
+        histo2d->GetXaxis()->SetTitleSize(0.04);
+        histo2d->GetYaxis()->SetTitleSize(0.04);
+        histo2d->GetZaxis()->SetTitleSize(0.04);
+        histo2d->GetYaxis()->SetTitleOffset(0.7);
+        histo2d->GetZaxis()->SetTitleOffset(0.6);
+        histo2d->GetYaxis()->CenterTitle(true);
+        histo2d->GetZaxis()->SetTitle("Efficiency");
+
+        //i is indexing each mass point, and j is indexing the
+        //group of results corresponding to mass point i
+        for (int i=0, j=0; (i < massPoints_prompt.size()); i++, j+=7)
+        {
+            int bin_number = histo2d->FindFixBin(massPoints_prompt[i], ALP_photon_couplings[1]);
+            float efficiency;
+
+            auto keys = prompt_resultmaps[j].GetKeys();
+            auto keys5 = prompt_resultmaps[j+5].GetKeys();
+
+            //if syst_index is a systematic variation of the total # of events and
+            //the ones that passed the resolved category, then assign the efficiency
+            //the corresponding value, else assign it 0
+            if ((std::find(keys.begin(), keys.end(), syst_index) != keys.end())
+                &&
+                (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end()))
+            {
+                efficiency = prompt_resultmaps[j][syst_index] ? prompt_resultmaps[j+5][syst_index] / prompt_resultmaps[j][syst_index] : 0.0;
+            }
+            else if (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end())
+            {
+                efficiency = prompt_resultmaps[j]["nominal"] ? prompt_resultmaps[j+5][syst_index] / prompt_resultmaps[j]["nominal"] : 0.0;
+            }
+            else //then something's wrong :(
+            {
+                throw std::runtime_error(std::string("Something's wrong at ") + syst_index + ": " + std::to_string(massPoints[i]) + " GeV");
+            }
+
+            if (syst_index == "nominal") //nominal case: Store the efficiency in the unordered_map
+            {
+                resolved_prompt[massPoints_prompt[i]] = efficiency; //efficiency
+                resolved_prompt_N[massPoints_prompt[i]] = prompt_resultmaps[j]["nominal"]; //total number of events
+            }
+            out << massPoints_prompt[i] << " & " << efficiency << R"--( \\ \hline)--" << '\n';
+            histo2d->SetBinContent(bin_number, efficiency);
+        }
+        
+        out << R"--(\end{tabular}})--" << '\n';
+        out << R"--(\caption{\raggedright )--";
+        out << syst_captions[syst_index];
+        out << R"--(for the prompt samples in table \ref{table:prompt_signal_samples} for the \textbf{resolved category} + \textbf{SR}. Lepton and photon preselection are performed here as prescribed in sections \ref{sec:Lepton_Preselection} (for reco-level) and \ref{sec:Photon_Preselection} (without the loose photon id cut), respectively. Photon scale factors of the form \ref{eq:Photon_scale_factors} are applied.})--" << '\n';
+        out << R"--(\label{tab:Resolved_prompt_efficiencies_)--";
+        out << syst_index;
+        out << R"--(})--" << '\n';
+        out << R"--(\end{table})--" << '\n';
+
+        gStyle->SetPalette(1); //heat-map color style
+        histo2d->Draw("COLZ"); //draw with color-bar
+
+        gStyle->SetOptStat(0);
+        Tl.SetTextSize(0.03);
+        Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+        Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+        c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
+        gPad->SetLeftMargin(0.06);
+        title = std::string("CayyPromptResolved") + syst_index + ".pdf";
+        c1->SaveAs(title.c_str());
+        
+        syst_counter++;
+
+    }
+
+}
+
+void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_prompt = c, std::unordered_map<float, std::unordered_map<float, float>>& merged_long_lived = d, std::unordered_map<float, float>& merged_prompt_N = g, std::unordered_map<float, std::unordered_map<float, float>>& merged_long_lived_N = h)
+{
+    Event::systematics =
+    {
 //        "PH_EFF_ISO_Uncertainty",
 //        "PH_EFF_ISO_Uncertainty",
 //        "EL_EFF_ID_TOTAL_1NPCOR_PLUS_UNCOR",
@@ -2691,7 +3608,7 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
             return  ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
 
         }, {"ei_event_weights_generator"})
-        .Define("totEventWeight", //vector of efficiencies, product of photon_id_eff, photon_iso_eff, and photon_trg_eff
+        .Define("totEventWeightVec", //vector of efficiencies, product of photon_id_eff, photon_iso_eff, and photon_trg_eff
         [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
         {
             auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
@@ -2699,7 +3616,8 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
             photon_iso_eff.resize(ResizeVal,1);
             photon_trg_eff.resize(ResizeVal,1);
 
-            return photon_id_eff;//*photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
+            return photon_id_eff;
+            //*photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
 
         }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/})
         .Define("totEventWeightFactor", //product of vector above
@@ -2714,7 +3632,7 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
 
             return total; //one efficiency
 
-        }, {"totEventWeight"})
+        }, {"totEventWeightVec"})
         .Define("truth_axions", //truth ALPs in each event, should only be 1 ALP per event
         [&](RVec<TruthParticle> truth_particles)
         {
@@ -2742,7 +3660,6 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
                     return particle.mc_mass/1e3f;
                 }
             }
-
             return 0.0f;
 
         }, {"truth_axions"});
@@ -2828,11 +3745,12 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         //end pre-selection -----------
 
         //photon acceptance and id_loose cuts
-        auto photonPtDeltaR = ptCut
-        .Define("photons_pass_cut_indices", //new column that contains the good photon indices
+        auto photon_passes_cuts = ptCut
+        .Define("abstract_photons_pass_cut_indices", //new column that contains the good photon indices
         [&](RVec<AbstractParticle>& p) //p = photon
         {
-            RVec<int> x; //indices of photons that passed the cuts
+            RVec<int> x; //indices of photons that pass cuts
+
             for (auto i = 0; i < p.size(); i++)
             {
                 //keep reco-photons that have |η| < 2.37, p_T > 10 GeV, and |η| not between 1.37 and 1.52
@@ -2841,22 +3759,27 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
                     x.push_back(i);
                 }
             }
-            return x;
 
+            return x;
         }, {"abstract_photons"})
-        .Define("photonPtDeltaR", //new column that contains the good photons corresponding to the good photon indices from above
+        .Define("photons_pass_cuts", //new column that contains the good photons corresponding to the good photon indices from above
         [&](RVec<AbstractParticle>& photons, RVec<int>& x)
         {
             return Take(photons, x); //Taking only the photons that passed the cuts in each event
 
-        }, {"abstract_photons", "photons_pass_cut_indices"})
-        .Define("photonPtDeltaR_photons_pass_cut_indices", //new column for indices of the `photonPtDeltaR` photons that pass the photonPtDeltaR part of the resolved category
-        [&](RVec<AbstractParticle>& reco_photons_matched)
+        }, {"abstract_photons", "abstract_photons_pass_cut_indices"});
+
+        //New dataframe node: contains only events from `photon_passes_cuts` that fail the resolved category and pass the merged category
+        auto merged_reco_photons_matched = photon_passes_cuts.Filter(
+        [&](const RVec<AbstractParticle>& reco_photons_matched)
         {
-            RVec<unsigned long> x; //vector of indices
-            if (reco_photons_matched.size() < 2)
+            if (reco_photons_matched.size() == 1) // 1 photon in the event
             {
-                return x;
+                return reco_photons_matched[0].photon_pt > 20e3; //event passes if photon pt > 20 GeV
+            }
+            else if (reco_photons_matched.empty())
+            {
+                return false; //fails if no photons in event
             }
 
             auto combs = Combinations(reco_photons_matched, 2); //all combinations of 2 reco-photons
@@ -2879,155 +3802,122 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
                     pt1 = reco_photons_matched[combs[0][i]].photon_pt;
                     pt2 = reco_photons_matched[combs[1][i]].photon_pt;
                     chosen_delta_r = delta_r;
-                    x = {combs[0][i], combs[1][i]};
                 }
             }
-            if (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3) //two photons corresponding to best_X must both have p_T > 10 GeV and ΔR < 1.5
+            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5) //two photons corresponding to best_X must both have p_T > 10 GeV, ΔR < 1.5, and 0.96 < best_X < 1.2 for resolved... but this is merged, so if it passes resolved it fails merged
             {
-                return x;
+                return false;
             }
-
-            x.clear();
-            return x;
-
-        }, {"photonPtDeltaR"}).Filter(//keep only events that have passed the first part of the resolved category
-        [&](RVec<unsigned long>& indices)
-        {
-            return (indices.size()==2);
-
-        }, {"photonPtDeltaR_photons_pass_cut_indices"})
-        .Define("photonPtDeltaR_TotalEventWeightFactor", //New column: weight factor for events in RDF `photonPtDeltaR`
-        [](RVec<unsigned long>& photonPtDeltaR_photons_pass_cut_indices, RVec<int>& photons_pass_cut_indices, RVec<float>& photon_efficiencies)
-        {
-            //First, we take the elements from photon_efficiencies that correspond to the `photons_pass_cut_indices` defined
-            //earlier. Then, from that resulting vector, we take the elements corresponding to the
-            //`photonPtDeltaR_photons_pass_cut_indices` defined above
-            RVec<float> photonPtDeltaR_photon_efficiencies = Take(Take(photon_efficiencies, photons_pass_cut_indices), photonPtDeltaR_photons_pass_cut_indices);
-            //Now, multiply all of the elements of the vector we defined above
-            float total = 1.0f;
-            for (auto i: photonPtDeltaR_photon_efficiencies)
+            //if we get to this point, it means we've failed resolved
+            for (auto& p: reco_photons_matched) //merged means at least 1 reco photon must have pt > 20 GeV
             {
-                total *= i;
-            }
-            //and return the result
-            return total;
-        }, {"photonPtDeltaR_photons_pass_cut_indices", "photons_pass_cut_indices", "totEventWeight"});
-
-        //last part of the resolved category
-        auto X_window = photonPtDeltaR
-        .Define("X_window_photons_pass_cut_indices", //new column for indices of the `photonPtDeltaR` photons that pass the photonPtDeltaR and X_window part of the resolved category
-        [](RVec<AbstractParticle>& reco_photons_matched)
-        {
-            RVec<unsigned long> x; //vector of indices
-            if (reco_photons_matched.size() < 2)
-            {
-                return x;
-            }
-            auto combs = Combinations(reco_photons_matched, 2); //all combinations of 2 reco-photons
-            size_t length = combs[0].size(); //all combinations
-            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
-
-            for (size_t i=0; i<length; i++)
-            {
-                delta_r = DeltaR(reco_photons_matched[combs[0][i]].PhotonVector(), reco_photons_matched[combs[1][i]].PhotonVector());
-                m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
-                pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
-                X = delta_r*(pt/(2.0*m));
-                //if it's the first combination or if new X is closer to 1
-                //than current best_X and ΔR
-                //between the two reco-photons < 1.5, then update best_X, pt1, pt2,
-                //and the corresponding reco-photon indices x
-                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
+                if (p.photon_pt > 20e3)
                 {
-                    best_X = X;
-                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
-                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
-                    chosen_delta_r = delta_r;
-                    x = {combs[0][i], combs[1][i]};
+                    return true; //passed merged if there's a reco-photon with pt > 20 GeV
                 }
             }
-            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5) //two photons corresponding to best_X must both have p_T > 10 GeV, ΔR < 1.5, and 0.96 < best_X < 1.2
+            return false; //failed merged
+
+        }, {"photons_pass_cuts"})
+        .Define("merged_photon_index", //new column: consists of the index corresponding to the photon that made the event be classified as merged
+        [&](const RVec<AbstractParticle>& rpm) //rpm = reco photons matched
+        {
+            for (auto i = 0; i < rpm.size(); i++)
             {
-                return x;
+                if (rpm[i].photon_pt > 20e3)
+                {
+                    return i; //returning the index of the first photon that has photon_pt > 20 GeV
+                }
             }
-            x.clear();
-            return x;
-        }, {"photonPtDeltaR"}).Filter(//keep only events that have passed the resolved category
-        [&](RVec<unsigned long>& X_window_photons_pass_cut_indices)
-        {
-            return (X_window_photons_pass_cut_indices.size()==2);
+            return 0; //jic the compiler complains, should not come to this
 
-        }, {"X_window_photons_pass_cut_indices"})
-        .Define("chosen_two", //New column: consists of the good photons corresponding to the `X_window_photons_pass_cut_indices` defined above
-        [&](RVec<AbstractParticle>& reco_photons_matched, RVec<unsigned long>& X_window_photons_pass_cut_indices)
+        }, {"photons_pass_cuts"})
+        .Define("merged_photon", //new column: The reco-photon corresponding to `merged_photon_index`
+        [&](const RVec<AbstractParticle>& reco_photons_matched, int merged_photon_index)
         {
-            return Take(reco_photons_matched, X_window_photons_pass_cut_indices);
+            return reco_photons_matched[merged_photon_index];
 
-        }, {"photonPtDeltaR", "X_window_photons_pass_cut_indices"})
-        .Define("X_window_TotalEventWeightFactor", //New column: weight factor for events in RDF `X_window`
-        [&](RVec<unsigned long>& X_window_photons_pass_cut_indices, RVec<int>& photons_pass_cut_indices, RVec<float>& photon_efficiencies)
+        }, {"photons_pass_cuts", "merged_photon_index"})
+        //mpi = merged_photon_index
+        .Define("totEventWeight", //New column: weight factor for events in RDF `merged_reco_photons_matched`
+        [](RVec<int>& x, int mpi, RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
         {
-            //First, we take the elements from photon_efficiencies that correspond to the `photons_pass_cut_indices` defined
-            //earlier. Then, from that resulting vector, we take the elements corresponding to the
-            //`X_window_photons_pass_cut_indices` defined above
-            RVec<float> X_window_photon_efficiencies = Take(Take(photon_efficiencies, photons_pass_cut_indices), X_window_photons_pass_cut_indices);
-            //Now, multiply all of the elements of the vector we defined above
-            float total = 1.0f;
-            for (auto i: X_window_photon_efficiencies)
-            {
-                total *= i;
-            }
-            //and return the result
-            return total;
-        }, {"X_window_photons_pass_cut_indices", "photons_pass_cut_indices", "totEventWeight"});
+            //   ||  resize 3 vectors just in case they don't already have the same size  ||
+            //   \/                                                                       \/
+            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+            photon_id_eff.resize(ResizeVal,1);
+            photon_iso_eff.resize(ResizeVal,1);
+            photon_trg_eff.resize(ResizeVal,1);
 
-        //New dataframe node: Take only the events in `X_window` that have di-electron+di-photon invariant mass between 110 and 140 GeV
-        auto SR = X_window.Filter(
-        [](RVec<AbstractParticle>& photons, RVec<AbstractParticle>& electrons)
-        {
-            PtEtaPhiEVector photonVec = photons[0].PhotonVector() + photons[1].PhotonVector();
-            PtEtaPhiEVector electronVec = electrons[0].ElectronVector() + electrons[1].ElectronVector();
-            auto mass = (photonVec+electronVec).M()/1e3;
-            return ((mass >= 110) && (mass <= 140));
-        },{"chosen_two","di_electrons"});
+            //First, take the x indices from the respective photon_*_eff vectors,
+            //this corresponds to the photons from the set of all reco photons in
+            //the event that passed the "photon_passes_cuts" cuts. Then, from
+            //those photons, select the index mpi element that corresponds to
+            //the merged reco-photon
 
-        //New dataframe node: Take only events in `SR` that have both of the `chosen_two` photons satisfying a loose id criteria
-        auto SR_ID = SR.Filter(
-        [](RVec<AbstractParticle>& photons)
+            return Take(photon_id_eff, x)[mpi] * Take(photon_iso_eff, x)[mpi] * Take(photon_trg_eff, x)[mpi]; // a single number
+
+        }, {"abstract_photons_pass_cut_indices", "merged_photon_index", "photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/})
+        .Define("reconstructed_mass", //new column: dilep+merged invariant mass
+        [&](const RVec<AbstractParticle>& di_electrons, const AbstractParticle& merged_photon)
         {
-            return (photons[0].photon_id_loose && photons[1].photon_id_loose);
-        },{"chosen_two"});
+            auto four_momentum = di_electrons[0].ElectronVector() + di_electrons[1].ElectronVector();
+
+            return (four_momentum + merged_photon.PhotonVector()).M()/1e3;
+
+        }, {"di_electrons", "merged_photon"});
+
+        //new dataframe node: keep only events from `merged_reco_photons_matched` where
+        //the dilep+merged invariant mass is not between 110 and 130 GeV inclusive
+        auto pSB = merged_reco_photons_matched.Filter(
+        [](const double reconstructed_mass)
+        {
+            return (reconstructed_mass < 110) || (reconstructed_mass > 130);
+        }, {"reconstructed_mass"});
+
+        //new dataframe node: keep only events from `merged_reco_photons_matched` where
+        //the dilep+merged invariant mass is between 110 and 130 GeV inclusive
+        auto pSR = merged_reco_photons_matched.Filter(
+        [](const double reconstructed_mass)
+        {
+            return (reconstructed_mass >= 110) && (reconstructed_mass <= 130);
+        }, {"reconstructed_mass"});
+
+        //new dataframe node: keep only events from `pSB` that have all E-ratios > 0.8
+        auto SB = pSB.Filter(
+        [](const RVec<float>& Eratio)
+        {
+            return (!Any(Eratio <= 0.8));
+        }, {"photon_shower_shape_e_ratio"});
+
+        //new dataframe node: keep only events from `pSR` that have all E-ratios > 0.8
+        auto SR = pSR.Filter(
+        [](const RVec<float>& Eratio)
+        {
+            return (!Any(Eratio <= 0.8));
+        }, {"photon_shower_shape_e_ratio"});
 
         if (counter < 5) //or however many prompt signal samples there are, each file has 1 ALP mass point
         {
             //These RResultHandles aren't used, per-se, but they allow us to call RunGraphs on the `Nodes` vector so that all of the RDataFrame graphs are run concurrently
             Nodes.push_back(newDf.Count());
-            Nodes.push_back(trigger_selection.Count());
-            Nodes.push_back(ptCut.Count());
-            Nodes.push_back(photonPtDeltaR.Count());
-            Nodes.push_back(X_window.Count());
+            Nodes.push_back(merged_reco_photons_matched.Count());
+            Nodes.push_back(pSB.Count());
+            Nodes.push_back(pSR.Count());
+            Nodes.push_back(SB.Count());
             Nodes.push_back(SR.Count());
-            Nodes.push_back(SR_ID.Count());
 
-            //prompt_resultmaps is the vector of RResultMaps that holds the
-            //nominal and variations for the following actions
-
-            //VariationsFor registers systematic variations, `Sum` calculates the sum of the
-            //event weights for each of the RDF nodes that we are interested in below:
             prompt_resultmaps.push_back(VariationsFor(newDf.Sum<float>("totEventWeightFactor")));
-            prompt_resultmaps.push_back(VariationsFor(trigger_selection.Sum<float>("totEventWeightFactor")));
-            prompt_resultmaps.push_back(VariationsFor(ptCut.Sum<float>("totEventWeightFactor")));
-            prompt_resultmaps.push_back(VariationsFor(photonPtDeltaR.Sum<float>("photonPtDeltaR_TotalEventWeightFactor")));
-            prompt_resultmaps.push_back(VariationsFor(X_window.Sum<float>("X_window_TotalEventWeightFactor")));
-            prompt_resultmaps.push_back(VariationsFor(SR.Sum<float>("X_window_TotalEventWeightFactor")));
-            prompt_resultmaps.push_back(VariationsFor(SR_ID.Sum<float>("X_window_TotalEventWeightFactor")));
+            prompt_resultmaps.push_back(VariationsFor(merged_reco_photons_matched.Sum<float>("totEventWeight")));
+            prompt_resultmaps.push_back(VariationsFor(pSB.Sum<float>("totEventWeight")));
+            prompt_resultmaps.push_back(VariationsFor(pSR.Sum<float>("totEventWeight")));
+            prompt_resultmaps.push_back(VariationsFor(SB.Sum<float>("totEventWeight")));
+            prompt_resultmaps.push_back(VariationsFor(SR.Sum<float>("totEventWeight")));
         }
-        else //long-lived samples, each file has multiple mass points
+        else
         {
-            for (auto& mass_point: massPoints) //loop over mass points
+            for (auto& mass_point: massPoints)
             {
-                //create versions of the RDF nodes that contain only the events
-                //with ALP mass `mass_point`
                 auto mass_point_newDf = newDf.Filter([&]
                 (float axion_mass)
                 {
@@ -3035,28 +3925,28 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
 
                 }, {"axion_masses"});
 
-                auto mass_point_trigger_selection = trigger_selection.Filter([&]
+                auto mass_point_merged_reco_photons_matched = merged_reco_photons_matched.Filter([&]
                 (float axion_mass)
                 {
                     return (roundToOneDecimalPlace(axion_mass) == mass_point);
 
                 }, {"axion_masses"});
 
-                auto mass_point_ptCut = ptCut.Filter([&]
+                auto mass_point_pSB = pSB.Filter([&]
                 (float axion_mass)
                 {
                     return (roundToOneDecimalPlace(axion_mass) == mass_point);
 
                 }, {"axion_masses"});
 
-                auto mass_point_photonPtDeltaR = photonPtDeltaR.Filter([&]
+                auto mass_point_pSR = pSR.Filter([&]
                 (float axion_mass)
                 {
                     return (roundToOneDecimalPlace(axion_mass) == mass_point);
 
                 }, {"axion_masses"});
 
-                auto mass_point_X_window = X_window.Filter([&]
+                auto mass_point_SB = SB.Filter([&]
                 (float axion_mass)
                 {
                     return (roundToOneDecimalPlace(axion_mass) == mass_point);
@@ -3070,50 +3960,84 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
 
                 }, {"axion_masses"});
 
-                auto mass_point_SR_ID = SR_ID.Filter([&]
-                (float axion_mass)
-                {
-                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-
-                }, {"axion_masses"});
-
-                //These RResultHandles aren't used, per-se, but they allow us to call RunGraphs on the `Nodes` vector so that all of the RDataFrame graphs are run concurrently
                 Nodes.push_back(mass_point_newDf.Count());
-                Nodes.push_back(mass_point_trigger_selection.Count());
-                Nodes.push_back(mass_point_ptCut.Count());
-                Nodes.push_back(mass_point_photonPtDeltaR.Count());
-                Nodes.push_back(mass_point_X_window.Count());
+                Nodes.push_back(mass_point_merged_reco_photons_matched.Count());
+                Nodes.push_back(mass_point_pSB.Count());
+                Nodes.push_back(mass_point_pSR.Count());
+                Nodes.push_back(mass_point_SB.Count());
                 Nodes.push_back(mass_point_SR.Count());
-                Nodes.push_back(mass_point_SR_ID.Count());
 
-                //prompt_resultmaps is the vector of RResultMaps that holds the
-                //nominal and variations for the following actions
-
-                //VariationsFor registers systematic variations, `Sum` calculates the sum of the
-                //event weights for each of the RDF nodes that we are interested in below:
                 resultmaps.push_back(VariationsFor(mass_point_newDf.Sum<float>("totEventWeightFactor")));
-                resultmaps.push_back(VariationsFor(mass_point_trigger_selection.Sum<float>("totEventWeightFactor")));
-                resultmaps.push_back(VariationsFor(mass_point_ptCut.Sum<float>("totEventWeightFactor")));
-                resultmaps.push_back(VariationsFor(mass_point_photonPtDeltaR.Sum<float>("photonPtDeltaR_TotalEventWeightFactor")));
-                resultmaps.push_back(VariationsFor(mass_point_X_window.Sum<float>("X_window_TotalEventWeightFactor")));
-                resultmaps.push_back(VariationsFor(mass_point_SR.Sum<float>("X_window_TotalEventWeightFactor")));
-                resultmaps.push_back(VariationsFor(mass_point_SR_ID.Sum<float>("X_window_TotalEventWeightFactor")));
+                resultmaps.push_back(VariationsFor(mass_point_merged_reco_photons_matched.Sum<float>("totEventWeight")));
+                resultmaps.push_back(VariationsFor(mass_point_pSB.Sum<float>("totEventWeight")));
+                resultmaps.push_back(VariationsFor(mass_point_pSR.Sum<float>("totEventWeight")));
+                resultmaps.push_back(VariationsFor(mass_point_SB.Sum<float>("totEventWeight")));
+                resultmaps.push_back(VariationsFor(mass_point_SR.Sum<float>("totEventWeight")));
+
             }
         }
-
-        counter++; //keep track of which file we're on
+        counter++;
     }
 
-    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently, this will trigger the resultmaps as well.
+    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently, this will trigger resultmaps as well.
 
-    //systematics' names
     std::vector<std::string> syst_indices = {"nominal", "photons_and_electrons:EG_RESOLUTION_ALL__1down", "photons_and_electrons:EG_SCALE_ALL__1down", /*"photon_iso_eff:PH_EFF_ISO_Uncertainty__1down",*/ "photon_id_eff:PH_EFF_ID_Uncertainty__1down", /*"photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down",*/ "photons_and_electrons:EG_RESOLUTION_ALL__1up", "photons_and_electrons:EG_SCALE_ALL__1up", /*"photon_iso_eff:PH_EFF_ISO_Uncertainty__1up",*/ "photon_id_eff:PH_EFF_ID_Uncertainty__1up", /*"photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"*/};
     
+    std::vector<std::string> syst_names = {"nominal", "EG RESOLUTION ALL 1down", "EG SCALE ALL 1down", /*"PH EFF ISO Uncertainty 1down",*/ "PH EFF ID Uncertainty 1down", /*"PH EFF TRIGGER Uncertainty 1down",*/ "EG RESOLUTION ALL 1up", "EG SCALE ALL 1up", /*"PH EFF ISO Uncertainty 1up",*/ "PH EFF ID Uncertainty 1up", /*"PH EFF TRIGGER Uncertainty 1up"*/};
+    
+    std::unordered_map<std::string, std::string> syst_captions =
+    {
+        {
+            "nominal",
+            "Nominal efficiencies "
+        },
+        {
+            "photons_and_electrons:EG_RESOLUTION_ALL__1down",
+            "Down variation for EG RESOLUTION ALL Uncertainty efficiencies "
+        },
+        {
+            "photons_and_electrons:EG_SCALE_ALL__1down",
+            "Down variation for EG SCALE ALL Uncertainty efficiencies "
+        },
+        // {
+        //     "photon_iso_eff:PH_EFF_ISO_Uncertainty__1down",
+        //     "Down variation for PH EFF ISO Uncertainty efficiencies "
+        // },
+        {
+            "photon_id_eff:PH_EFF_ID_Uncertainty__1down",
+            "Down variation for PH EFF ID Uncertainty efficiencies "
+        },
+        // {
+        //     "photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down",
+        //      "Down variation for PH EFF TRIGGER Uncertainty efficiencies "
+        // },
+        {
+            "photons_and_electrons:EG_RESOLUTION_ALL__1up",
+            "Up variation for EG RESOLUTION ALL Uncertainty efficiencies "
+        },
+        {
+            "photons_and_electrons:EG_SCALE_ALL__1up",
+            "Up variation for EG SCALE ALL Uncertainty efficiencies "
+        },
+        // {
+        //     "photon_iso_eff:PH_EFF_ISO_Uncertainty__1up",
+        //      "Up variation for PH EFF ISO Uncertainty efficiencies "
+        // },
+        {
+            "photon_id_eff:PH_EFF_ID_Uncertainty__1up",
+            "Up variation for PH EFF ID Uncertainty efficiencies "
+        },
+        // {
+        //     "photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up",
+        //       "Up variation for PH EFF TRIGGER Uncertainty efficiencies "
+        // }
+    };
+
     TLatex Tl;
     TCanvas* c1;
     TH2D* histo2d;
     std::string name, title;
-    
+
     std::unordered_map<float, std::unordered_map<float, float>> efficiencies;
 
     std::unordered_map<float,float> C_ayy_1_efficiencies =
@@ -3189,31 +4113,8 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
     efficiencies[0.001f] = C_ayy_0p001_efficiencies;
     efficiencies[0.0001f] = C_ayy_0p0001_efficiencies;
     
-    std::cout << R"--(\begin{table})--" << '\n';
-    std::cout << R"--(\centering)--" << '\n';
-    std::cout << R"--(\hspace{0cm}\scalebox{1}{)--" << '\n';
-    std::cout << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
-    std::cout << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
-    std::cout << R"--(\hline)--" << '\n';
-    
-    std::cout << R"--($m_a$ (GeV) & $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 1$ &   $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| =  0.01$ &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.001$  &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.0001$  \\ \hline)--" << '\n';
-    
-    for (auto& i: massPoints)
-    {
-        std::cout << i
-        << " & " << efficiencies[1.0f][i]
-        << " & " << efficiencies[0.01f][i]
-        << " & " << efficiencies[0.001f][i]
-        << " & " << efficiencies[0.00001f][i]
-        << R"--(\\ \hline)--" << '\n';
-    }
-    
-    std::cout << R"--(\end{tabular}})--" << '\n';
-    std::cout << R"--(\caption{Pythia filter efficiencies for the different mass points and couplings utilized for the signal samples in this section \ref{sec:Long_lived_Signal_Samples}. })--" << '\n';
-    std::cout << R"--(\label{tab:filter_eff_for_long_lived_mass_points_considered})--" << '\n';
-    std::cout << R"--(\end{table})--" << '\n';
-    
-    std::ofstream out("Efficiency_Table_ALP_couplings.txt");
+    std::ofstream out("Efficiency_Table_ALP_couplings_merged.txt");
+    int syst_counter = 0;
 
     //for each systematic
     for (auto& syst_index: syst_indices)
@@ -3225,7 +4126,9 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         out << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
         out << R"--(\begin{tabular}{|c|c|c|c|c|})--" << '\n';
         out << R"--(\hline)--" << '\n';
-        
+        out << R"--(\multicolumn{5}{|c|}{\parbox{\linewidth}{\centering )--";
+        out << syst_names[syst_counter];
+        out << R"--(  (Displaced Merged) \\ Efficiencies}}\\[5 pt] \hline)--" << '\n';
         out << R"--($m_a$ (GeV) & $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 1$ &   $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| =  0.01$ &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.001$  &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.0001$  \\ \hline)--" << '\n';
         ///displaced case
         int start_index = 0;
@@ -3233,10 +4136,10 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         //create a plot
         c1 = new TCanvas();
         c1->SetLogy(); //Set log scale for y-axis
-        title = syst_index + std::string(" (displaced resolved)") + ";m_{a} [GeV];C_{a#gamma#gamma}" + ";Efficiency";
+        title = syst_index + std::string(" (displaced merged)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
         name = std::string("C_{a#gamma#gamma}") + syst_index;
         double y_bins[] = {0.000099, 0.0008, 0.001, 0.008, 0.0099, 0.08, 0.1, 0.8, 1, 8, 10}; //y bins
-        histo2d = new TH2D(name.c_str(), title.c_str(), 299, 0.1, 31, 10, y_bins); //numbers are: x_bins, x_min, x_max, y_bins, y_min, y_max
+        histo2d = new TH2D(name.c_str(), title.c_str(), 299, 0.1, 31, 10, y_bins);
         histo2d->GetYaxis()->SetMoreLogLabels();
         histo2d->GetYaxis()->SetNoExponent();
         histo2d->SetOption("LOGZ");
@@ -3253,17 +4156,17 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         {
             //i is indexing each mass point, and j is indexing the
             //group of results corresponding to mass point i
-            for (int i=0, j=start_index; (i < massPoints.size()); i++, j+=7)
+            for (int i=0, j=start_index; (i < massPoints.size()); i++, j+=6)
             {
                 int bin_number = histo2d->FindFixBin(massPoints[i], coupling);
                 float efficiency;
 
-                auto keys = resultmaps[j].GetKeys(); //gets systematic variation names for the node `mass_point_newDf`
-                auto keys5 = resultmaps[j+5].GetKeys(); //gets systematic variation names for the node `mass_point_SR`
+                auto keys = resultmaps[j].GetKeys();
+                auto keys5 = resultmaps[j+5].GetKeys();
 
-                //if syst_index is a systematic variation of the total # of events and
-                //the ones that passed the resolved category, then assign the efficiency
-                //the corresponding value, else assign it 0
+    //            if syst_index is a systematic variation of the total # of events and
+    //            the ones that passed the resolved category, then assign the efficiency
+    //            the corresponding value
                 if ((std::find(keys.begin(), keys.end(), syst_index) != keys.end())
                     &&
                     (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end()))
@@ -3276,20 +4179,20 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
                 }
                 else //then something's wrong :(
                 {
-                    throw std::runtime_error(std::string("Something's wrong at ") + syst_index + ": " + std::to_string(massPoints[i]) + " GeV, coupling = " + std::to_string(coupling));
+                    efficiency = 0;
                 }
 
                 efficiency *= efficiencies[coupling][massPoints[i]]; //mutiply efficiency by Pythia Filter Efficiency
 
-                if (syst_index == "nominal") //nominal case: Store the efficiency in the unordered_map
+                if (syst_index == "nominal")
                 {
-                    resolved_long_lived[coupling][massPoints[i]] = efficiency;
-                    resolved_long_lived_N[coupling][massPoints[i]] = resultmaps[j]["nominal"];
+                    merged_long_lived[coupling][massPoints[i]] = efficiency;
+                    merged_long_lived_N[coupling][massPoints[i]] = resultmaps[j]["nominal"];
                 }
                 histo2d->SetBinContent(bin_number, efficiency);
                 mass_coupling_eff[massPoints[i]][coupling] = efficiency;
             }
-            start_index += 91; //to the next displaced file (with a different coupling)
+            start_index += 78; //to the next displaced file (with a different coupling)
         }
         
         for (int i = 0; i < massPoints.size(); i++)
@@ -3312,45 +4215,63 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         }
         
         out << R"--(\end{tabular}})--" << '\n';
-        out << R"--(\caption{\raggedright Nominal efficiencies for the long-lived samples considered in this section  \ref{tab:long_lived_mass_points_considered} for the \textbf{resolved category} + \textbf{SR}. The mass points which do not have a coloured bin in this figure have efficiency 0, likely due to lack of statistics. Lepton and photon preselection are performed here as prescribed in sections \ref{sec:Lepton_Preselection} (for reco-level) and \ref{sec:Photon_Preselection} (without the loose photon id cut), respectively. Photon scale factors of the form \ref{eq:Photon_scale_factors} are applied, and the efficiencies shown are multiplied by the values in Table \ref{tab:filter_eff_for_long_lived_mass_points_considered} .})--" << '\n';
-        out << R"--(\label{tab:Resolved_long_lived_efficiencies})--" << '\n';
+        out << R"--(\caption{\raggedright )--";
+        out << syst_captions[syst_index];
+        out << R"--(for the long-lived samples considered in table \ref{tab:long_lived_mass_points_considered} for the \textbf{Merged category} + \textbf{SR}. Some points have efficiency 0, likely due to lack of statistics. Lepton and photon preselection are performed here as prescribed in sections \ref{sec:Lepton_Preselection} (for reco-level) and \ref{sec:Photon_Preselection} (without the loose photon id cut), respectively. Photon scale factors of the form \ref{eq:Photon_scale_factors} are applied, and the efficiencies shown are multiplied by the values in Table \ref{tab:filter_eff_for_long_lived_mass_points_considered} .})--" << '\n';
+        out << R"--(\label{tab:Merged_long_lived_efficiencies_)--";
+        out << syst_index;
+        out << R"--(})--" << '\n';
         out << R"--(\end{table})--" << '\n';
-        
 
         gStyle->SetPalette(1); //heat-map color style
         histo2d->Draw("COLZ"); //draw with color-bar
+
         gStyle->SetOptStat(0);
         Tl.SetTextSize(0.03);
         Tl.DrawLatexNDC(0.7, 0.83, "#it{ATLAS} Internal");
         Tl.DrawLatexNDC(0.7, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
-        title = std::string("Cayy") + "DisplacedResolved" + syst_index + ".pdf";
+        title = std::string("CayyDisplacedMerged") + syst_index + ".pdf";
         c1->SaveAs(title.c_str());
-        //open -a Safari C_{a#gamma#gamma}_displaced_resolved_* C_{a#gamma#gamma}_prompt_resolved_*
+        //open -a Safari C_{a#gamma#gamma}_displaced_merged_* C_{a#gamma#gamma}_prompt_merged_*
         delete c1;
         delete histo2d;
 
-        ///Prompt case
+        ///prompt case
+        
+        out << '\n';
+        out << R"--(\begin{table})--" << '\n';
+        out << R"--(\centering)--" << '\n';
+        out << R"--(\hspace{0cm}\scalebox{1}{)--" << '\n';
+        out << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
+        out << R"--(\begin{tabular}{|c|c|})--" << '\n';
+        out << R"--(\hline)--" << '\n';
+        out << R"--(\multicolumn{2}{|c|}{\parbox{\linewidth}{\centering )--";
+        out << syst_names[syst_counter];
+        out << R"--(  (Prompt Merged) \\ Efficiencies}}\\[5 pt] \hline)--" << '\n';
+        out << R"--($m_a$ (GeV) & $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.01$  \\ \hline)--" << '\n';
 
-        //create a new plot
+        //create a plot
         c1 = new TCanvas();
         c1->SetLogy(); //Set log scale for y-axis
-        title = syst_index + std::string(" (prompt resolved)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
+        title = syst_index + std::string(" (prompt merged)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
         name = std::string("C_{a#gamma#gamma}") + syst_index;
         double prompt_y_bins[] = {0.008, 0.0099, 0.08, 0.1}; //y bins
-        histo2d = new TH2D(name.c_str(), title.c_str(), 25, 0.1, 10, 3, prompt_y_bins); //numbers are: x_bins, x_min, x_max, y_bins, y_min, y_max
+        histo2d = new TH2D(name.c_str(), title.c_str(), 25, 0.1, 10, 3, prompt_y_bins);
         histo2d->GetXaxis()->SetTitleSize(0.04);
         histo2d->GetYaxis()->SetTitleSize(0.04);
         histo2d->GetZaxis()->SetTitleSize(0.04);
+        histo2d->SetOption("LOGZ");
         histo2d->GetYaxis()->SetTitleOffset(0.7);
         histo2d->GetZaxis()->SetTitleOffset(0.6);
+
         histo2d->GetYaxis()->CenterTitle(true);
         histo2d->GetZaxis()->SetTitle("Efficiency");
 
         //i is indexing each mass point, and j is indexing the
         //group of results corresponding to mass point i
-        for (int i=0, j=0; (i < massPoints_prompt.size()); i++, j+=7)
+        for (int i=0, j=0; (i < massPoints_prompt.size()); i++, j+=6)
         {
             int bin_number = histo2d->FindFixBin(massPoints_prompt[i], ALP_photon_couplings[1]);
             float efficiency;
@@ -3358,9 +4279,9 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
             auto keys = prompt_resultmaps[j].GetKeys();
             auto keys5 = prompt_resultmaps[j+5].GetKeys();
 
-            //if syst_index is a systematic variation of the total # of events and
-            //the ones that passed the resolved category, then assign the efficiency
-            //the corresponding value, else assign it 0
+//            if syst_index is a systematic variation of the total # of events and
+//            the ones that passed the resolved category, then assign the efficiency
+//            the corresponding value
             if ((std::find(keys.begin(), keys.end(), syst_index) != keys.end())
                 &&
                 (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end()))
@@ -3373,17 +4294,26 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
             }
             else //then something's wrong :(
             {
-                throw std::runtime_error(std::string("Something's wrong at ") + syst_index + ": " + std::to_string(massPoints[i]) + " GeV");
+                efficiency = -1;
             }
 
-            if (syst_index == "nominal") //nominal case: Store the efficiency in the unordered_map
+            if (syst_index == "nominal")
             {
-                resolved_prompt[massPoints_prompt[i]] = efficiency; //efficiency
-                resolved_prompt_N[massPoints_prompt[i]] = prompt_resultmaps[j]["nominal"]; //total number of events
+                merged_prompt[massPoints_prompt[i]] = efficiency;
+                merged_prompt_N[massPoints[i]] = resultmaps[j]["nominal"];
             }
-
+            out << massPoints_prompt[i] << " & " << efficiency << R"--( \\ \hline)--" << '\n';
             histo2d->SetBinContent(bin_number, efficiency);
         }
+        
+        out << R"--(\end{tabular}})--" << '\n';
+        out << R"--(\caption{\raggedright )--";
+        out << syst_captions[syst_index];
+        out << R"--(for the prompt samples in table \ref{table:prompt_signal_samples} for the \textbf{merged category} + \textbf{SR}. Lepton and photon preselection are performed here as prescribed in sections \ref{sec:Lepton_Preselection} (for reco-level) and \ref{sec:Photon_Preselection} (without the loose photon id cut), respectively. Photon scale factors of the form \ref{eq:Photon_scale_factors} are applied.})--" << '\n';
+        out << R"--(\label{tab:Merged_prompt_efficiencies_)--";
+        out << syst_index;
+        out << R"--(})--" << '\n';
+        out << R"--(\end{table})--" << '\n';
 
         gStyle->SetPalette(1); //heat-map color style
         histo2d->Draw("COLZ"); //draw with color-bar
@@ -3394,746 +4324,11 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
-        title = std::string("CayyPromptResolved") + syst_index + ".pdf";
+        title = std::string("CayyPromptMerged") + syst_index + ".pdf";
         c1->SaveAs(title.c_str());
-
     }
-
 }
 
-//void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_prompt = c, std::unordered_map<float, std::unordered_map<float, float>>& merged_long_lived = d, std::unordered_map<float, float>& merged_prompt_N = g, std::unordered_map<float, std::unordered_map<float, float>>& merged_long_lived_N = h)
-//{
-//    Event::systematics =
-//    {
-////        "PH_EFF_ISO_Uncertainty",
-////        "PH_EFF_ISO_Uncertainty",
-////        "EL_EFF_ID_TOTAL_1NPCOR_PLUS_UNCOR",
-////        "PRW_DATASF",
-////        "MUON_EFF_RECO_SYS",
-////        "MUON_EFF_ISO_SYS",
-////        "MUON_EFF_TrigSystUncertainty",
-////        "EL_EFF_Reco_TOTAL_1NPCOR_PLUS_UNCOR",
-////        "MUON_EFF_TrigStatUncertainty",
-////        "MUON_EFF_RECO_STAT",
-////        "MUON_EFF_TTVA_STAT",
-////        "EL_EFF_Iso_TOTAL_1NPCOR_PLUS_UNCOR",
-////        "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR",
-////        "MUON_EFF_TTVA_SYS",
-////        "MUON_EFF_ISO_STAT",
-////        "MUON_SAGITTA_RHO",
-////        "EG_RESOLUTION_ALL",
-////        "EG_SCALE_ALL",
-////        "MUON_MS",
-////        "MUON_ID",
-////        "EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR",
-////        "MUON_SAGITTA_RESBIAS",
-////        "MUON_SCALE",
-//        "EG_RESOLUTION_ALL__1up",
-//        "EG_SCALE_ALL__1up",
-////        "PH_EFF_ISO_Uncertainty__1up",
-//        "PH_EFF_ID_Uncertainty__1up",
-////        "PH_EFF_TRIGGER_Uncertainty__1up",
-//
-//        "EG_RESOLUTION_ALL__1down",
-//        "EG_SCALE_ALL__1down",
-////        "PH_EFF_ISO_Uncertainty__1down",
-//        "PH_EFF_ID_Uncertainty__1down",
-////        "PH_EFF_TRIGGER_Uncertainty__1down",
-//    };
-//
-//    std::vector<std::vector<std::string>> input_filenames =
-//    {
-//        //Prompt Signal
-//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}, //1 GeV
-//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"}, //5 GeV
-//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600751.PhPy8EG_AZNLO_ggH125_mA2p0_v1.root"}, // 2 GeV
-//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600752.PhPy8EG_AZNLO_ggH125_mA3p0_v1.root"}, // 3 GeV
-//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600756.PhPy8EG_AZNLO_ggH125_mA9p0_v1.root"}, // 9 GeV
-//        //Displaced Signal
-////        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints.root"},
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_FewMassPoints_PhotonSFs.root"
-//        }, //C_{ayy} = 1
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p01.root",
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p01.root"
-//        },      //C_{ayy} = 0.01
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p001.root",
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_mA1p0_Cayy0p001.root"
-//        },     //C_{ayy} = 0.001
-//        {
-//            "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/ZaSignal_MultiMass_Cayy0p0001.root"
-//            //C_{ayy} = 0.0001
-//        }
-//    };
-//
-//    std::vector<float> massPoints = {0.2, 0.5, 1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30}; //mass points for displaced samples
-//    std::vector<float> massPoints_prompt = {1, 5, 2, 3, 9};
-//    std::vector<float> ALP_photon_couplings = {1.0f, 0.01f, 0.001f, 0.0001f};
-//    std::vector<RResultMap<float>> resultmaps, prompt_resultmaps; //long-lived and prompt resultmaps for sys variations
-//    std::vector<ROOT::RDF::RResultHandle> Nodes; //Hold nominal nodes so we can use RunGraphs to run the computational graph from multiple RDF objects (samples)
-//
-//    //Function that returns the particles from `startParticles` that have a parent with `targetBarcode`, given a `truthChain` to search through
-//    auto findParentInChain = [](int targetBarcode, RVec<TruthParticle>& startParticles, RVec<TruthParticle>& truthChain)
-//    {
-//        RVec<TruthParticle> truthSelected;
-//        bool foundParent;
-//        if (truthChain.size() >= 1)
-//        {
-//            TruthParticle tp;
-//            for (auto& tpe: startParticles)
-//            {
-//                tp = tpe;
-//                while (true)
-//                {
-//                    if (tp.mc_parent_barcode == targetBarcode)
-//                    {
-//                        truthSelected.push_back(tp);
-//                        break;
-//                    }
-//                    else
-//                    {
-//                        foundParent = false;
-//                        for (auto& tmp: truthChain)
-//                        {
-//                            if (tp.mc_parent_barcode == tmp.mc_barcode)
-//                            {
-//                                tp = tmp;
-//                                foundParent = true;
-//                                break;
-//                            }
-//                        }
-//                        if (foundParent == false)
-//                        {
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return truthSelected;
-//    };
-//
-//    int counter = 0; //keep track of each file
-//
-//    for (auto& file: input_filenames)
-//    {
-//        SchottDataFrame df(MakeRDF(file, 8)); //Starting dataframe, I'm running with 8 threads
-//
-//        //New dataframe node that has additional columns
-//        auto newDf = df.Define("EventWeight", //mc generator weight
-//        [](const RVec<float>& ei_event_weights_generator)
-//        {
-//            return  ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
-//
-//        }, {"ei_event_weights_generator"})
-//        .Define("totEventWeightVec", //vector of efficiencies, product of photon_id_eff, photon_iso_eff, and photon_trg_eff
-//        [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
-//        {
-//            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
-//            photon_id_eff.resize(ResizeVal,1);
-//            photon_iso_eff.resize(ResizeVal,1);
-//            photon_trg_eff.resize(ResizeVal,1);
-//
-//            return photon_id_eff;
-//            //*photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
-//
-//        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/})
-//        .Define("totEventWeightFactor", //product of vector above
-//        [](RVec<float>& photon_efficiencies)
-//        {
-//            float total = 1.0f;
-//
-//            for (auto i: photon_efficiencies)
-//            {
-//                total *= i;
-//            }
-//
-//            return total; //one efficiency
-//
-//        }, {"totEventWeightVec"})
-//        .Define("truth_axions", //truth ALPs in each event, should only be 1 ALP per event
-//        [&](RVec<TruthParticle> truth_particles)
-//        {
-//            truth_particles.erase(std::remove_if(truth_particles.begin(),truth_particles.end(),
-//            [](TruthParticle& x)
-//            {
-//                return (std::abs(x.mc_pdg_id) != 36 && std::abs(x.mc_pdg_id) != 35); //in prompt samples, ALP pdg id = 35, in long-lived, ALP pdg id = 36
-//
-//            }), truth_particles.end());
-//
-//            return truth_particles;
-//
-//        }, {"truth_particles"})
-//        .Define("axion_masses", //masses of the truth_axions, should only be 1 ALP per event
-//        [&](RVec<TruthParticle>& truth_axions)
-//        {
-//            for (auto& particle: truth_axions)
-//            {
-//                if (counter <= 4 && particle.mc_pdg_id == 35) //then it's a prompt ALP
-//                {
-//                    return particle.mc_mass/1e3f;
-//                }
-//                else if (counter > 4 && particle.mc_pdg_id == 36) //then it's a displaced ALP
-//                {
-//                    return particle.mc_mass/1e3f;
-//                }
-//            }
-//            return 0.0f;
-//
-//        }, {"truth_axions"});
-//
-//        //new dataframe node: contains only the events of newDf that pass the trigger cut
-//        auto trigger_selection = newDf
-//        .Filter([](const RVec<std::string>& trigger_passed_triggers)
-//        {
-//            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
-//
-//            if (!trigger_found)
-//            {
-//                return false; //this event is filtered out
-//            }
-//            return true; //this event is kept because the trigger was found in its `trigger_passed_triggers` branch entry
-//
-//        }, {"trigger_passed_triggers"});
-//
-//        //new dataframe node: contains an additional column `di_electrons` and only the events that have 2 electrons and no muons
-//        auto two_leptons = trigger_selection
-//        .Define("di_electrons", //the events that pass will have exactly 2 electrons that pass the following
-//        [](RVec<AbstractParticle> electrons)
-//        {
-//            //keep the electrons in each event that have pt > 20 GeV, |η| < 2.37,
-//            //|η| not between 1.37 and 1.52, and that satisfy a medium id criteria `electron_id_medium`
-//            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
-//            [](AbstractParticle& ep)
-//            {
-//                 return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
-//                 (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
-//                 && (ep.electron_id_medium == 1)));
-//
-//            }), electrons.end());
-//
-//            return electrons;
-//
-//        },{"abstract_electrons"}).Filter(
-//        [](const RVec<Muon>& muons, RVec<AbstractParticle> electrons)
-//        {
-//            return (electrons.size()==2 && muons.empty()); //keep events which have exactly 2 electrons for di_electrons and no muons
-//
-//        }, {"muons", "di_electrons"});
-//
-//        //new dataframe node: contains only the events from `two_leptons` whose electrons in the `di_electrons` branch have opposite charge
-//        auto opp_charge = two_leptons.Filter([](const RVec<AbstractParticle>& electrons)
-//        {
-//            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
-//
-//        }, {"di_electrons"});
-//
-//        //new dataframe node: contains only the events from `opp_charge` that have 1 electron with pt > 20 GeV and the other with pt > 27 GeV
-//        auto leading_pt = opp_charge.Filter([](const RVec<AbstractParticle>& electrons)
-//        {
-//            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
-//        }, {"di_electrons"});
-//
-//        //new dataframe node: nothing changes here from `leading_pt`...
-//        auto same_flavour = leading_pt.Filter([] (const RVec<AbstractParticle>& electrons)
-//        {
-//            return true; //because true is always returned in this function
-//        }, {"di_electrons"});
-//
-//        //new dataframe node: Contains a new column `dilep` in addition to the ones in `same_flavour` that stores the di-electron four-vector
-//        auto dilep = same_flavour.Define("dilep",[] (RVec<AbstractParticle>& electrons)
-//        {
-//            return (electrons[0].ElectronVector() + electrons[1].ElectronVector());
-//        }, {"di_electrons"});
-//
-//        //new dataframe node: contains only the events from `dilep` that have di-electron invariant mass between 81 and 101 GeV
-//        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
-//        {
-//            auto mass = dilep.M()/1e3;
-//            return ((mass >= 81) && (mass <= 101));
-//        }, {"dilep"});
-//
-//        //new dataframe node: contains only the events from `mass` that have dilepton pT > 10 GeV
-//        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
-//        {
-//            auto pT = dilep.Pt()/1e3;
-//            return pT > 10;
-//        }, {"dilep"});
-//
-//        //end pre-selection -----------
-//
-//        //photon acceptance and id_loose cuts
-//        auto photon_passes_cuts = ptCut
-//        .Define("abstract_photons_pass_cut_indices", //new column that contains the good photon indices
-//        [&](RVec<AbstractParticle>& p) //p = photon
-//        {
-//            RVec<int> x; //indices of photons that pass cuts
-//
-//            for (auto i = 0; i < p.size(); i++)
-//            {
-//                //keep reco-photons that have |η| < 2.37, p_T > 10 GeV, and |η| not between 1.37 and 1.52
-//                if (not ((std::abs(p[i].photon_eta) >= 2.37) or (p[i].photon_pt <= 10e3) or (std::abs(p[i].photon_eta) > 1.37 and std::abs(p[i].photon_eta) < 1.52)))
-//                {
-//                    x.push_back(i);
-//                }
-//            }
-//
-//            return x;
-//        }, {"abstract_photons"})
-//        .Define("photons_pass_cuts", //new column that contains the good photons corresponding to the good photon indices from above
-//        [&](RVec<AbstractParticle>& photons, RVec<int>& x)
-//        {
-//            return Take(photons, x); //Taking only the photons that passed the cuts in each event
-//
-//        }, {"abstract_photons", "abstract_photons_pass_cut_indices"});
-//
-//        //New dataframe node: contains only events from `photon_passes_cuts` that fail the resolved category and pass the merged category
-//        auto merged_reco_photons_matched = photon_passes_cuts.Filter(
-//        [&](const RVec<AbstractParticle>& reco_photons_matched)
-//        {
-//            if (reco_photons_matched.size() == 1) // 1 photon in the event
-//            {
-//                return reco_photons_matched[0].photon_pt > 20e3; //event passes if photon pt > 20 GeV
-//            }
-//            else if (reco_photons_matched.empty())
-//            {
-//                return false; //fails if no photons in event
-//            }
-//
-//            auto combs = Combinations(reco_photons_matched, 2); //all combinations of 2 reco-photons
-//            size_t length = combs[0].size(); //number of combinations
-//            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
-//
-//            for (size_t i=0; i<length; i++) //looping through all of the possible combinations of photons in each event
-//            {
-//                delta_r = DeltaR(reco_photons_matched[combs[0][i]].PhotonVector(), reco_photons_matched[combs[1][i]].PhotonVector());
-//                m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
-//                pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
-//                X = delta_r*(pt/(2.0*m));
-//                //if it's the first combination or if new X is closer to 1
-//                //than current best_X and ΔR
-//                //between the two reco-photons < 1.5, then update best_X, pt1, pt2,
-//                //and the corresponding reco-photon indices x
-//                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
-//                {
-//                    best_X = X;
-//                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
-//                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
-//                    chosen_delta_r = delta_r;
-//                }
-//            }
-//            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5) //two photons corresponding to best_X must both have p_T > 10 GeV, ΔR < 1.5, and 0.96 < best_X < 1.2 for resolved... but this is merged, so if it passes resolved it fails merged
-//            {
-//                return false;
-//            }
-//            //if we get to this point, it means we've failed resolved
-//            for (auto& p: reco_photons_matched) //merged means at least 1 reco photon must have pt > 20 GeV
-//            {
-//                if (p.photon_pt > 20e3)
-//                {
-//                    return true; //passed merged if there's a reco-photon with pt > 20 GeV
-//                }
-//            }
-//            return false; //failed merged
-//
-//        }, {"photons_pass_cuts"})
-//        .Define("merged_photon_index", //new column: consists of the index corresponding to the photon that made the event be classified as merged
-//        [&](const RVec<AbstractParticle>& rpm) //rpm = reco photons matched
-//        {
-//            for (auto i = 0; i < rpm.size(); i++)
-//            {
-//                if (rpm[i].photon_pt > 20e3)
-//                {
-//                    return i; //returning the index of the first photon that has photon_pt > 20 GeV
-//                }
-//            }
-//            return 0; //jic the compiler complains, should not come to this
-//
-//        }, {"photons_pass_cuts"})
-//        .Define("merged_photon", //new column: The reco-photon corresponding to `merged_photon_index`
-//        [&](const RVec<AbstractParticle>& reco_photons_matched, int merged_photon_index)
-//        {
-//            return reco_photons_matched[merged_photon_index];
-//
-//        }, {"photons_pass_cuts", "merged_photon_index"})
-//        //mpi = merged_photon_index
-//        .Define("totEventWeight", //New column: weight factor for events in RDF `merged_reco_photons_matched`
-//        [](RVec<int>& x, int mpi, RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
-//        {
-//            //   ||  resize 3 vectors just in case they don't already have the same size  ||
-//            //   \/                                                                       \/
-//            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
-//            photon_id_eff.resize(ResizeVal,1);
-//            photon_iso_eff.resize(ResizeVal,1);
-//            photon_trg_eff.resize(ResizeVal,1);
-//
-//            //First, take the x indices from the respective photon_*_eff vectors,
-//            //this corresponds to the photons from the set of all reco photons in
-//            //the event that passed the "photon_passes_cuts" cuts. Then, from
-//            //those photons, select the index mpi element that corresponds to
-//            //the merged reco-photon
-//
-//            return Take(photon_id_eff, x)[mpi] * Take(photon_iso_eff, x)[mpi] * Take(photon_trg_eff, x)[mpi]; // a single number
-//
-//        }, {"abstract_photons_pass_cut_indices", "merged_photon_index", "photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/})
-//        .Define("reconstructed_mass", //new column: dilep+merged invariant mass
-//        [&](const RVec<AbstractParticle>& di_electrons, const AbstractParticle& merged_photon)
-//        {
-//            auto four_momentum = di_electrons[0].ElectronVector() + di_electrons[1].ElectronVector();
-//
-//            return (four_momentum + merged_photon.PhotonVector()).M()/1e3;
-//
-//        }, {"di_electrons", "merged_photon"});
-//
-//        //new dataframe node: keep only events from `merged_reco_photons_matched` where
-//        //the dilep+merged invariant mass is not between 110 and 130 GeV inclusive
-//        auto pSB = merged_reco_photons_matched.Filter(
-//        [](const double reconstructed_mass)
-//        {
-//            return (reconstructed_mass < 110) || (reconstructed_mass > 130);
-//        }, {"reconstructed_mass"});
-//
-//        //new dataframe node: keep only events from `merged_reco_photons_matched` where
-//        //the dilep+merged invariant mass is between 110 and 130 GeV inclusive
-//        auto pSR = merged_reco_photons_matched.Filter(
-//        [](const double reconstructed_mass)
-//        {
-//            return (reconstructed_mass >= 110) && (reconstructed_mass <= 130);
-//        }, {"reconstructed_mass"});
-//
-//        //new dataframe node: keep only events from `pSB` that have all E-ratios > 0.8
-//        auto SB = pSB.Filter(
-//        [](const RVec<float>& Eratio)
-//        {
-//            return (!Any(Eratio <= 0.8));
-//        }, {"photon_shower_shape_e_ratio"});
-//
-//        //new dataframe node: keep only events from `pSR` that have all E-ratios > 0.8
-//        auto SR = pSR.Filter(
-//        [](const RVec<float>& Eratio)
-//        {
-//            return (!Any(Eratio <= 0.8));
-//        }, {"photon_shower_shape_e_ratio"});
-//
-//        if (counter < 5) //or however many prompt signal samples there are, each file has 1 ALP mass point
-//        {
-//            //These RResultHandles aren't used, per-se, but they allow us to call RunGraphs on the `Nodes` vector so that all of the RDataFrame graphs are run concurrently
-//            Nodes.push_back(newDf.Count());
-//            Nodes.push_back(merged_reco_photons_matched.Count());
-//            Nodes.push_back(pSB.Count());
-//            Nodes.push_back(pSR.Count());
-//            Nodes.push_back(SB.Count());
-//            Nodes.push_back(SR.Count());
-//
-//            prompt_resultmaps.push_back(VariationsFor(newDf.Sum<float>("totEventWeightFactor")));
-//            prompt_resultmaps.push_back(VariationsFor(merged_reco_photons_matched.Sum<float>("totEventWeight")));
-//            prompt_resultmaps.push_back(VariationsFor(pSB.Sum<float>("totEventWeight")));
-//            prompt_resultmaps.push_back(VariationsFor(pSR.Sum<float>("totEventWeight")));
-//            prompt_resultmaps.push_back(VariationsFor(SB.Sum<float>("totEventWeight")));
-//            prompt_resultmaps.push_back(VariationsFor(SR.Sum<float>("totEventWeight")));
-//        }
-//        else
-//        {
-//            for (auto& mass_point: massPoints)
-//            {
-//                auto mass_point_newDf = newDf.Filter([&]
-//                (float axion_mass)
-//                {
-//                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-//
-//                }, {"axion_masses"});
-//
-//                auto mass_point_merged_reco_photons_matched = merged_reco_photons_matched.Filter([&]
-//                (float axion_mass)
-//                {
-//                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-//
-//                }, {"axion_masses"});
-//
-//                auto mass_point_pSB = pSB.Filter([&]
-//                (float axion_mass)
-//                {
-//                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-//
-//                }, {"axion_masses"});
-//
-//                auto mass_point_pSR = pSR.Filter([&]
-//                (float axion_mass)
-//                {
-//                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-//
-//                }, {"axion_masses"});
-//
-//                auto mass_point_SB = SB.Filter([&]
-//                (float axion_mass)
-//                {
-//                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-//
-//                }, {"axion_masses"});
-//
-//                auto mass_point_SR = SR.Filter([&]
-//                (float axion_mass)
-//                {
-//                    return (roundToOneDecimalPlace(axion_mass) == mass_point);
-//
-//                }, {"axion_masses"});
-//
-//                Nodes.push_back(mass_point_newDf.Count());
-//                Nodes.push_back(mass_point_merged_reco_photons_matched.Count());
-//                Nodes.push_back(mass_point_pSB.Count());
-//                Nodes.push_back(mass_point_pSR.Count());
-//                Nodes.push_back(mass_point_SB.Count());
-//                Nodes.push_back(mass_point_SR.Count());
-//
-//                resultmaps.push_back(VariationsFor(mass_point_newDf.Sum<float>("totEventWeightFactor")));
-//                resultmaps.push_back(VariationsFor(mass_point_merged_reco_photons_matched.Sum<float>("totEventWeight")));
-//                resultmaps.push_back(VariationsFor(mass_point_pSB.Sum<float>("totEventWeight")));
-//                resultmaps.push_back(VariationsFor(mass_point_pSR.Sum<float>("totEventWeight")));
-//                resultmaps.push_back(VariationsFor(mass_point_SB.Sum<float>("totEventWeight")));
-//                resultmaps.push_back(VariationsFor(mass_point_SR.Sum<float>("totEventWeight")));
-//
-//            }
-//        }
-//        counter++;
-//    }
-//
-//    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently, this will trigger resultmaps as well.
-//
-//    std::vector<std::string> syst_indices = {"nominal", "photons_and_electrons:EG_RESOLUTION_ALL__1down", "photons_and_electrons:EG_SCALE_ALL__1down", /*"photon_iso_eff:PH_EFF_ISO_Uncertainty__1down",*/ "photon_id_eff:PH_EFF_ID_Uncertainty__1down", /*"photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down",*/ "photons_and_electrons:EG_RESOLUTION_ALL__1up", "photons_and_electrons:EG_SCALE_ALL__1up", /*"photon_iso_eff:PH_EFF_ISO_Uncertainty__1up",*/ "photon_id_eff:PH_EFF_ID_Uncertainty__1up", /*"photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"*/};
-//
-//    TLatex Tl;
-//    TCanvas* c1;
-//    TH2D* histo2d;
-//    std::string name, title;
-//
-//    std::unordered_map<float, std::unordered_map<float, float>> efficiencies;
-//
-//    std::unordered_map<float,float> C_ayy_1_efficiencies =
-//    {
-//        {0.2f, 1.0f},
-//        {0.5f, 1.0f},
-//        {1.0f, 1.0f},
-//        {2.0f, 1.0f},
-//        {3.0f, 1.0f},
-//        {4.0f, 1.0f},
-//        {5.0f, 1.0f},
-//        {7.0f, 1.0f},
-//        {10.0f, 1.0f},
-//        {15.0f, 1.0f},
-//        {20.0f, 1.0f},
-//        {25.0f, 1.0f},
-//        {30.0f, 1.0f},
-//    };
-//
-//    std::unordered_map<float,float> C_ayy_0p01_efficiencies =
-//    {
-//        {0.2f, 0.057f},
-//        {0.5f, 0.810f},
-//        {1.0f, 1.0f},
-//        {2.0f, 1.0f},
-//        {3.0f, 1.0f},
-//        {4.0f, 1.0f},
-//        {5.0f, 1.0f},
-//        {7.0f, 1.0f},
-//        {10.0f, 1.0f},
-//        {15.0f, 1.0f},
-//        {20.0f, 1.0f},
-//        {25.0f, 1.0f},
-//        {30.0f, 1.0f},
-//    };
-//
-//    std::unordered_map<float,float> C_ayy_0p001_efficiencies =
-//    {
-//        {0.2f, 0.675f},
-//        {0.5f, 0.812f},
-//        {1.0f, 0.857f},
-//        {2.0f, 0.876f},
-//        {3.0f, 0.882f},
-//        {4.0f, 0.899f},
-//        {5.0f, 0.885f},
-//        {7.0f, 0.889f},
-//        {10.0f, 0.886f},
-//        {15.0f, 0.873f},
-//        {20.0f, 0.885f},
-//        {25.0f, 0.911f},
-//        {30.0f, 0.918f},
-//    };
-//
-//    std::unordered_map<float,float> C_ayy_0p0001_efficiencies =
-//    {
-//        {0.2f, 0.0f},
-//        {0.5f, 0.0f},
-//        {1.0f, 0.003f},
-//        {2.0f, 0.055f},
-//        {3.0f, 0.238f},
-//        {4.0f, 0.553f},
-//        {5.0f, 0.810f},
-//        {7.0f, 0.984f},
-//        {10.0f, 1.0f},
-//        {15.0f, 1.0f},
-//        {20.0f, 1.0f},
-//        {25.0f, 1.0f},
-//        {30.0f, 1.0f},
-//    };
-//
-//    efficiencies[1.0f] = C_ayy_1_efficiencies;
-//    efficiencies[0.01f] = C_ayy_0p01_efficiencies;
-//    efficiencies[0.001f] = C_ayy_0p001_efficiencies;
-//    efficiencies[0.0001f] = C_ayy_0p0001_efficiencies;
-//
-//    //for each systematic
-//    for (auto& syst_index: syst_indices)
-//    {
-//        ///displaced case
-//        int start_index = 0;
-//
-//        //create a plot
-//        c1 = new TCanvas();
-//        c1->SetLogy(); //Set log scale for y-axis
-//        title = syst_index + std::string(" (displaced merged)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
-//        name = std::string("C_{a#gamma#gamma}") + syst_index;
-//        double y_bins[] = {0.000099, 0.0008, 0.001, 0.008, 0.0099, 0.08, 0.1, 0.8, 1, 8, 10}; //y bins
-//        histo2d = new TH2D(name.c_str(), title.c_str(), 299, 0.1, 31, 10, y_bins);
-//        histo2d->GetYaxis()->SetMoreLogLabels();
-//        histo2d->GetYaxis()->SetNoExponent();
-//        histo2d->SetOption("LOGZ");
-//        histo2d->GetXaxis()->SetTitleSize(0.04);
-//        histo2d->GetYaxis()->SetTitleSize(0.04);
-//        histo2d->GetZaxis()->SetTitleSize(0.04);
-//        histo2d->GetYaxis()->SetTitleOffset(0.7);
-//        histo2d->GetZaxis()->SetTitleOffset(0.6);
-//        histo2d->GetYaxis()->CenterTitle(true);
-//        histo2d->GetZaxis()->SetTitle("Efficiency");
-//        //for each coupling
-//        for (auto& coupling: ALP_photon_couplings)
-//        {
-//            //i is indexing each mass point, and j is indexing the
-//            //group of results corresponding to mass point i
-//            for (int i=0, j=start_index; (i < massPoints.size()); i++, j+=6)
-//            {
-//                int bin_number = histo2d->FindFixBin(massPoints[i], coupling);
-//                float efficiency;
-//
-//                auto keys = resultmaps[j].GetKeys();
-//                auto keys5 = resultmaps[j+5].GetKeys();
-//
-//    //            if syst_index is a systematic variation of the total # of events and
-//    //            the ones that passed the resolved category, then assign the efficiency
-//    //            the corresponding value
-//                if ((std::find(keys.begin(), keys.end(), syst_index) != keys.end())
-//                    &&
-//                    (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end()))
-//                {
-//                    efficiency = resultmaps[j][syst_index] ? resultmaps[j+5][syst_index] / resultmaps[j][syst_index] : 0.0;
-//                }
-//                else if (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end())
-//                {
-//                    efficiency = resultmaps[j]["nominal"] ? resultmaps[j+5][syst_index] / resultmaps[j]["nominal"] : 0.0;
-//                }
-//                else //then something's wrong :(
-//                {
-//                    efficiency = 0;
-//                }
-//
-//                efficiency *= efficiencies[coupling][massPoints[i]]; //mutiply efficiency by Pythia Filter Efficiency
-//
-//                if (syst_index == "nominal")
-//                {
-//                    merged_long_lived[coupling][massPoints[i]] = efficiency;
-//                    merged_long_lived_N[coupling][massPoints[i]] = resultmaps[j]["nominal"];
-//                }
-//                histo2d->SetBinContent(bin_number, efficiency);
-//            }
-//            start_index += 78; //to the next displaced file (with a different coupling)
-//        }
-//
-//        gStyle->SetPalette(1); //heat-map color style
-//        histo2d->Draw("COLZ"); //draw with color-bar
-//
-//        gStyle->SetOptStat(0);
-//        Tl.SetTextSize(0.03);
-//        Tl.DrawLatexNDC(0.7, 0.83, "#it{ATLAS} Internal");
-//        Tl.DrawLatexNDC(0.7, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-//        c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
-//        gPad->SetLeftMargin(0.06);
-//        title = std::string("CayyDisplacedMerged") + syst_index + ".pdf";
-//        c1->SaveAs(title.c_str());
-//        //open -a Safari C_{a#gamma#gamma}_displaced_merged_* C_{a#gamma#gamma}_prompt_merged_*
-//        delete c1;
-//        delete histo2d;
-//
-//        ///prompt case
-//
-//        //create a plot
-//        c1 = new TCanvas();
-//        c1->SetLogy(); //Set log scale for y-axis
-//        title = syst_index + std::string(" (prompt merged)") + ";m_{a} [GeV];C_{a#gamma#gamma};Efficiency";
-//        name = std::string("C_{a#gamma#gamma}") + syst_index;
-//        double prompt_y_bins[] = {0.008, 0.0099, 0.08, 0.1}; //y bins
-//        histo2d = new TH2D(name.c_str(), title.c_str(), 25, 0.1, 10, 3, prompt_y_bins);
-//        histo2d->GetXaxis()->SetTitleSize(0.04);
-//        histo2d->GetYaxis()->SetTitleSize(0.04);
-//        histo2d->GetZaxis()->SetTitleSize(0.04);
-//        histo2d->SetOption("LOGZ");
-//        histo2d->GetYaxis()->SetTitleOffset(0.7);
-//        histo2d->GetZaxis()->SetTitleOffset(0.6);
-//
-//        histo2d->GetYaxis()->CenterTitle(true);
-//        histo2d->GetZaxis()->SetTitle("Efficiency");
-//
-//        //i is indexing each mass point, and j is indexing the
-//        //group of results corresponding to mass point i
-//        for (int i=0, j=0; (i < massPoints_prompt.size()); i++, j+=6)
-//        {
-//            int bin_number = histo2d->FindFixBin(massPoints_prompt[i], ALP_photon_couplings[1]);
-//            float efficiency;
-//
-//            auto keys = prompt_resultmaps[j].GetKeys();
-//            auto keys5 = prompt_resultmaps[j+5].GetKeys();
-//
-////            if syst_index is a systematic variation of the total # of events and
-////            the ones that passed the resolved category, then assign the efficiency
-////            the corresponding value
-//            if ((std::find(keys.begin(), keys.end(), syst_index) != keys.end())
-//                &&
-//                (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end()))
-//            {
-//                efficiency = prompt_resultmaps[j][syst_index] ? prompt_resultmaps[j+5][syst_index] / prompt_resultmaps[j][syst_index] : 0.0;
-//            }
-//            else if (std::find(keys5.begin(), keys5.end(), syst_index) != keys5.end())
-//            {
-//                efficiency = prompt_resultmaps[j]["nominal"] ? prompt_resultmaps[j+5][syst_index] / prompt_resultmaps[j]["nominal"] : 0.0;
-//            }
-//            else //then something's wrong :(
-//            {
-//                efficiency = -1;
-//            }
-//
-//            if (syst_index == "nominal")
-//            {
-//                merged_prompt[massPoints_prompt[i]] = efficiency;
-//                merged_prompt_N[massPoints[i]] = resultmaps[j]["nominal"];
-//            }
-//
-//            histo2d->SetBinContent(bin_number, efficiency);
-//        }
-//
-//        gStyle->SetPalette(1); //heat-map color style
-//        histo2d->Draw("COLZ"); //draw with color-bar
-//
-//        gStyle->SetOptStat(0);
-//        Tl.SetTextSize(0.03);
-//        Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-//        Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-//        c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
-//        gPad->SetLeftMargin(0.06);
-//        title = std::string("CayyPromptMerged") + syst_index + ".pdf";
-//        c1->SaveAs(title.c_str());
-//    }
-//}
-//
 //void LimitPlot()
 //{
 //    // >= 1 GeV -> resolved branching ratios, prompt effciencies, long-lived efficiencies
@@ -4344,7 +4539,7 @@ void CutFlow()
 //    Table11_Displaced_Axions();
 //    Coupling();
     Coupling_and_Systematics_resolved();
-//    Coupling_and_Systematics_merged();
+    Coupling_and_Systematics_merged();
 //    LimitPlot();
 
     auto end_time = Clock::now();
