@@ -83,1174 +83,1174 @@ constexpr std::array<const char*,35> triggers =
     "HLT_mu18_mu8noL1",
 };
 
-void Table21()
-{
-    Event::systematics =
-    {
-//        "PH_EFF_ISO_Uncertainty",
-//        "PH_EFF_ISO_Uncertainty",
-//        "EL_EFF_ID_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "PRW_DATASF",
-//        "MUON_EFF_RECO_SYS",
-//        "MUON_EFF_ISO_SYS",
-//        "MUON_EFF_TrigSystUncertainty",
-//        "EL_EFF_Reco_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "MUON_EFF_TrigStatUncertainty",
-//        "MUON_EFF_RECO_STAT",
-//        "MUON_EFF_TTVA_STAT",
-//        "EL_EFF_Iso_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "MUON_EFF_TTVA_SYS",
-//        "MUON_EFF_ISO_STAT",
-//        "MUON_SAGITTA_RHO",
-//        "EG_RESOLUTION_ALL",
-//        "EG_SCALE_ALL",
-//        "MUON_MS",
-//        "MUON_ID",
-//        "EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "MUON_SAGITTA_RESBIAS",
-//        "MUON_SCALE",
-
-//        "PH_EFF_ISO_Uncertainty__1down",
-//        "EG_SCALE_ALL__1down",
-//        "PH_EFF_ID_Uncertainty__1down",
-//        "PH_EFF_TRIGGER_Uncertainty__1down",
-        "EG_RESOLUTION_ALL__1up",
-        "EG_SCALE_ALL__1up",
-//        "PH_EFF_ISO_Uncertainty__1up",
-        "PH_EFF_ID_Uncertainty__1up",
-//        "PH_EFF_TRIGGER_Uncertainty__1up",
-    };
-
-    std::vector<std::vector<std::string>> input_filenames =
-    {
-        //Z gamma background
-        {"/home/common/Za/NTuples/Background/user.kschmied.364860.eegammagamma_pty2_9_17.deriv.DAOD_STDM3.e7057_s3126_r10724_p4092_LGNTuple.root/user.kschmied.31617070._000001.LGNTuple.root"},
-        {"/home/common/Za/NTuples/Background/user.kschmied.364861.eegammagamma_pty_17_myy_0_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4062_LGNTuple.root/user.kschmied.31617064._000001.LGNTuple.root"},
-        {"/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000001.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000002.LGNTuple.root"},
-        //Data
-        {"/home/common/Za/NTuples/Ntuple_data_test.root"},
-        //Signal
-        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}, //1 GeV
-        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600751.PhPy8EG_AZNLO_ggH125_mA2p0_v1.root"}, // 2 GeV
-        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600752.PhPy8EG_AZNLO_ggH125_mA3p0_v1.root"}, // 3 GeV
-        {"/home/common/Za/NTuples/Ntuple_MC_Za_m5p0_v4.root"}, //5 GeV
-        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600756.PhPy8EG_AZNLO_ggH125_mA9p0_v1.root"}, // 9 GeV
-        //Jets
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000005.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000007.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000005.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000004.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000003.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000004.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000005.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000007.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000008.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000005.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000007.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000008.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000009.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000010.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000011.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000012.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000013.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000014.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000005.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000007.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000008.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000009.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000010.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000011.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000012.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000013.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000014.LGNTuple.root",
-        },
-    };
-
-    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
-    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
-
-    std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", "data", R"--($\text{Sig } m_{A}$ = 1 GeV)--", R"--($\text{Sig } m_{A}$ = 2 GeV)--", R"--($\text{Sig } m_{A}$ = 3 GeV)--", R"--($\text{Sig } m_{A}$ = 5 GeV)--", R"--($\text{Sig } m_{A}$ = 9 GeV)--", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
-
-    std::vector<ROOT::RDF::RResultHandle> Totals;
-    std::vector<RResultMap<float>> resultmaps;
-
-    std::stringstream ss;
-
-    for (auto& i: input_filenames)
-    {
-        SchottDataFrame df(MakeRDF(i,8));
-
-        auto EventWeight = df.Define("EventWeight", //mc generator weight
-        [](const RVec<float>& ei_event_weights_generator)
-        {
-            return ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
-
-        }, {"ei_event_weights_generator"})
-        .Define("totEventWeightVec", //vector of efficiencies, product of photon_id_eff, photon_iso_eff, and photon_trg_eff
-        [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
-        {
-            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
-            photon_id_eff.resize(ResizeVal,1);
-            photon_iso_eff.resize(ResizeVal,1);
-            photon_trg_eff.resize(ResizeVal,1);
-
-            return photon_id_eff;
-            //*photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
-
-        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
-
-        auto two_leptons = EventWeight
-        .Filter([](const RVec<std::string>& trigger_passed_triggers)
-        {
-            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
-
-            if (!trigger_found)
-            {
-                return false; //this event is filtered out
-            }
-            return true; //this event is kept because the trigger was found in its `trigger_passed_triggers` branch entry
-
-        }, {"trigger_passed_triggers"})
-        .Define("di_electrons", //the events that pass will have exactly 2 electrons that pass the following
-        [](RVec<AbstractParticle> electrons)
-        {
-            //keep the electrons in each event that have pt > 20 GeV, |η| < 2.37,
-            //|η| not between 1.37 and 1.52, and that satisfy a medium id criteria `electron_id_medium`
-            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
-            [](AbstractParticle& ep)
-            {
-                 return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
-                 (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
-                 && (ep.electron_id_medium == 1)));
-
-            }), electrons.end());
-
-            return electrons;
-
-        },{"abstract_electrons"}).Filter(
-        [](RVec<Muon>& muons, RVec<AbstractParticle>& electrons)
-        {
-            return (electrons.size()==2 && muons.empty()); //keep events which have exactly 2 electrons for di_electrons and no muons
-
-        }, {"muons", "di_electrons"});
-
-        //new dataframe node: contains only the events from `two_leptons` whose electrons in the `di_electrons` branch have opposite charge
-        auto opp_charge = two_leptons
-        .Filter([](const RVec<AbstractParticle>& electrons)
-        {
-            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
-
-        }, {"di_electrons"});
-
-        //new dataframe node: contains only the events from `opp_charge` that have 1 electron with pt > 20 GeV and the other with pt > 27 GeV
-        auto leadingPt = opp_charge.Filter([](const RVec<AbstractParticle>& electrons)
-        {
-            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
-        }, {"di_electrons"});
-
-        auto deltaR = leadingPt.Filter([] (const RVec<AbstractParticle>& electrons)
-        {
-            return (DeltaR(electrons[0].ElectronVector(), electrons[1].ElectronVector()) > 0.01);
-        }, {"di_electrons"});
-
-        //new dataframe node: Contains a new column `dilep` in addition to the ones in `same_flavour` that stores the di-electron four-vector
-        auto dilep = deltaR.Define("dilep",[] (RVec<AbstractParticle>& electrons)
-        {
-            return (electrons[0].ElectronVector() + electrons[1].ElectronVector());
-        }, {"di_electrons"});
-
-        //new dataframe node: contains only the events from `dilep` that have di-electron invariant mass between 81 and 101 GeV
-        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
-        {
-            auto mass = dilep.M()/1e3;
-            return ((mass >= 81) && (mass <= 101));
-        }, {"dilep"});
-
-        //new dataframe node: contains only the events from `mass` that have dilepton pT > 10 GeV
-        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
-        {
-            auto pT = dilep.Pt()/1e3;
-            return pT > 10;
-        }, {"dilep"});
-
-        auto photon_passes_cuts = ptCut
-        .Define("photons_pass_cut_indices",
-        [&](const RVec<AbstractParticle>& photons)
-        {
-            RVec<int> photon_indices;
-            photon_indices.reserve(photons.size());
-
-            for (int i = 0; i < photons.size(); i++)
-            {
-                if (
-                (std::abs(photons[i].photon_eta) >= 2.37) or
-                (photons[i].photon_pt <= 10e3) or
-                (std::abs(photons[i].photon_eta) > 1.37 and std::abs(photons[i].photon_eta) < 1.52) or
-                (not photons[i].photon_id_loose)
-                )
-                {
-                    continue;
-                }
-                photon_indices.push_back(i);
-            }
-
-            return photon_indices;
-        }, {"abstract_photons"})
-        .Define("photons_pass_cuts",
-        [&](RVec<AbstractParticle>& photons, RVec<int>& photon_indices)
-        {
-            return Take(photons, photon_indices);
-        }, {"abstract_photons", "photons_pass_cut_indices"});
-
-        auto merged_reco_photons_matched = photon_passes_cuts.Filter(
-        [&](const RVec<AbstractParticle>& reco_photons_matched)
-        {
-            if (reco_photons_matched.size() == 1)
-            {
-                return reco_photons_matched[0].photon_pt > 20e3;
-            }
-            else if (reco_photons_matched.empty())
-            {
-                return false;
-            }
-
-            auto combs = Combinations(reco_photons_matched, 2);
-            size_t length = combs[0].size();
-            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
-
-            for (size_t i=0; i<length; i++)
-            {
-                delta_r = DeltaR(reco_photons_matched[combs[0][i]].PhotonVector(), reco_photons_matched[combs[1][i]].PhotonVector());
-                m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
-                pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
-                X = delta_r*(pt/(2.0*m));
-                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
-                {
-                    best_X = X;
-                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
-                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
-                    chosen_delta_r = delta_r;
-                }
-            }
-            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
-            {
-                return false;
-            }
-
-            for (auto& p: reco_photons_matched)
-            {
-                if (p.photon_pt > 20e3)
-                {
-                    return true;
-                }
-            }
-            return false;
-
-        }, {"photons_pass_cuts"})
-        .Define("merged_photon_index", //new column: consists of the index corresponding to the photon that made the event be classified as merged
-        [&](const RVec<AbstractParticle>& rpm) //rpm = reco photons matched
-        {
-            for (auto i = 0; i < rpm.size(); i++)
-            {
-                if (rpm[i].photon_pt > 20e3)
-                {
-                    return i; //returning the index of the first photon that has photon_pt > 20 GeV
-                }
-            }
-            return 0; //jic the compiler complains, should not come to this
-
-        }, {"photons_pass_cuts"})
-        .Define("merged_photon", //new column: The reco-photon corresponding to `merged_photon_index`
-        [&](const RVec<AbstractParticle>& reco_photons_matched, int merged_photon_index)
-        {
-            return reco_photons_matched[merged_photon_index];
-
-        }, {"photons_pass_cuts", "merged_photon_index"});
-
-        auto dilepton_and_photon = merged_reco_photons_matched
-        .Define("reconstructed_mass",[&](const RVec<AbstractParticle>& di_electrons, const AbstractParticle& merged_photon)
-        {
-            auto four_momentum = di_electrons[0].ElectronVector() + di_electrons[1].ElectronVector();
-
-            return (four_momentum + merged_photon.PhotonVector()).M()/1e3;
-
-        }, {"di_electrons", "merged_photon"});
-
-        auto pSB = dilepton_and_photon.Filter(
-        [](const double reconstructed_mass)
-        {
-            return (reconstructed_mass < 110) || (reconstructed_mass > 130);
-        }, {"reconstructed_mass"});
-
-        auto pSR = dilepton_and_photon.Filter(
-        [](const double reconstructed_mass)
-        {
-            return (reconstructed_mass >= 110) && (reconstructed_mass <= 130);
-        }, {"reconstructed_mass"});
-
-        auto SB = pSB.Filter(
-        [](const RVec<float>& Eratio)
-        {
-            return (!Any(Eratio <= 0.8));
-        }, {"photon_shower_shape_e_ratio"});
-
-        auto SR = pSR.Filter(
-        [](const RVec<float>& Eratio)
-        {
-            return (!Any(Eratio <= 0.8));
-        }, {"photon_shower_shape_e_ratio"});
-
-        auto totEventWeight = merged_reco_photons_matched
-        .Define("totEventWeight", [](RVec<float> totEventWeightVec, RVec<int>& photons_pass_cut_indices, int mpi)
-        {
-            return Take(totEventWeightVec, photons_pass_cut_indices)[mpi];
-
-        }, {"totEventWeightVec", "photons_pass_cut_indices", "merged_photon_index"});
-
-        Totals.push_back(EventWeight.Sum<float>("EventWeight"));
-
-        resultmaps.push_back(VariationsFor(totEventWeight.Sum<float>("totEventWeight")));
-    }
-
-//EG_RESOLUTION_ALL__1down:           42864.7 ID 1.00524  ISO 1.02283  TRIG 1.04157
-//EG_RESOLUTION_ALL__1up:             42751.5 ID 1.00524  ISO 1.02283  TRIG 1.04157
-//EG_SCALE_ALL__1down:                42521.1 ID 1.00524  ISO 1.02283  TRIG 1.04157
-//EG_SCALE_ALL__1up:                  43059.8 ID 1.00524  ISO 1.02283  TRIG 1.04157
-//PH_EFF_ID_Uncertainty__1down:       42790.4 ID 0.992328 ISO 1.02283  TRIG 1.04157
-//PH_EFF_ID_Uncertainty__1up:         42790.4 ID 1.01816  ISO 1.02283  TRIG 1.04157
-//PH_EFF_ISO_Uncertainty__1down:      42790.4 ID 1.00524  ISO 1.00971  TRIG 1.04157
-//PH_EFF_ISO_Uncertainty__1up:        42790.4 ID 1.00524  ISO 1.03595  TRIG 1.04157
-//PH_EFF_TRIGGER_Uncertainty__1down:  42790.4 ID 1.00524  ISO 1.02283  TRIG 1.01646
-//PH_EFF_TRIGGER_Uncertainty__1up:    42790.4 ID 1.00524  ISO 1.02283  TRIG 1.06668
-
-    ROOT::RDF::RunGraphs(Totals); // running all computation nodes concurrently
-
-//    for (auto& i: GeneratorWeightCounts)
+//void Table21()
+//{
+//    Event::systematics =
 //    {
-//        std::cout << *i << '\n';
-//    }
-//    int count = 0;
-//    for (auto& i: resultmaps)
-//    {
-//        std::cout << count++ << "\n==\n";
-//        for (auto& j: i.GetKeys())
-//        {
-//            std::cout << j << '\n';
-//        }
-//        std::cout << '\n';
-//    }
-//          resultmaps
-//          ----------
-//    0       1       //Z-gamma
-//    2       3       //Z-gamma
-//    4       5       //Z-gamma
-//    6       7       //data
-//    8       9       //ma1
-//    10      11      //ma2
-//    12      13      //ma3
-//    14      15      //ma5
-//    16      17      //ma9
-//    18      19      //Z-jets
-//    20      21      //Z-jets
-//    22      23      //Z-jets
-//    24      25      //Z-jets
-//    26      27      //Z-jets
-//    28      29      //Z-jets
-//    30      31      //Z-jets
-//    32      33      //Z-jets
-//    34      35      //Z-jets
-
-    ss << R"--(\section*{Table 21})--" << '\n';
-    ss << R"--(\hspace{-3cm}\scalebox{0.8}{)--" << '\n';
-    ss << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
-//    ss << R"--(\begin{tabular}{|c|c|c|c|c|c|})--" << '\n';
-    ss << R"--(\begin{tabular}{|c|c|c|c|})--" << '\n';
-
-    ss << R"--(\hline)--" << '\n';
-
-        ss << R"--(\multicolumn{4}{|c|}{\parbox{\linewidth}{\centering Merged Photon Category: Up Variations \\ (\% difference from nominal)}}\\[5 pt])--" << '\n';
-    ss << R"--(\hline)--" << '\n';
-
-//    ss << R"--({Sample} & EG\_RESOLUTION\_ALL & EG\_SCALE\_ALL & PH\_EFF\_ISO\_Uncertainty & PH\_EFF\_ID\_Uncertainty & PH\_EFF\_TRIGGER\_Uncertainty \\ \hline)--" << '\n';
-    ss << R"--({Sample} & EG\_RESOLUTION\_ALL & EG\_SCALE\_ALL & PH\_EFF\_ID\_Uncertainty \\ \hline)--" << '\n';
-
-
-    double finalScaleVal;
-
-    double ZgammaNominal = 0, ZgammaEG_RESOLUTION_ALL = 0,
-    ZgammaEG_SCALE_ALL = 0, ZgammaPH_EFF_ISO_Uncertainty = 0,
-    ZgammaPH_EFF_ID_Uncertainty = 0, ZgammaPH_EFF_TRIGGER_Uncertainty = 0;
-
-    double ZjetsNominal = 0, ZjetsEG_RESOLUTION_ALL = 0,
-    ZjetsEG_SCALE_ALL = 0, ZjetsPH_EFF_ISO_Uncertainty = 0,
-    ZjetsPH_EFF_ID_Uncertainty = 0, ZjetsPH_EFF_TRIGGER_Uncertainty = 0;
-
-    double totbkgNominal = 0, totbkgEG_RESOLUTION_ALL = 0,
-    totbkgEG_SCALE_ALL = 0, totbkgPH_EFF_ISO_Uncertainty = 0,
-    totbkgPH_EFF_ID_Uncertainty = 0, totbkgPH_EFF_TRIGGER_Uncertainty = 0;
-
-    for (auto i = 0; (i < resultmaps.size()); i++)
-    {
-        double nominalVal = static_cast<double>(resultmaps[i]["nominal"]);
-
-//        auto denominator = *Totals[i].GetResultPtr<ULong64_t>();
-        auto denominator = *Totals[i].GetResultPtr<float>();
-
-        if (i >= 0 && i <= 2) //Zgamma
-        {
-            finalScaleVal = SFs[i]/denominator;
-            ZgammaNominal += finalScaleVal*nominalVal;
-
-            ZgammaEG_RESOLUTION_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1up"];
-            ZgammaEG_SCALE_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1up"];
-//            ZgammaPH_EFF_ISO_Uncertainty += finalScaleVal*resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"];
-            ZgammaPH_EFF_ID_Uncertainty += finalScaleVal*resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"];
-//            ZgammaPH_EFF_TRIGGER_Uncertainty += finalScaleVal*resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"];
-        }
-
-        else if (i >= 9)
-        {
-            finalScaleVal = JetNumeratorSFs[i-9]/denominator;
-            ZjetsNominal += finalScaleVal*nominalVal;
-
-            ZjetsEG_RESOLUTION_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1up"];
-            ZjetsEG_SCALE_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1up"];
-//            ZjetsPH_EFF_ISO_Uncertainty += finalScaleVal*resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"];
-            ZjetsPH_EFF_ID_Uncertainty += finalScaleVal*resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"];
-//            ZjetsPH_EFF_TRIGGER_Uncertainty += finalScaleVal*resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"];
-        }
-
-        ss << prefixes[i] << " & ";
-        ss << std::setprecision(4) << std::fixed
-        << ( (nominalVal && resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1up"]) ? ((resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
-        << " & " << std::setprecision(4) << std::fixed
-        << ( (nominalVal && resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1up"]) ? ((resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
-//        << " & " << std::setprecision(4) << std::fixed
-//        << ( (nominalVal && resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"]) ? ((resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
-        << " & " << std::setprecision(4) << std::fixed
-        << ( (nominalVal && resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"]) ? ((resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
-//        << " & " << std::setprecision(4) << std::fixed
-//        << ( (nominalVal && resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"]) ? ((resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
-        << R"--( \\ \hline)--" << '\n';
-
-//        if (!resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"])
-//        {
-//            std::cout << i << ": photon_iso_eff:PH_EFF_ISO_Uncertainty__1up not found\n";
-//        }
-//        else
-//        {
-//            std::cout << i << ':' << ' ' << resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"] << ' ' << nominalVal << '\n';
-//        }
-        if (!resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"])
-        {
-            std::cout << i << ": photon_id_eff:PH_EFF_ID_Uncertainty__1up not found\n";
-        }
-        else
-        {
-            std::cout << i << ':' << ' ' << resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"] << ' ' << nominalVal << '\n';
-        }
-//        if (!resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"])
-//        {
-//            std::cout << i << ": photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up not found\n";
-//        }
-//        else
-//        {
-//            std::cout << i << ':' << ' ' << resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"] << ' ' << nominalVal << '\n';
-//        }
-    }
-
-    ss << R"--(Total $Z\gamma\gamma$ & )--";
-    ss << std::setprecision(4) << std::fixed
-    << ( (ZgammaNominal && ZgammaEG_RESOLUTION_ALL) ? ((ZgammaEG_RESOLUTION_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
-    << " & " << std::setprecision(4) << std::fixed
-    << ( (ZgammaNominal && ZgammaEG_SCALE_ALL) ? ((ZgammaEG_SCALE_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
-//    << " & " << std::setprecision(4) << std::fixed
-//    << ( (ZgammaNominal && ZgammaPH_EFF_ISO_Uncertainty) ? ((ZgammaPH_EFF_ISO_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
-    << " & " << std::setprecision(4) << std::fixed
-    << ( (ZgammaNominal && ZgammaPH_EFF_ID_Uncertainty) ? ((ZgammaPH_EFF_ID_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
-//    << " & " << std::setprecision(4) << std::fixed
-//    << ( (ZgammaNominal && ZgammaPH_EFF_TRIGGER_Uncertainty) ? ((ZgammaPH_EFF_TRIGGER_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
-    << R"--( \\ \hline)--" << '\n';
-
-    ss << R"--(Total $Z$+jets & )--";
-    ss << std::setprecision(4) << std::fixed
-    << ( (ZjetsNominal && ZjetsEG_RESOLUTION_ALL) ? ((ZjetsEG_RESOLUTION_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
-    << " & " << std::setprecision(4) << std::fixed
-    << ( (ZjetsNominal && ZjetsEG_SCALE_ALL) ? ((ZjetsEG_SCALE_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
-//    << " & " << std::setprecision(4) << std::fixed
-//    << ( (ZjetsNominal && ZjetsPH_EFF_ISO_Uncertainty) ? ((ZjetsPH_EFF_ISO_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
-    << " & " << std::setprecision(4) << std::fixed
-    << ( (ZjetsNominal && ZjetsPH_EFF_ID_Uncertainty) ? ((ZjetsPH_EFF_ID_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
-//    << " & " << std::setprecision(4) << std::fixed
-//    << ( (ZjetsNominal && ZjetsPH_EFF_TRIGGER_Uncertainty) ? ((ZjetsPH_EFF_TRIGGER_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
-    << R"--( \\ \hline)--" << '\n';
-
-    totbkgNominal = ZgammaNominal + ZjetsNominal;
-
-    totbkgEG_RESOLUTION_ALL = ZgammaEG_RESOLUTION_ALL + ZjetsEG_RESOLUTION_ALL;
-    totbkgEG_SCALE_ALL = ZgammaEG_SCALE_ALL + ZjetsEG_SCALE_ALL;
-    totbkgPH_EFF_ISO_Uncertainty = ZgammaPH_EFF_ISO_Uncertainty + ZjetsPH_EFF_ISO_Uncertainty;
-    totbkgPH_EFF_ID_Uncertainty = ZgammaPH_EFF_ID_Uncertainty + ZjetsPH_EFF_ID_Uncertainty;
-    totbkgPH_EFF_TRIGGER_Uncertainty = ZgammaPH_EFF_TRIGGER_Uncertainty + ZjetsPH_EFF_TRIGGER_Uncertainty;
-
-    ss << R"--(Total Bkg & )--";
-    ss << std::setprecision(4) << std::fixed
-    << ( (totbkgNominal && totbkgEG_RESOLUTION_ALL) ? ((totbkgEG_RESOLUTION_ALL-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
-    << " & " << std::setprecision(4) << std::fixed
-    << ( (totbkgNominal && totbkgEG_SCALE_ALL) ? ((totbkgEG_SCALE_ALL-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
-//    << " & " << std::setprecision(4) << std::fixed
-//    << ( (totbkgNominal && totbkgPH_EFF_ISO_Uncertainty) ? ((totbkgPH_EFF_ISO_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
-    << " & " << std::setprecision(4) << std::fixed
-    << ( (totbkgNominal && totbkgPH_EFF_ID_Uncertainty) ? ((totbkgPH_EFF_ID_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
-//    << " & " << std::setprecision(4) << std::fixed
-//    << ( (totbkgNominal && totbkgPH_EFF_TRIGGER_Uncertainty) ? ((totbkgPH_EFF_TRIGGER_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
-    << R"--( \\ \hline)--" << '\n';
-
-    ss << R"--(\end{tabular}})--" << '\n';
-
-    ss << "\n\n\n";
-
-    std::ofstream out("Table21.txt");
-    out << ss.str() << '\n';
-    out.close();
-}
-
-void Table22()
-{
-    Event::systematics =
-    {
-//        "PH_EFF_ISO_Uncertainty",
-//        "PH_EFF_ISO_Uncertainty",
-//        "EL_EFF_ID_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "PRW_DATASF",
-//        "MUON_EFF_RECO_SYS",
-//        "MUON_EFF_ISO_SYS",
-//        "MUON_EFF_TrigSystUncertainty",
-//        "EL_EFF_Reco_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "MUON_EFF_TrigStatUncertainty",
-//        "MUON_EFF_RECO_STAT",
-//        "MUON_EFF_TTVA_STAT",
-//        "EL_EFF_Iso_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "MUON_EFF_TTVA_SYS",
-//        "MUON_EFF_ISO_STAT",
-//        "MUON_SAGITTA_RHO",
-//        "EG_RESOLUTION_ALL",
-//        "EG_SCALE_ALL",
-//        "MUON_MS",
-//        "MUON_ID",
-//        "EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "MUON_SAGITTA_RESBIAS",
-//        "MUON_SCALE",
+////        "PH_EFF_ISO_Uncertainty",
+////        "PH_EFF_ISO_Uncertainty",
+////        "EL_EFF_ID_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "PRW_DATASF",
+////        "MUON_EFF_RECO_SYS",
+////        "MUON_EFF_ISO_SYS",
+////        "MUON_EFF_TrigSystUncertainty",
+////        "EL_EFF_Reco_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "MUON_EFF_TrigStatUncertainty",
+////        "MUON_EFF_RECO_STAT",
+////        "MUON_EFF_TTVA_STAT",
+////        "EL_EFF_Iso_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "MUON_EFF_TTVA_SYS",
+////        "MUON_EFF_ISO_STAT",
+////        "MUON_SAGITTA_RHO",
+////        "EG_RESOLUTION_ALL",
+////        "EG_SCALE_ALL",
+////        "MUON_MS",
+////        "MUON_ID",
+////        "EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "MUON_SAGITTA_RESBIAS",
+////        "MUON_SCALE",
+//
+////        "PH_EFF_ISO_Uncertainty__1down",
+////        "EG_SCALE_ALL__1down",
+////        "PH_EFF_ID_Uncertainty__1down",
+////        "PH_EFF_TRIGGER_Uncertainty__1down",
 //        "EG_RESOLUTION_ALL__1up",
 //        "EG_SCALE_ALL__1up",
-//        "PH_EFF_ISO_Uncertainty__1up",
+////        "PH_EFF_ISO_Uncertainty__1up",
 //        "PH_EFF_ID_Uncertainty__1up",
-//        "PH_EFF_TRIGGER_Uncertainty__1up",
-        "EG_RESOLUTION_ALL__1down",
-        "EG_SCALE_ALL__1down",
-//        "PH_EFF_ISO_Uncertainty__1down",
-        "PH_EFF_ID_Uncertainty__1down",
-//        "PH_EFF_TRIGGER_Uncertainty__1down",
-    };
-
-    std::vector<std::vector<std::string>> input_filenames =
-    {
-        //Z gamma background
-        {"/home/common/Za/NTuples/Background/user.kschmied.364860.eegammagamma_pty2_9_17.deriv.DAOD_STDM3.e7057_s3126_r10724_p4092_LGNTuple.root/user.kschmied.31617070._000001.LGNTuple.root"},
-        {"/home/common/Za/NTuples/Background/user.kschmied.364861.eegammagamma_pty_17_myy_0_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4062_LGNTuple.root/user.kschmied.31617064._000001.LGNTuple.root"},
-        {"/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000001.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000002.LGNTuple.root"},
-        //Data
-        {"/home/common/Za/NTuples/Ntuple_data_test.root"},
-        //Signal
-        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}, //1 GeV
-        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600751.PhPy8EG_AZNLO_ggH125_mA2p0_v1.root"}, // 2 GeV
-        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600752.PhPy8EG_AZNLO_ggH125_mA3p0_v1.root"}, // 3 GeV
-        {"/home/common/Za/NTuples/Ntuple_MC_Za_m5p0_v4.root"}, //5 GeV
-        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600756.PhPy8EG_AZNLO_ggH125_mA9p0_v1.root"}, // 9 GeV
-        //Jets
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000005.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000007.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000005.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000004.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000003.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000004.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000005.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000007.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000008.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000005.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000007.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000008.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000009.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000010.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000011.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000012.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000013.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000014.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000005.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000007.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000008.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000009.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000010.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000011.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000012.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000013.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000014.LGNTuple.root",
-        },
-    };
-
-    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
-    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
-
-    std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", "data", R"--($\text{Sig } m_{A}$ = 1 GeV)--", R"--($\text{Sig } m_{A}$ = 2 GeV)--", R"--($\text{Sig } m_{A}$ = 3 GeV)--", R"--($\text{Sig } m_{A}$ = 5 GeV)--", R"--($\text{Sig } m_{A}$ = 9 GeV)--", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
-
-    std::vector<ROOT::RDF::RResultHandle> Totals;
-    std::vector<RResultMap<float>> resultmaps;
-
-    std::stringstream ss;
-
-    for (auto& i: input_filenames)
-    {
-        SchottDataFrame df(MakeRDF(i,8));
-
-        auto EventWeight = df.Define("EventWeight", //mc generator weight
-        [](const RVec<float>& ei_event_weights_generator)
-        {
-            return ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
-
-        }, {"ei_event_weights_generator"})
-        .Define("totEventWeightVec", //vector of efficiencies, product of photon_id_eff, photon_iso_eff, and photon_trg_eff
-        [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
-        {
-            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
-            photon_id_eff.resize(ResizeVal,1);
-            photon_iso_eff.resize(ResizeVal,1);
-            photon_trg_eff.resize(ResizeVal,1);
-
-            return photon_id_eff;
-            //*photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
-
-        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
-
-        auto two_leptons = EventWeight
-        .Filter([](const RVec<std::string>& trigger_passed_triggers)
-        {
-            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
-
-            if (!trigger_found)
-            {
-                return false; //this event is filtered out
-            }
-            return true; //this event is kept because the trigger was found in its `trigger_passed_triggers` branch entry
-
-        }, {"trigger_passed_triggers"})
-        .Define("di_electrons", //the events that pass will have exactly 2 electrons that pass the following
-        [](RVec<AbstractParticle> electrons)
-        {
-            //keep the electrons in each event that have pt > 20 GeV, |η| < 2.37,
-            //|η| not between 1.37 and 1.52, and that satisfy a medium id criteria `electron_id_medium`
-            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
-            [](AbstractParticle& ep)
-            {
-                 return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
-                 (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
-                 && (ep.electron_id_medium == 1)));
-
-            }), electrons.end());
-
-            return electrons;
-
-        },{"abstract_electrons"}).Filter(
-        [](RVec<Muon>& muons, RVec<AbstractParticle>& electrons)
-        {
-            return (electrons.size()==2 && muons.empty()); //keep events which have exactly 2 electrons for di_electrons and no muons
-
-        }, {"muons", "di_electrons"});
-
-        //new dataframe node: contains only the events from `two_leptons` whose electrons in the `di_electrons` branch have opposite charge
-        auto opp_charge = two_leptons
-        .Filter([](const RVec<AbstractParticle>& electrons)
-        {
-            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
-
-        }, {"di_electrons"});
-
-        //new dataframe node: contains only the events from `opp_charge` that have 1 electron with pt > 20 GeV and the other with pt > 27 GeV
-        auto leadingPt = opp_charge.Filter([](const RVec<AbstractParticle>& electrons)
-        {
-            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
-        }, {"di_electrons"});
-
-        auto deltaR = leadingPt.Filter([] (const RVec<AbstractParticle>& electrons)
-        {
-            return (DeltaR(electrons[0].ElectronVector(), electrons[1].ElectronVector()) > 0.01);
-        }, {"di_electrons"});
-
-        //new dataframe node: Contains a new column `dilep` in addition to the ones in `same_flavour` that stores the di-electron four-vector
-        auto dilep = deltaR.Define("dilep",[] (RVec<AbstractParticle>& electrons)
-        {
-            return (electrons[0].ElectronVector() + electrons[1].ElectronVector());
-        }, {"di_electrons"});
-
-        //new dataframe node: contains only the events from `dilep` that have di-electron invariant mass between 81 and 101 GeV
-        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
-        {
-            auto mass = dilep.M()/1e3;
-            return ((mass >= 81) && (mass <= 101));
-        }, {"dilep"});
-
-        //new dataframe node: contains only the events from `mass` that have dilepton pT > 10 GeV
-        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
-        {
-            auto pT = dilep.Pt()/1e3;
-            return pT > 10;
-        }, {"dilep"});
-
-        auto photon_passes_cuts = ptCut
-        .Define("photons_pass_cut_indices",
-        [&](const RVec<AbstractParticle>& photons)
-        {
-            RVec<int> photon_indices;
-            photon_indices.reserve(photons.size());
-
-            for (int i = 0; i < photons.size(); i++)
-            {
-                if (
-                (std::abs(photons[i].photon_eta) >= 2.37) or
-                (photons[i].photon_pt <= 10e3) or
-                (std::abs(photons[i].photon_eta) > 1.37 and std::abs(photons[i].photon_eta) < 1.52) or
-                (not photons[i].photon_id_loose)
-                )
-                {
-                    continue;
-                }
-                photon_indices.push_back(i);
-            }
-
-            return photon_indices;
-        }, {"abstract_photons"})
-        .Define("photons_pass_cuts",
-        [&](RVec<AbstractParticle>& photons, RVec<int>& photon_indices)
-        {
-            return Take(photons, photon_indices);
-        }, {"abstract_photons", "photons_pass_cut_indices"});
-
-        auto merged_reco_photons_matched = photon_passes_cuts.Filter(
-        [&](const RVec<AbstractParticle>& reco_photons_matched)
-        {
-            if (reco_photons_matched.size() == 1)
-            {
-                return reco_photons_matched[0].photon_pt > 20e3;
-            }
-            else if (reco_photons_matched.empty())
-            {
-                return false;
-            }
-
-            auto combs = Combinations(reco_photons_matched, 2);
-            size_t length = combs[0].size();
-            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
-
-            for (size_t i=0; i<length; i++)
-            {
-                delta_r = DeltaR(reco_photons_matched[combs[0][i]].PhotonVector(), reco_photons_matched[combs[1][i]].PhotonVector());
-                m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
-                pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
-                X = delta_r*(pt/(2.0*m));
-                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
-                {
-                    best_X = X;
-                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
-                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
-                    chosen_delta_r = delta_r;
-                }
-            }
-            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
-            {
-                return false;
-            }
-
-            for (auto& p: reco_photons_matched)
-            {
-                if (p.photon_pt > 20e3)
-                {
-                    return true;
-                }
-            }
-            return false;
-
-        }, {"photons_pass_cuts"})
-        .Define("merged_photon_index", //new column: consists of the index corresponding to the photon that made the event be classified as merged
-        [&](const RVec<AbstractParticle>& rpm) //rpm = reco photons matched
-        {
-            for (auto i = 0; i < rpm.size(); i++)
-            {
-                if (rpm[i].photon_pt > 20e3)
-                {
-                    return i; //returning the index of the first photon that has photon_pt > 20 GeV
-                }
-            }
-            return 0; //jic the compiler complains, should not come to this
-
-        }, {"photons_pass_cuts"})
-        .Define("merged_photon", //new column: The reco-photon corresponding to `merged_photon_index`
-        [&](const RVec<AbstractParticle>& reco_photons_matched, int merged_photon_index)
-        {
-            return reco_photons_matched[merged_photon_index];
-
-        }, {"photons_pass_cuts", "merged_photon_index"});
-
-        auto dilepton_and_photon = merged_reco_photons_matched
-        .Define("reconstructed_mass",[&](const RVec<AbstractParticle>& di_electrons, const AbstractParticle& merged_photon)
-        {
-            auto four_momentum = di_electrons[0].ElectronVector() + di_electrons[1].ElectronVector();
-
-            return (four_momentum + merged_photon.PhotonVector()).M()/1e3;
-
-        }, {"di_electrons", "merged_photon"});
-
-        auto pSB = dilepton_and_photon.Filter(
-        [](const double reconstructed_mass)
-        {
-            return (reconstructed_mass < 110) || (reconstructed_mass > 130);
-        }, {"reconstructed_mass"});
-
-        auto pSR = dilepton_and_photon.Filter(
-        [](const double reconstructed_mass)
-        {
-            return (reconstructed_mass >= 110) && (reconstructed_mass <= 130);
-        }, {"reconstructed_mass"});
-
-        auto SB = pSB.Filter(
-        [](const RVec<float>& Eratio)
-        {
-            return (!Any(Eratio <= 0.8));
-        }, {"photon_shower_shape_e_ratio"});
-
-        auto SR = pSR.Filter(
-        [](const RVec<float>& Eratio)
-        {
-            return (!Any(Eratio <= 0.8));
-        }, {"photon_shower_shape_e_ratio"});
-
-        auto totEventWeight = merged_reco_photons_matched
-        .Define("totEventWeight", [](RVec<float> totEventWeightVec, RVec<int>& photons_pass_cut_indices, int mpi)
-        {
-            return Take(totEventWeightVec, photons_pass_cut_indices)[mpi];
-
-        }, {"totEventWeightVec", "photons_pass_cut_indices", "merged_photon_index"});
-
-        Totals.push_back(EventWeight.Sum<float>("EventWeight"));
-
-        resultmaps.push_back(VariationsFor(totEventWeight.Sum<float>("totEventWeight")));
-    }
-
-//EG_RESOLUTION_ALL__1down:           42864.7 ID 1.00524  ISO 1.02283  TRIG 1.04157
-//EG_RESOLUTION_ALL__1up:             42751.5 ID 1.00524  ISO 1.02283  TRIG 1.04157
-//EG_SCALE_ALL__1down:                42521.1 ID 1.00524  ISO 1.02283  TRIG 1.04157
-//EG_SCALE_ALL__1up:                  43059.8 ID 1.00524  ISO 1.02283  TRIG 1.04157
-//PH_EFF_ID_Uncertainty__1down:       42790.4 ID 0.992328 ISO 1.02283  TRIG 1.04157
-//PH_EFF_ID_Uncertainty__1up:         42790.4 ID 1.01816  ISO 1.02283  TRIG 1.04157
-//PH_EFF_ISO_Uncertainty__1down:      42790.4 ID 1.00524  ISO 1.00971  TRIG 1.04157
-//PH_EFF_ISO_Uncertainty__1up:        42790.4 ID 1.00524  ISO 1.03595  TRIG 1.04157
-//PH_EFF_TRIGGER_Uncertainty__1down:  42790.4 ID 1.00524  ISO 1.02283  TRIG 1.01646
-//PH_EFF_TRIGGER_Uncertainty__1up:    42790.4 ID 1.00524  ISO 1.02283  TRIG 1.06668
-
-    ROOT::RDF::RunGraphs(Totals); // running all computation nodes concurrently
-
-//    for (auto& i: GeneratorWeightCounts)
+////        "PH_EFF_TRIGGER_Uncertainty__1up",
+//    };
+//
+//    std::vector<std::vector<std::string>> input_filenames =
 //    {
-//        std::cout << *i << '\n';
-//    }
-//    int count = 0;
-//    for (auto& i: resultmaps)
-//    {
-//        std::cout << count++ << "\n==\n";
-//        for (auto& j: i.GetKeys())
+//        //Z gamma background
+//        {"/home/common/Za/NTuples/Background/user.kschmied.364860.eegammagamma_pty2_9_17.deriv.DAOD_STDM3.e7057_s3126_r10724_p4092_LGNTuple.root/user.kschmied.31617070._000001.LGNTuple.root"},
+//        {"/home/common/Za/NTuples/Background/user.kschmied.364861.eegammagamma_pty_17_myy_0_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4062_LGNTuple.root/user.kschmied.31617064._000001.LGNTuple.root"},
+//        {"/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000001.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000002.LGNTuple.root"},
+//        //Data
+//        {"/home/common/Za/NTuples/Ntuple_data_test.root"},
+//        //Signal
+//        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}, //1 GeV
+//        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600751.PhPy8EG_AZNLO_ggH125_mA2p0_v1.root"}, // 2 GeV
+//        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600752.PhPy8EG_AZNLO_ggH125_mA3p0_v1.root"}, // 3 GeV
+//        {"/home/common/Za/NTuples/Ntuple_MC_Za_m5p0_v4.root"}, //5 GeV
+//        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600756.PhPy8EG_AZNLO_ggH125_mA9p0_v1.root"}, // 9 GeV
+//        //Jets
 //        {
-//            std::cout << j << '\n';
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000005.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000006.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000007.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000005.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000004.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000003.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000004.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000005.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000006.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000007.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000008.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000005.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000006.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000007.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000008.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000009.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000010.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000011.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000012.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000013.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000014.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000005.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000006.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000007.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000008.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000009.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000010.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000011.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000012.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000013.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000014.LGNTuple.root",
+//        },
+//    };
+//
+//    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
+//    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
+//
+//    std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", "data", R"--($\text{Sig } m_{A}$ = 1 GeV)--", R"--($\text{Sig } m_{A}$ = 2 GeV)--", R"--($\text{Sig } m_{A}$ = 3 GeV)--", R"--($\text{Sig } m_{A}$ = 5 GeV)--", R"--($\text{Sig } m_{A}$ = 9 GeV)--", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
+//
+//    std::vector<ROOT::RDF::RResultHandle> Totals;
+//    std::vector<RResultMap<float>> resultmaps;
+//
+//    std::stringstream ss;
+//
+//    for (auto& i: input_filenames)
+//    {
+//        SchottDataFrame df(MakeRDF(i,8));
+//
+//        auto EventWeight = df.Define("EventWeight", //mc generator weight
+//        [](const RVec<float>& ei_event_weights_generator)
+//        {
+//            return ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
+//
+//        }, {"ei_event_weights_generator"})
+//        .Define("totEventWeightVec", //vector of efficiencies, product of photon_id_eff, photon_iso_eff, and photon_trg_eff
+//        [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
+//        {
+//            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+//            photon_id_eff.resize(ResizeVal,1);
+//            photon_iso_eff.resize(ResizeVal,1);
+//            photon_trg_eff.resize(ResizeVal,1);
+//
+//            return photon_id_eff;
+//            //*photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
+//
+//        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
+//
+//        auto two_leptons = EventWeight
+//        .Filter([](const RVec<std::string>& trigger_passed_triggers)
+//        {
+//            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+//
+//            if (!trigger_found)
+//            {
+//                return false; //this event is filtered out
+//            }
+//            return true; //this event is kept because the trigger was found in its `trigger_passed_triggers` branch entry
+//
+//        }, {"trigger_passed_triggers"})
+//        .Define("di_electrons", //the events that pass will have exactly 2 electrons that pass the following
+//        [](RVec<AbstractParticle> electrons)
+//        {
+//            //keep the electrons in each event that have pt > 20 GeV, |η| < 2.37,
+//            //|η| not between 1.37 and 1.52, and that satisfy a medium id criteria `electron_id_medium`
+//            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+//            [](AbstractParticle& ep)
+//            {
+//                 return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+//                 (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
+//                 && (ep.electron_id_medium == 1)));
+//
+//            }), electrons.end());
+//
+//            return electrons;
+//
+//        },{"abstract_electrons"}).Filter(
+//        [](RVec<Muon>& muons, RVec<AbstractParticle>& electrons)
+//        {
+//            return (electrons.size()==2 && muons.empty()); //keep events which have exactly 2 electrons for di_electrons and no muons
+//
+//        }, {"muons", "di_electrons"});
+//
+//        //new dataframe node: contains only the events from `two_leptons` whose electrons in the `di_electrons` branch have opposite charge
+//        auto opp_charge = two_leptons
+//        .Filter([](const RVec<AbstractParticle>& electrons)
+//        {
+//            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+//
+//        }, {"di_electrons"});
+//
+//        //new dataframe node: contains only the events from `opp_charge` that have 1 electron with pt > 20 GeV and the other with pt > 27 GeV
+//        auto leadingPt = opp_charge.Filter([](const RVec<AbstractParticle>& electrons)
+//        {
+//            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+//        }, {"di_electrons"});
+//
+//        auto deltaR = leadingPt.Filter([] (const RVec<AbstractParticle>& electrons)
+//        {
+//            return (DeltaR(electrons[0].ElectronVector(), electrons[1].ElectronVector()) > 0.01);
+//        }, {"di_electrons"});
+//
+//        //new dataframe node: Contains a new column `dilep` in addition to the ones in `same_flavour` that stores the di-electron four-vector
+//        auto dilep = deltaR.Define("dilep",[] (RVec<AbstractParticle>& electrons)
+//        {
+//            return (electrons[0].ElectronVector() + electrons[1].ElectronVector());
+//        }, {"di_electrons"});
+//
+//        //new dataframe node: contains only the events from `dilep` that have di-electron invariant mass between 81 and 101 GeV
+//        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+//        {
+//            auto mass = dilep.M()/1e3;
+//            return ((mass >= 81) && (mass <= 101));
+//        }, {"dilep"});
+//
+//        //new dataframe node: contains only the events from `mass` that have dilepton pT > 10 GeV
+//        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
+//        {
+//            auto pT = dilep.Pt()/1e3;
+//            return pT > 10;
+//        }, {"dilep"});
+//
+//        auto photon_passes_cuts = ptCut
+//        .Define("photons_pass_cut_indices",
+//        [&](const RVec<AbstractParticle>& photons)
+//        {
+//            RVec<int> photon_indices;
+//            photon_indices.reserve(photons.size());
+//
+//            for (int i = 0; i < photons.size(); i++)
+//            {
+//                if (
+//                (std::abs(photons[i].photon_eta) >= 2.37) or
+//                (photons[i].photon_pt <= 10e3) or
+//                (std::abs(photons[i].photon_eta) > 1.37 and std::abs(photons[i].photon_eta) < 1.52) or
+//                (not photons[i].photon_id_loose)
+//                )
+//                {
+//                    continue;
+//                }
+//                photon_indices.push_back(i);
+//            }
+//
+//            return photon_indices;
+//        }, {"abstract_photons"})
+//        .Define("photons_pass_cuts",
+//        [&](RVec<AbstractParticle>& photons, RVec<int>& photon_indices)
+//        {
+//            return Take(photons, photon_indices);
+//        }, {"abstract_photons", "photons_pass_cut_indices"});
+//
+//        auto merged_reco_photons_matched = photon_passes_cuts.Filter(
+//        [&](const RVec<AbstractParticle>& reco_photons_matched)
+//        {
+//            if (reco_photons_matched.size() == 1)
+//            {
+//                return reco_photons_matched[0].photon_pt > 20e3;
+//            }
+//            else if (reco_photons_matched.empty())
+//            {
+//                return false;
+//            }
+//
+//            auto combs = Combinations(reco_photons_matched, 2);
+//            size_t length = combs[0].size();
+//            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+//
+//            for (size_t i=0; i<length; i++)
+//            {
+//                delta_r = DeltaR(reco_photons_matched[combs[0][i]].PhotonVector(), reco_photons_matched[combs[1][i]].PhotonVector());
+//                m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
+//                pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
+//                X = delta_r*(pt/(2.0*m));
+//                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
+//                {
+//                    best_X = X;
+//                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+//                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+//                    chosen_delta_r = delta_r;
+//                }
+//            }
+//            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+//            {
+//                return false;
+//            }
+//
+//            for (auto& p: reco_photons_matched)
+//            {
+//                if (p.photon_pt > 20e3)
+//                {
+//                    return true;
+//                }
+//            }
+//            return false;
+//
+//        }, {"photons_pass_cuts"})
+//        .Define("merged_photon_index", //new column: consists of the index corresponding to the photon that made the event be classified as merged
+//        [&](const RVec<AbstractParticle>& rpm) //rpm = reco photons matched
+//        {
+//            for (auto i = 0; i < rpm.size(); i++)
+//            {
+//                if (rpm[i].photon_pt > 20e3)
+//                {
+//                    return i; //returning the index of the first photon that has photon_pt > 20 GeV
+//                }
+//            }
+//            return 0; //jic the compiler complains, should not come to this
+//
+//        }, {"photons_pass_cuts"})
+//        .Define("merged_photon", //new column: The reco-photon corresponding to `merged_photon_index`
+//        [&](const RVec<AbstractParticle>& reco_photons_matched, int merged_photon_index)
+//        {
+//            return reco_photons_matched[merged_photon_index];
+//
+//        }, {"photons_pass_cuts", "merged_photon_index"});
+//
+//        auto dilepton_and_photon = merged_reco_photons_matched
+//        .Define("reconstructed_mass",[&](const RVec<AbstractParticle>& di_electrons, const AbstractParticle& merged_photon)
+//        {
+//            auto four_momentum = di_electrons[0].ElectronVector() + di_electrons[1].ElectronVector();
+//
+//            return (four_momentum + merged_photon.PhotonVector()).M()/1e3;
+//
+//        }, {"di_electrons", "merged_photon"});
+//
+//        auto pSB = dilepton_and_photon.Filter(
+//        [](const double reconstructed_mass)
+//        {
+//            return (reconstructed_mass < 110) || (reconstructed_mass > 130);
+//        }, {"reconstructed_mass"});
+//
+//        auto pSR = dilepton_and_photon.Filter(
+//        [](const double reconstructed_mass)
+//        {
+//            return (reconstructed_mass >= 110) && (reconstructed_mass <= 130);
+//        }, {"reconstructed_mass"});
+//
+//        auto SB = pSB.Filter(
+//        [](const RVec<float>& Eratio)
+//        {
+//            return (!Any(Eratio <= 0.8));
+//        }, {"photon_shower_shape_e_ratio"});
+//
+//        auto SR = pSR.Filter(
+//        [](const RVec<float>& Eratio)
+//        {
+//            return (!Any(Eratio <= 0.8));
+//        }, {"photon_shower_shape_e_ratio"});
+//
+//        auto totEventWeight = merged_reco_photons_matched
+//        .Define("totEventWeight", [](RVec<float> totEventWeightVec, RVec<int>& photons_pass_cut_indices, int mpi)
+//        {
+//            return Take(totEventWeightVec, photons_pass_cut_indices)[mpi];
+//
+//        }, {"totEventWeightVec", "photons_pass_cut_indices", "merged_photon_index"});
+//
+//        Totals.push_back(EventWeight.Sum<float>("EventWeight"));
+//
+//        resultmaps.push_back(VariationsFor(totEventWeight.Sum<float>("totEventWeight")));
+//    }
+//
+////EG_RESOLUTION_ALL__1down:           42864.7 ID 1.00524  ISO 1.02283  TRIG 1.04157
+////EG_RESOLUTION_ALL__1up:             42751.5 ID 1.00524  ISO 1.02283  TRIG 1.04157
+////EG_SCALE_ALL__1down:                42521.1 ID 1.00524  ISO 1.02283  TRIG 1.04157
+////EG_SCALE_ALL__1up:                  43059.8 ID 1.00524  ISO 1.02283  TRIG 1.04157
+////PH_EFF_ID_Uncertainty__1down:       42790.4 ID 0.992328 ISO 1.02283  TRIG 1.04157
+////PH_EFF_ID_Uncertainty__1up:         42790.4 ID 1.01816  ISO 1.02283  TRIG 1.04157
+////PH_EFF_ISO_Uncertainty__1down:      42790.4 ID 1.00524  ISO 1.00971  TRIG 1.04157
+////PH_EFF_ISO_Uncertainty__1up:        42790.4 ID 1.00524  ISO 1.03595  TRIG 1.04157
+////PH_EFF_TRIGGER_Uncertainty__1down:  42790.4 ID 1.00524  ISO 1.02283  TRIG 1.01646
+////PH_EFF_TRIGGER_Uncertainty__1up:    42790.4 ID 1.00524  ISO 1.02283  TRIG 1.06668
+//
+//    ROOT::RDF::RunGraphs(Totals); // running all computation nodes concurrently
+//
+////    for (auto& i: GeneratorWeightCounts)
+////    {
+////        std::cout << *i << '\n';
+////    }
+////    int count = 0;
+////    for (auto& i: resultmaps)
+////    {
+////        std::cout << count++ << "\n==\n";
+////        for (auto& j: i.GetKeys())
+////        {
+////            std::cout << j << '\n';
+////        }
+////        std::cout << '\n';
+////    }
+////          resultmaps
+////          ----------
+////    0       1       //Z-gamma
+////    2       3       //Z-gamma
+////    4       5       //Z-gamma
+////    6       7       //data
+////    8       9       //ma1
+////    10      11      //ma2
+////    12      13      //ma3
+////    14      15      //ma5
+////    16      17      //ma9
+////    18      19      //Z-jets
+////    20      21      //Z-jets
+////    22      23      //Z-jets
+////    24      25      //Z-jets
+////    26      27      //Z-jets
+////    28      29      //Z-jets
+////    30      31      //Z-jets
+////    32      33      //Z-jets
+////    34      35      //Z-jets
+//
+//    ss << R"--(\section*{Table 21})--" << '\n';
+//    ss << R"--(\hspace{-3cm}\scalebox{0.8}{)--" << '\n';
+//    ss << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
+////    ss << R"--(\begin{tabular}{|c|c|c|c|c|c|})--" << '\n';
+//    ss << R"--(\begin{tabular}{|c|c|c|c|})--" << '\n';
+//
+//    ss << R"--(\hline)--" << '\n';
+//
+//        ss << R"--(\multicolumn{4}{|c|}{\parbox{\linewidth}{\centering Merged Photon Category: Up Variations \\ (\% difference from nominal)}}\\[5 pt])--" << '\n';
+//    ss << R"--(\hline)--" << '\n';
+//
+////    ss << R"--({Sample} & EG\_RESOLUTION\_ALL & EG\_SCALE\_ALL & PH\_EFF\_ISO\_Uncertainty & PH\_EFF\_ID\_Uncertainty & PH\_EFF\_TRIGGER\_Uncertainty \\ \hline)--" << '\n';
+//    ss << R"--({Sample} & EG\_RESOLUTION\_ALL & EG\_SCALE\_ALL & PH\_EFF\_ID\_Uncertainty \\ \hline)--" << '\n';
+//
+//
+//    double finalScaleVal;
+//
+//    double ZgammaNominal = 0, ZgammaEG_RESOLUTION_ALL = 0,
+//    ZgammaEG_SCALE_ALL = 0, ZgammaPH_EFF_ISO_Uncertainty = 0,
+//    ZgammaPH_EFF_ID_Uncertainty = 0, ZgammaPH_EFF_TRIGGER_Uncertainty = 0;
+//
+//    double ZjetsNominal = 0, ZjetsEG_RESOLUTION_ALL = 0,
+//    ZjetsEG_SCALE_ALL = 0, ZjetsPH_EFF_ISO_Uncertainty = 0,
+//    ZjetsPH_EFF_ID_Uncertainty = 0, ZjetsPH_EFF_TRIGGER_Uncertainty = 0;
+//
+//    double totbkgNominal = 0, totbkgEG_RESOLUTION_ALL = 0,
+//    totbkgEG_SCALE_ALL = 0, totbkgPH_EFF_ISO_Uncertainty = 0,
+//    totbkgPH_EFF_ID_Uncertainty = 0, totbkgPH_EFF_TRIGGER_Uncertainty = 0;
+//
+//    for (auto i = 0; (i < resultmaps.size()); i++)
+//    {
+//        double nominalVal = static_cast<double>(resultmaps[i]["nominal"]);
+//
+////        auto denominator = *Totals[i].GetResultPtr<ULong64_t>();
+//        auto denominator = *Totals[i].GetResultPtr<float>();
+//
+//        if (i >= 0 && i <= 2) //Zgamma
+//        {
+//            finalScaleVal = SFs[i]/denominator;
+//            ZgammaNominal += finalScaleVal*nominalVal;
+//
+//            ZgammaEG_RESOLUTION_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1up"];
+//            ZgammaEG_SCALE_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1up"];
+////            ZgammaPH_EFF_ISO_Uncertainty += finalScaleVal*resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"];
+//            ZgammaPH_EFF_ID_Uncertainty += finalScaleVal*resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"];
+////            ZgammaPH_EFF_TRIGGER_Uncertainty += finalScaleVal*resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"];
 //        }
-//        std::cout << '\n';
-//    }
-//          resultmaps
-//          ----------
-//    0       1       //Z-gamma
-//    2       3       //Z-gamma
-//    4       5       //Z-gamma
-//    6       7       //data
-//    8       9       //ma1
-//    10      11      //ma2
-//    12      13      //ma3
-//    14      15      //ma5
-//    16      17      //ma9
-//    18      19      //Z-jets
-//    20      21      //Z-jets
-//    22      23      //Z-jets
-//    24      25      //Z-jets
-//    26      27      //Z-jets
-//    28      29      //Z-jets
-//    30      31      //Z-jets
-//    32      33      //Z-jets
-//    34      35      //Z-jets
-
-    ss << R"--(\section*{Table 22})--" << '\n';
-    ss << R"--(\hspace{-3cm}\scalebox{0.8}{)--" << '\n';
-    ss << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
-//    ss << R"--(\begin{tabular}{|c|c|c|c|c|c|})--" << '\n';
-    ss << R"--(\begin{tabular}{|c|c|c|c|})--" << '\n';
-    ss << R"--(\hline)--" << '\n';
-
-        ss << R"--(\multicolumn{4}{|c|}{\parbox{\linewidth}{\centering Merged Photon Category: Down Variations \\ (\% difference from nominal)}}\\[5 pt])--" << '\n';
-    ss << R"--(\hline)--" << '\n';
-
-    ss << R"--({Sample} & EG\_RESOLUTION\_ALL & EG\_SCALE\_ALL & PH\_EFF\_ID\_Uncertainty \\ \hline)--" << '\n';
-
-    double finalScaleVal;
-
-    double ZgammaNominal = 0, ZgammaEG_RESOLUTION_ALL = 0,
-    ZgammaEG_SCALE_ALL = 0, ZgammaPH_EFF_ISO_Uncertainty = 0,
-    ZgammaPH_EFF_ID_Uncertainty = 0, ZgammaPH_EFF_TRIGGER_Uncertainty = 0;
-
-    double ZjetsNominal = 0, ZjetsEG_RESOLUTION_ALL = 0,
-    ZjetsEG_SCALE_ALL = 0, ZjetsPH_EFF_ISO_Uncertainty = 0,
-    ZjetsPH_EFF_ID_Uncertainty = 0, ZjetsPH_EFF_TRIGGER_Uncertainty = 0;
-
-    double totbkgNominal = 0, totbkgEG_RESOLUTION_ALL = 0,
-    totbkgEG_SCALE_ALL = 0, totbkgPH_EFF_ISO_Uncertainty = 0,
-    totbkgPH_EFF_ID_Uncertainty = 0, totbkgPH_EFF_TRIGGER_Uncertainty = 0;
-
-    for (auto i = 0; (i < resultmaps.size()); i++)
-    {
-        double nominalVal = static_cast<double>(resultmaps[i]["nominal"]);
-
-//        auto denominator = *Totals[i].GetResultPtr<ULong64_t>();
-        auto denominator = *Totals[i].GetResultPtr<float>();
-
-        if (i >= 0 && i <= 2) //Zgamma
-        {
-            finalScaleVal = SFs[i]/denominator;
-            ZgammaNominal += finalScaleVal*nominalVal;
-
-            ZgammaEG_RESOLUTION_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1down"];
-            ZgammaEG_SCALE_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1down"];
-//            ZgammaPH_EFF_ISO_Uncertainty += finalScaleVal*resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1down"];
-            ZgammaPH_EFF_ID_Uncertainty += finalScaleVal*resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1down"];
-//            ZgammaPH_EFF_TRIGGER_Uncertainty += finalScaleVal*resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down"];
-        }
-
-        else if (i >= 9)
-        {
-            finalScaleVal = JetNumeratorSFs[i-9]/denominator;
-            ZjetsNominal += finalScaleVal*nominalVal;
-
-            ZjetsEG_RESOLUTION_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1down"];
-            ZjetsEG_SCALE_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1down"];
-//            ZjetsPH_EFF_ISO_Uncertainty += finalScaleVal*resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1down"];
-            ZjetsPH_EFF_ID_Uncertainty += finalScaleVal*resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1down"];
-//            ZjetsPH_EFF_TRIGGER_Uncertainty += finalScaleVal*resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down"];
-        }
-
-        ss << prefixes[i] << " & ";
-        ss << std::setprecision(4) << std::fixed
-        << ( (nominalVal && resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1down"]) ? ((resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1down"]-nominalVal)/nominalVal)*100.0 : 0.0)
-        << " & " << std::setprecision(4) << std::fixed
-        << ( (nominalVal && resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1down"]) ? ((resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1down"]-nominalVal)/nominalVal)*100.0 : 0.0)
-//        << " & " << std::setprecision(4) << std::fixed
-//        << ( (nominalVal && resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1down"]) ? ((resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1down"]-nominalVal)/nominalVal)*100.0 : 0.0)
-        << " & " << std::setprecision(4) << std::fixed
-        << ( (nominalVal && resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1down"]) ? ((resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1down"]-nominalVal)/nominalVal)*100.0 : 0.0)
-//        << " & " << std::setprecision(4) << std::fixed
-//        << ( (nominalVal && resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down"]) ? ((resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down"]-nominalVal)/nominalVal)*100.0 : 0.0)
-        << R"--( \\ \hline)--" << '\n';
-
-//        if (!resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1down"])
+//
+//        else if (i >= 9)
 //        {
-//            std::cout << i << ": photon_iso_eff:PH_EFF_ISO_Uncertainty__1down not found\n";
+//            finalScaleVal = JetNumeratorSFs[i-9]/denominator;
+//            ZjetsNominal += finalScaleVal*nominalVal;
+//
+//            ZjetsEG_RESOLUTION_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1up"];
+//            ZjetsEG_SCALE_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1up"];
+////            ZjetsPH_EFF_ISO_Uncertainty += finalScaleVal*resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"];
+//            ZjetsPH_EFF_ID_Uncertainty += finalScaleVal*resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"];
+////            ZjetsPH_EFF_TRIGGER_Uncertainty += finalScaleVal*resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"];
+//        }
+//
+//        ss << prefixes[i] << " & ";
+//        ss << std::setprecision(4) << std::fixed
+//        << ( (nominalVal && resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1up"]) ? ((resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
+//        << " & " << std::setprecision(4) << std::fixed
+//        << ( (nominalVal && resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1up"]) ? ((resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
+////        << " & " << std::setprecision(4) << std::fixed
+////        << ( (nominalVal && resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"]) ? ((resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
+//        << " & " << std::setprecision(4) << std::fixed
+//        << ( (nominalVal && resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"]) ? ((resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
+////        << " & " << std::setprecision(4) << std::fixed
+////        << ( (nominalVal && resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"]) ? ((resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"]-nominalVal)/nominalVal)*100.0 : 0.0)
+//        << R"--( \\ \hline)--" << '\n';
+//
+////        if (!resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"])
+////        {
+////            std::cout << i << ": photon_iso_eff:PH_EFF_ISO_Uncertainty__1up not found\n";
+////        }
+////        else
+////        {
+////            std::cout << i << ':' << ' ' << resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1up"] << ' ' << nominalVal << '\n';
+////        }
+//        if (!resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"])
+//        {
+//            std::cout << i << ": photon_id_eff:PH_EFF_ID_Uncertainty__1up not found\n";
 //        }
 //        else
 //        {
-//            std::cout << i << ':' << ' ' << resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1down"] << ' ' << nominalVal << '\n';
+//            std::cout << i << ':' << ' ' << resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1up"] << ' ' << nominalVal << '\n';
 //        }
-        if (!resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1down"])
-        {
-            std::cout << i << ": photon_id_eff:PH_EFF_ID_Uncertainty__1down not found\n";
-        }
-        else
-        {
-            std::cout << i << ':' << ' ' << resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1down"] << ' ' << nominalVal << '\n';
-        }
-//        if (!resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down"])
+////        if (!resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"])
+////        {
+////            std::cout << i << ": photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up not found\n";
+////        }
+////        else
+////        {
+////            std::cout << i << ':' << ' ' << resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1up"] << ' ' << nominalVal << '\n';
+////        }
+//    }
+//
+//    ss << R"--(Total $Z\gamma\gamma$ & )--";
+//    ss << std::setprecision(4) << std::fixed
+//    << ( (ZgammaNominal && ZgammaEG_RESOLUTION_ALL) ? ((ZgammaEG_RESOLUTION_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+//    << " & " << std::setprecision(4) << std::fixed
+//    << ( (ZgammaNominal && ZgammaEG_SCALE_ALL) ? ((ZgammaEG_SCALE_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+////    << " & " << std::setprecision(4) << std::fixed
+////    << ( (ZgammaNominal && ZgammaPH_EFF_ISO_Uncertainty) ? ((ZgammaPH_EFF_ISO_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+//    << " & " << std::setprecision(4) << std::fixed
+//    << ( (ZgammaNominal && ZgammaPH_EFF_ID_Uncertainty) ? ((ZgammaPH_EFF_ID_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+////    << " & " << std::setprecision(4) << std::fixed
+////    << ( (ZgammaNominal && ZgammaPH_EFF_TRIGGER_Uncertainty) ? ((ZgammaPH_EFF_TRIGGER_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+//    << R"--( \\ \hline)--" << '\n';
+//
+//    ss << R"--(Total $Z$+jets & )--";
+//    ss << std::setprecision(4) << std::fixed
+//    << ( (ZjetsNominal && ZjetsEG_RESOLUTION_ALL) ? ((ZjetsEG_RESOLUTION_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+//    << " & " << std::setprecision(4) << std::fixed
+//    << ( (ZjetsNominal && ZjetsEG_SCALE_ALL) ? ((ZjetsEG_SCALE_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+////    << " & " << std::setprecision(4) << std::fixed
+////    << ( (ZjetsNominal && ZjetsPH_EFF_ISO_Uncertainty) ? ((ZjetsPH_EFF_ISO_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+//    << " & " << std::setprecision(4) << std::fixed
+//    << ( (ZjetsNominal && ZjetsPH_EFF_ID_Uncertainty) ? ((ZjetsPH_EFF_ID_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+////    << " & " << std::setprecision(4) << std::fixed
+////    << ( (ZjetsNominal && ZjetsPH_EFF_TRIGGER_Uncertainty) ? ((ZjetsPH_EFF_TRIGGER_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+//    << R"--( \\ \hline)--" << '\n';
+//
+//    totbkgNominal = ZgammaNominal + ZjetsNominal;
+//
+//    totbkgEG_RESOLUTION_ALL = ZgammaEG_RESOLUTION_ALL + ZjetsEG_RESOLUTION_ALL;
+//    totbkgEG_SCALE_ALL = ZgammaEG_SCALE_ALL + ZjetsEG_SCALE_ALL;
+//    totbkgPH_EFF_ISO_Uncertainty = ZgammaPH_EFF_ISO_Uncertainty + ZjetsPH_EFF_ISO_Uncertainty;
+//    totbkgPH_EFF_ID_Uncertainty = ZgammaPH_EFF_ID_Uncertainty + ZjetsPH_EFF_ID_Uncertainty;
+//    totbkgPH_EFF_TRIGGER_Uncertainty = ZgammaPH_EFF_TRIGGER_Uncertainty + ZjetsPH_EFF_TRIGGER_Uncertainty;
+//
+//    ss << R"--(Total Bkg & )--";
+//    ss << std::setprecision(4) << std::fixed
+//    << ( (totbkgNominal && totbkgEG_RESOLUTION_ALL) ? ((totbkgEG_RESOLUTION_ALL-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+//    << " & " << std::setprecision(4) << std::fixed
+//    << ( (totbkgNominal && totbkgEG_SCALE_ALL) ? ((totbkgEG_SCALE_ALL-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+////    << " & " << std::setprecision(4) << std::fixed
+////    << ( (totbkgNominal && totbkgPH_EFF_ISO_Uncertainty) ? ((totbkgPH_EFF_ISO_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+//    << " & " << std::setprecision(4) << std::fixed
+//    << ( (totbkgNominal && totbkgPH_EFF_ID_Uncertainty) ? ((totbkgPH_EFF_ID_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+////    << " & " << std::setprecision(4) << std::fixed
+////    << ( (totbkgNominal && totbkgPH_EFF_TRIGGER_Uncertainty) ? ((totbkgPH_EFF_TRIGGER_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+//    << R"--( \\ \hline)--" << '\n';
+//
+//    ss << R"--(\end{tabular}})--" << '\n';
+//
+//    ss << "\n\n\n";
+//
+//    std::ofstream out("Table21.txt");
+//    out << ss.str() << '\n';
+//    out.close();
+//}
+//
+//void Table22()
+//{
+//    Event::systematics =
+//    {
+////        "PH_EFF_ISO_Uncertainty",
+////        "PH_EFF_ISO_Uncertainty",
+////        "EL_EFF_ID_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "PRW_DATASF",
+////        "MUON_EFF_RECO_SYS",
+////        "MUON_EFF_ISO_SYS",
+////        "MUON_EFF_TrigSystUncertainty",
+////        "EL_EFF_Reco_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "MUON_EFF_TrigStatUncertainty",
+////        "MUON_EFF_RECO_STAT",
+////        "MUON_EFF_TTVA_STAT",
+////        "EL_EFF_Iso_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "MUON_EFF_TTVA_SYS",
+////        "MUON_EFF_ISO_STAT",
+////        "MUON_SAGITTA_RHO",
+////        "EG_RESOLUTION_ALL",
+////        "EG_SCALE_ALL",
+////        "MUON_MS",
+////        "MUON_ID",
+////        "EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "MUON_SAGITTA_RESBIAS",
+////        "MUON_SCALE",
+////        "EG_RESOLUTION_ALL__1up",
+////        "EG_SCALE_ALL__1up",
+////        "PH_EFF_ISO_Uncertainty__1up",
+////        "PH_EFF_ID_Uncertainty__1up",
+////        "PH_EFF_TRIGGER_Uncertainty__1up",
+//        "EG_RESOLUTION_ALL__1down",
+//        "EG_SCALE_ALL__1down",
+////        "PH_EFF_ISO_Uncertainty__1down",
+//        "PH_EFF_ID_Uncertainty__1down",
+////        "PH_EFF_TRIGGER_Uncertainty__1down",
+//    };
+//
+//    std::vector<std::vector<std::string>> input_filenames =
+//    {
+//        //Z gamma background
+//        {"/home/common/Za/NTuples/Background/user.kschmied.364860.eegammagamma_pty2_9_17.deriv.DAOD_STDM3.e7057_s3126_r10724_p4092_LGNTuple.root/user.kschmied.31617070._000001.LGNTuple.root"},
+//        {"/home/common/Za/NTuples/Background/user.kschmied.364861.eegammagamma_pty_17_myy_0_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4062_LGNTuple.root/user.kschmied.31617064._000001.LGNTuple.root"},
+//        {"/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000001.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000002.LGNTuple.root"},
+//        //Data
+//        {"/home/common/Za/NTuples/Ntuple_data_test.root"},
+//        //Signal
+//        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}, //1 GeV
+//        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600751.PhPy8EG_AZNLO_ggH125_mA2p0_v1.root"}, // 2 GeV
+//        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600752.PhPy8EG_AZNLO_ggH125_mA3p0_v1.root"}, // 3 GeV
+//        {"/home/common/Za/NTuples/Ntuple_MC_Za_m5p0_v4.root"}, //5 GeV
+//        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600756.PhPy8EG_AZNLO_ggH125_mA9p0_v1.root"}, // 9 GeV
+//        //Jets
 //        {
-//            std::cout << i << ": photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down not found\n";
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000005.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000006.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000007.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000005.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000004.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000003.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000004.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000005.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000006.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000007.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000008.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000005.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000006.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000007.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000008.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000009.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000010.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000011.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000012.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000013.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000014.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000005.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000006.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000007.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000008.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000009.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000010.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000011.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000012.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000013.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000014.LGNTuple.root",
+//        },
+//    };
+//
+//    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))};
+//    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
+//
+//    std::vector<std::string> prefixes = { R"--(pty2\_9\_17)--", R"--(pty\_17\_myy\_0\_80)--", R"--(pty\_17\_myy\_80)--", "data", R"--($\text{Sig } m_{A}$ = 1 GeV)--", R"--($\text{Sig } m_{A}$ = 2 GeV)--", R"--($\text{Sig } m_{A}$ = 3 GeV)--", R"--($\text{Sig } m_{A}$ = 5 GeV)--", R"--($\text{Sig } m_{A}$ = 9 GeV)--", R"--(Zee\_lightJet\_0-70)--", R"--(Zee\_lightJet\_70-140)--", R"--(Zee\_lightJet\_140-280)--", R"--(Zee\_cJet\_0-70)--", R"--(Zee\_cJet\_70-140)--", R"--(Zee\_cJet\_140-280)--", R"--(Zee\_bJet\_0-70)--", R"--(Zee\_bJet\_70-140)--", R"--(Zee\_bJet\_140-280)--"};
+//
+//    std::vector<ROOT::RDF::RResultHandle> Totals;
+//    std::vector<RResultMap<float>> resultmaps;
+//
+//    std::stringstream ss;
+//
+//    for (auto& i: input_filenames)
+//    {
+//        SchottDataFrame df(MakeRDF(i,8));
+//
+//        auto EventWeight = df.Define("EventWeight", //mc generator weight
+//        [](const RVec<float>& ei_event_weights_generator)
+//        {
+//            return ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
+//
+//        }, {"ei_event_weights_generator"})
+//        .Define("totEventWeightVec", //vector of efficiencies, product of photon_id_eff, photon_iso_eff, and photon_trg_eff
+//        [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
+//        {
+//            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+//            photon_id_eff.resize(ResizeVal,1);
+//            photon_iso_eff.resize(ResizeVal,1);
+//            photon_trg_eff.resize(ResizeVal,1);
+//
+//            return photon_id_eff;
+//            //*photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
+//
+//        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
+//
+//        auto two_leptons = EventWeight
+//        .Filter([](const RVec<std::string>& trigger_passed_triggers)
+//        {
+//            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+//
+//            if (!trigger_found)
+//            {
+//                return false; //this event is filtered out
+//            }
+//            return true; //this event is kept because the trigger was found in its `trigger_passed_triggers` branch entry
+//
+//        }, {"trigger_passed_triggers"})
+//        .Define("di_electrons", //the events that pass will have exactly 2 electrons that pass the following
+//        [](RVec<AbstractParticle> electrons)
+//        {
+//            //keep the electrons in each event that have pt > 20 GeV, |η| < 2.37,
+//            //|η| not between 1.37 and 1.52, and that satisfy a medium id criteria `electron_id_medium`
+//            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+//            [](AbstractParticle& ep)
+//            {
+//                 return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+//                 (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
+//                 && (ep.electron_id_medium == 1)));
+//
+//            }), electrons.end());
+//
+//            return electrons;
+//
+//        },{"abstract_electrons"}).Filter(
+//        [](RVec<Muon>& muons, RVec<AbstractParticle>& electrons)
+//        {
+//            return (electrons.size()==2 && muons.empty()); //keep events which have exactly 2 electrons for di_electrons and no muons
+//
+//        }, {"muons", "di_electrons"});
+//
+//        //new dataframe node: contains only the events from `two_leptons` whose electrons in the `di_electrons` branch have opposite charge
+//        auto opp_charge = two_leptons
+//        .Filter([](const RVec<AbstractParticle>& electrons)
+//        {
+//            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+//
+//        }, {"di_electrons"});
+//
+//        //new dataframe node: contains only the events from `opp_charge` that have 1 electron with pt > 20 GeV and the other with pt > 27 GeV
+//        auto leadingPt = opp_charge.Filter([](const RVec<AbstractParticle>& electrons)
+//        {
+//            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+//        }, {"di_electrons"});
+//
+//        auto deltaR = leadingPt.Filter([] (const RVec<AbstractParticle>& electrons)
+//        {
+//            return (DeltaR(electrons[0].ElectronVector(), electrons[1].ElectronVector()) > 0.01);
+//        }, {"di_electrons"});
+//
+//        //new dataframe node: Contains a new column `dilep` in addition to the ones in `same_flavour` that stores the di-electron four-vector
+//        auto dilep = deltaR.Define("dilep",[] (RVec<AbstractParticle>& electrons)
+//        {
+//            return (electrons[0].ElectronVector() + electrons[1].ElectronVector());
+//        }, {"di_electrons"});
+//
+//        //new dataframe node: contains only the events from `dilep` that have di-electron invariant mass between 81 and 101 GeV
+//        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+//        {
+//            auto mass = dilep.M()/1e3;
+//            return ((mass >= 81) && (mass <= 101));
+//        }, {"dilep"});
+//
+//        //new dataframe node: contains only the events from `mass` that have dilepton pT > 10 GeV
+//        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
+//        {
+//            auto pT = dilep.Pt()/1e3;
+//            return pT > 10;
+//        }, {"dilep"});
+//
+//        auto photon_passes_cuts = ptCut
+//        .Define("photons_pass_cut_indices",
+//        [&](const RVec<AbstractParticle>& photons)
+//        {
+//            RVec<int> photon_indices;
+//            photon_indices.reserve(photons.size());
+//
+//            for (int i = 0; i < photons.size(); i++)
+//            {
+//                if (
+//                (std::abs(photons[i].photon_eta) >= 2.37) or
+//                (photons[i].photon_pt <= 10e3) or
+//                (std::abs(photons[i].photon_eta) > 1.37 and std::abs(photons[i].photon_eta) < 1.52) or
+//                (not photons[i].photon_id_loose)
+//                )
+//                {
+//                    continue;
+//                }
+//                photon_indices.push_back(i);
+//            }
+//
+//            return photon_indices;
+//        }, {"abstract_photons"})
+//        .Define("photons_pass_cuts",
+//        [&](RVec<AbstractParticle>& photons, RVec<int>& photon_indices)
+//        {
+//            return Take(photons, photon_indices);
+//        }, {"abstract_photons", "photons_pass_cut_indices"});
+//
+//        auto merged_reco_photons_matched = photon_passes_cuts.Filter(
+//        [&](const RVec<AbstractParticle>& reco_photons_matched)
+//        {
+//            if (reco_photons_matched.size() == 1)
+//            {
+//                return reco_photons_matched[0].photon_pt > 20e3;
+//            }
+//            else if (reco_photons_matched.empty())
+//            {
+//                return false;
+//            }
+//
+//            auto combs = Combinations(reco_photons_matched, 2);
+//            size_t length = combs[0].size();
+//            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+//
+//            for (size_t i=0; i<length; i++)
+//            {
+//                delta_r = DeltaR(reco_photons_matched[combs[0][i]].PhotonVector(), reco_photons_matched[combs[1][i]].PhotonVector());
+//                m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
+//                pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
+//                X = delta_r*(pt/(2.0*m));
+//                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
+//                {
+//                    best_X = X;
+//                    pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+//                    pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+//                    chosen_delta_r = delta_r;
+//                }
+//            }
+//            if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+//            {
+//                return false;
+//            }
+//
+//            for (auto& p: reco_photons_matched)
+//            {
+//                if (p.photon_pt > 20e3)
+//                {
+//                    return true;
+//                }
+//            }
+//            return false;
+//
+//        }, {"photons_pass_cuts"})
+//        .Define("merged_photon_index", //new column: consists of the index corresponding to the photon that made the event be classified as merged
+//        [&](const RVec<AbstractParticle>& rpm) //rpm = reco photons matched
+//        {
+//            for (auto i = 0; i < rpm.size(); i++)
+//            {
+//                if (rpm[i].photon_pt > 20e3)
+//                {
+//                    return i; //returning the index of the first photon that has photon_pt > 20 GeV
+//                }
+//            }
+//            return 0; //jic the compiler complains, should not come to this
+//
+//        }, {"photons_pass_cuts"})
+//        .Define("merged_photon", //new column: The reco-photon corresponding to `merged_photon_index`
+//        [&](const RVec<AbstractParticle>& reco_photons_matched, int merged_photon_index)
+//        {
+//            return reco_photons_matched[merged_photon_index];
+//
+//        }, {"photons_pass_cuts", "merged_photon_index"});
+//
+//        auto dilepton_and_photon = merged_reco_photons_matched
+//        .Define("reconstructed_mass",[&](const RVec<AbstractParticle>& di_electrons, const AbstractParticle& merged_photon)
+//        {
+//            auto four_momentum = di_electrons[0].ElectronVector() + di_electrons[1].ElectronVector();
+//
+//            return (four_momentum + merged_photon.PhotonVector()).M()/1e3;
+//
+//        }, {"di_electrons", "merged_photon"});
+//
+//        auto pSB = dilepton_and_photon.Filter(
+//        [](const double reconstructed_mass)
+//        {
+//            return (reconstructed_mass < 110) || (reconstructed_mass > 130);
+//        }, {"reconstructed_mass"});
+//
+//        auto pSR = dilepton_and_photon.Filter(
+//        [](const double reconstructed_mass)
+//        {
+//            return (reconstructed_mass >= 110) && (reconstructed_mass <= 130);
+//        }, {"reconstructed_mass"});
+//
+//        auto SB = pSB.Filter(
+//        [](const RVec<float>& Eratio)
+//        {
+//            return (!Any(Eratio <= 0.8));
+//        }, {"photon_shower_shape_e_ratio"});
+//
+//        auto SR = pSR.Filter(
+//        [](const RVec<float>& Eratio)
+//        {
+//            return (!Any(Eratio <= 0.8));
+//        }, {"photon_shower_shape_e_ratio"});
+//
+//        auto totEventWeight = merged_reco_photons_matched
+//        .Define("totEventWeight", [](RVec<float> totEventWeightVec, RVec<int>& photons_pass_cut_indices, int mpi)
+//        {
+//            return Take(totEventWeightVec, photons_pass_cut_indices)[mpi];
+//
+//        }, {"totEventWeightVec", "photons_pass_cut_indices", "merged_photon_index"});
+//
+//        Totals.push_back(EventWeight.Sum<float>("EventWeight"));
+//
+//        resultmaps.push_back(VariationsFor(totEventWeight.Sum<float>("totEventWeight")));
+//    }
+//
+////EG_RESOLUTION_ALL__1down:           42864.7 ID 1.00524  ISO 1.02283  TRIG 1.04157
+////EG_RESOLUTION_ALL__1up:             42751.5 ID 1.00524  ISO 1.02283  TRIG 1.04157
+////EG_SCALE_ALL__1down:                42521.1 ID 1.00524  ISO 1.02283  TRIG 1.04157
+////EG_SCALE_ALL__1up:                  43059.8 ID 1.00524  ISO 1.02283  TRIG 1.04157
+////PH_EFF_ID_Uncertainty__1down:       42790.4 ID 0.992328 ISO 1.02283  TRIG 1.04157
+////PH_EFF_ID_Uncertainty__1up:         42790.4 ID 1.01816  ISO 1.02283  TRIG 1.04157
+////PH_EFF_ISO_Uncertainty__1down:      42790.4 ID 1.00524  ISO 1.00971  TRIG 1.04157
+////PH_EFF_ISO_Uncertainty__1up:        42790.4 ID 1.00524  ISO 1.03595  TRIG 1.04157
+////PH_EFF_TRIGGER_Uncertainty__1down:  42790.4 ID 1.00524  ISO 1.02283  TRIG 1.01646
+////PH_EFF_TRIGGER_Uncertainty__1up:    42790.4 ID 1.00524  ISO 1.02283  TRIG 1.06668
+//
+//    ROOT::RDF::RunGraphs(Totals); // running all computation nodes concurrently
+//
+////    for (auto& i: GeneratorWeightCounts)
+////    {
+////        std::cout << *i << '\n';
+////    }
+////    int count = 0;
+////    for (auto& i: resultmaps)
+////    {
+////        std::cout << count++ << "\n==\n";
+////        for (auto& j: i.GetKeys())
+////        {
+////            std::cout << j << '\n';
+////        }
+////        std::cout << '\n';
+////    }
+////          resultmaps
+////          ----------
+////    0       1       //Z-gamma
+////    2       3       //Z-gamma
+////    4       5       //Z-gamma
+////    6       7       //data
+////    8       9       //ma1
+////    10      11      //ma2
+////    12      13      //ma3
+////    14      15      //ma5
+////    16      17      //ma9
+////    18      19      //Z-jets
+////    20      21      //Z-jets
+////    22      23      //Z-jets
+////    24      25      //Z-jets
+////    26      27      //Z-jets
+////    28      29      //Z-jets
+////    30      31      //Z-jets
+////    32      33      //Z-jets
+////    34      35      //Z-jets
+//
+//    ss << R"--(\section*{Table 22})--" << '\n';
+//    ss << R"--(\hspace{-3cm}\scalebox{0.8}{)--" << '\n';
+//    ss << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
+////    ss << R"--(\begin{tabular}{|c|c|c|c|c|c|})--" << '\n';
+//    ss << R"--(\begin{tabular}{|c|c|c|c|})--" << '\n';
+//    ss << R"--(\hline)--" << '\n';
+//
+//        ss << R"--(\multicolumn{4}{|c|}{\parbox{\linewidth}{\centering Merged Photon Category: Down Variations \\ (\% difference from nominal)}}\\[5 pt])--" << '\n';
+//    ss << R"--(\hline)--" << '\n';
+//
+//    ss << R"--({Sample} & EG\_RESOLUTION\_ALL & EG\_SCALE\_ALL & PH\_EFF\_ID\_Uncertainty \\ \hline)--" << '\n';
+//
+//    double finalScaleVal;
+//
+//    double ZgammaNominal = 0, ZgammaEG_RESOLUTION_ALL = 0,
+//    ZgammaEG_SCALE_ALL = 0, ZgammaPH_EFF_ISO_Uncertainty = 0,
+//    ZgammaPH_EFF_ID_Uncertainty = 0, ZgammaPH_EFF_TRIGGER_Uncertainty = 0;
+//
+//    double ZjetsNominal = 0, ZjetsEG_RESOLUTION_ALL = 0,
+//    ZjetsEG_SCALE_ALL = 0, ZjetsPH_EFF_ISO_Uncertainty = 0,
+//    ZjetsPH_EFF_ID_Uncertainty = 0, ZjetsPH_EFF_TRIGGER_Uncertainty = 0;
+//
+//    double totbkgNominal = 0, totbkgEG_RESOLUTION_ALL = 0,
+//    totbkgEG_SCALE_ALL = 0, totbkgPH_EFF_ISO_Uncertainty = 0,
+//    totbkgPH_EFF_ID_Uncertainty = 0, totbkgPH_EFF_TRIGGER_Uncertainty = 0;
+//
+//    for (auto i = 0; (i < resultmaps.size()); i++)
+//    {
+//        double nominalVal = static_cast<double>(resultmaps[i]["nominal"]);
+//
+////        auto denominator = *Totals[i].GetResultPtr<ULong64_t>();
+//        auto denominator = *Totals[i].GetResultPtr<float>();
+//
+//        if (i >= 0 && i <= 2) //Zgamma
+//        {
+//            finalScaleVal = SFs[i]/denominator;
+//            ZgammaNominal += finalScaleVal*nominalVal;
+//
+//            ZgammaEG_RESOLUTION_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1down"];
+//            ZgammaEG_SCALE_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1down"];
+////            ZgammaPH_EFF_ISO_Uncertainty += finalScaleVal*resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1down"];
+//            ZgammaPH_EFF_ID_Uncertainty += finalScaleVal*resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1down"];
+////            ZgammaPH_EFF_TRIGGER_Uncertainty += finalScaleVal*resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down"];
+//        }
+//
+//        else if (i >= 9)
+//        {
+//            finalScaleVal = JetNumeratorSFs[i-9]/denominator;
+//            ZjetsNominal += finalScaleVal*nominalVal;
+//
+//            ZjetsEG_RESOLUTION_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1down"];
+//            ZjetsEG_SCALE_ALL += finalScaleVal*resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1down"];
+////            ZjetsPH_EFF_ISO_Uncertainty += finalScaleVal*resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1down"];
+//            ZjetsPH_EFF_ID_Uncertainty += finalScaleVal*resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1down"];
+////            ZjetsPH_EFF_TRIGGER_Uncertainty += finalScaleVal*resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down"];
+//        }
+//
+//        ss << prefixes[i] << " & ";
+//        ss << std::setprecision(4) << std::fixed
+//        << ( (nominalVal && resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1down"]) ? ((resultmaps[i]["photons_and_electrons:EG_RESOLUTION_ALL__1down"]-nominalVal)/nominalVal)*100.0 : 0.0)
+//        << " & " << std::setprecision(4) << std::fixed
+//        << ( (nominalVal && resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1down"]) ? ((resultmaps[i]["photons_and_electrons:EG_SCALE_ALL__1down"]-nominalVal)/nominalVal)*100.0 : 0.0)
+////        << " & " << std::setprecision(4) << std::fixed
+////        << ( (nominalVal && resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1down"]) ? ((resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1down"]-nominalVal)/nominalVal)*100.0 : 0.0)
+//        << " & " << std::setprecision(4) << std::fixed
+//        << ( (nominalVal && resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1down"]) ? ((resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1down"]-nominalVal)/nominalVal)*100.0 : 0.0)
+////        << " & " << std::setprecision(4) << std::fixed
+////        << ( (nominalVal && resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down"]) ? ((resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down"]-nominalVal)/nominalVal)*100.0 : 0.0)
+//        << R"--( \\ \hline)--" << '\n';
+//
+////        if (!resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1down"])
+////        {
+////            std::cout << i << ": photon_iso_eff:PH_EFF_ISO_Uncertainty__1down not found\n";
+////        }
+////        else
+////        {
+////            std::cout << i << ':' << ' ' << resultmaps[i]["photon_iso_eff:PH_EFF_ISO_Uncertainty__1down"] << ' ' << nominalVal << '\n';
+////        }
+//        if (!resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1down"])
+//        {
+//            std::cout << i << ": photon_id_eff:PH_EFF_ID_Uncertainty__1down not found\n";
 //        }
 //        else
 //        {
-//            std::cout << i << ':' << ' ' << resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down"] << ' ' << nominalVal << '\n';
+//            std::cout << i << ':' << ' ' << resultmaps[i]["photon_id_eff:PH_EFF_ID_Uncertainty__1down"] << ' ' << nominalVal << '\n';
 //        }
-    }
-
-    ss << R"--(Total $Z\gamma\gamma$ & )--";
-    ss << std::setprecision(4) << std::fixed
-    << ( (ZgammaNominal && ZgammaEG_RESOLUTION_ALL) ? ((ZgammaEG_RESOLUTION_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
-    << " & " << std::setprecision(4) << std::fixed
-    << ( (ZgammaNominal && ZgammaEG_SCALE_ALL) ? ((ZgammaEG_SCALE_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+////        if (!resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down"])
+////        {
+////            std::cout << i << ": photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down not found\n";
+////        }
+////        else
+////        {
+////            std::cout << i << ':' << ' ' << resultmaps[i]["photon_trg_eff:PH_EFF_TRIGGER_Uncertainty__1down"] << ' ' << nominalVal << '\n';
+////        }
+//    }
+//
+//    ss << R"--(Total $Z\gamma\gamma$ & )--";
+//    ss << std::setprecision(4) << std::fixed
+//    << ( (ZgammaNominal && ZgammaEG_RESOLUTION_ALL) ? ((ZgammaEG_RESOLUTION_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
 //    << " & " << std::setprecision(4) << std::fixed
-//    << ( (ZgammaNominal && ZgammaPH_EFF_ISO_Uncertainty) ? ((ZgammaPH_EFF_ISO_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
-    << " & " << std::setprecision(4) << std::fixed
-    << ( (ZgammaNominal && ZgammaPH_EFF_ID_Uncertainty) ? ((ZgammaPH_EFF_ID_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+//    << ( (ZgammaNominal && ZgammaEG_SCALE_ALL) ? ((ZgammaEG_SCALE_ALL-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+////    << " & " << std::setprecision(4) << std::fixed
+////    << ( (ZgammaNominal && ZgammaPH_EFF_ISO_Uncertainty) ? ((ZgammaPH_EFF_ISO_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
 //    << " & " << std::setprecision(4) << std::fixed
-//    << ( (ZgammaNominal && ZgammaPH_EFF_TRIGGER_Uncertainty) ? ((ZgammaPH_EFF_TRIGGER_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
-    << R"--( \\ \hline)--" << '\n';
-
-    ss << R"--(Total $Z$+jets & )--";
-    ss << std::setprecision(4) << std::fixed
-    << ( (ZjetsNominal && ZjetsEG_RESOLUTION_ALL) ? ((ZjetsEG_RESOLUTION_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
-    << " & " << std::setprecision(4) << std::fixed
-    << ( (ZjetsNominal && ZjetsEG_SCALE_ALL) ? ((ZjetsEG_SCALE_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+//    << ( (ZgammaNominal && ZgammaPH_EFF_ID_Uncertainty) ? ((ZgammaPH_EFF_ID_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+////    << " & " << std::setprecision(4) << std::fixed
+////    << ( (ZgammaNominal && ZgammaPH_EFF_TRIGGER_Uncertainty) ? ((ZgammaPH_EFF_TRIGGER_Uncertainty-ZgammaNominal)/ZgammaNominal)*100.0 : 0.0)
+//    << R"--( \\ \hline)--" << '\n';
+//
+//    ss << R"--(Total $Z$+jets & )--";
+//    ss << std::setprecision(4) << std::fixed
+//    << ( (ZjetsNominal && ZjetsEG_RESOLUTION_ALL) ? ((ZjetsEG_RESOLUTION_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
 //    << " & " << std::setprecision(4) << std::fixed
-//    << ( (ZjetsNominal && ZjetsPH_EFF_ISO_Uncertainty) ? ((ZjetsPH_EFF_ISO_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
-    << " & " << std::setprecision(4) << std::fixed
-    << ( (ZjetsNominal && ZjetsPH_EFF_ID_Uncertainty) ? ((ZjetsPH_EFF_ID_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+//    << ( (ZjetsNominal && ZjetsEG_SCALE_ALL) ? ((ZjetsEG_SCALE_ALL-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+////    << " & " << std::setprecision(4) << std::fixed
+////    << ( (ZjetsNominal && ZjetsPH_EFF_ISO_Uncertainty) ? ((ZjetsPH_EFF_ISO_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
 //    << " & " << std::setprecision(4) << std::fixed
-//    << ( (ZjetsNominal && ZjetsPH_EFF_TRIGGER_Uncertainty) ? ((ZjetsPH_EFF_TRIGGER_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
-    << R"--( \\ \hline)--" << '\n';
-
-    totbkgNominal = ZgammaNominal + ZjetsNominal;
-
-    totbkgEG_RESOLUTION_ALL = ZgammaEG_RESOLUTION_ALL + ZjetsEG_RESOLUTION_ALL;
-    totbkgEG_SCALE_ALL = ZgammaEG_SCALE_ALL + ZjetsEG_SCALE_ALL;
-    totbkgPH_EFF_ISO_Uncertainty = ZgammaPH_EFF_ISO_Uncertainty + ZjetsPH_EFF_ISO_Uncertainty;
-    totbkgPH_EFF_ID_Uncertainty = ZgammaPH_EFF_ID_Uncertainty + ZjetsPH_EFF_ID_Uncertainty;
-    totbkgPH_EFF_TRIGGER_Uncertainty = ZgammaPH_EFF_TRIGGER_Uncertainty + ZjetsPH_EFF_TRIGGER_Uncertainty;
-
-    ss << R"--(Total Bkg & )--";
-    ss << std::setprecision(4) << std::fixed
-    << ( (totbkgNominal && totbkgEG_RESOLUTION_ALL) ? ((totbkgEG_RESOLUTION_ALL-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
-    << " & " << std::setprecision(4) << std::fixed
-    << ( (totbkgNominal && totbkgEG_SCALE_ALL) ? ((totbkgEG_SCALE_ALL-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+//    << ( (ZjetsNominal && ZjetsPH_EFF_ID_Uncertainty) ? ((ZjetsPH_EFF_ID_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+////    << " & " << std::setprecision(4) << std::fixed
+////    << ( (ZjetsNominal && ZjetsPH_EFF_TRIGGER_Uncertainty) ? ((ZjetsPH_EFF_TRIGGER_Uncertainty-ZjetsNominal)/ZjetsNominal)*100.0 : 0.0)
+//    << R"--( \\ \hline)--" << '\n';
+//
+//    totbkgNominal = ZgammaNominal + ZjetsNominal;
+//
+//    totbkgEG_RESOLUTION_ALL = ZgammaEG_RESOLUTION_ALL + ZjetsEG_RESOLUTION_ALL;
+//    totbkgEG_SCALE_ALL = ZgammaEG_SCALE_ALL + ZjetsEG_SCALE_ALL;
+//    totbkgPH_EFF_ISO_Uncertainty = ZgammaPH_EFF_ISO_Uncertainty + ZjetsPH_EFF_ISO_Uncertainty;
+//    totbkgPH_EFF_ID_Uncertainty = ZgammaPH_EFF_ID_Uncertainty + ZjetsPH_EFF_ID_Uncertainty;
+//    totbkgPH_EFF_TRIGGER_Uncertainty = ZgammaPH_EFF_TRIGGER_Uncertainty + ZjetsPH_EFF_TRIGGER_Uncertainty;
+//
+//    ss << R"--(Total Bkg & )--";
+//    ss << std::setprecision(4) << std::fixed
+//    << ( (totbkgNominal && totbkgEG_RESOLUTION_ALL) ? ((totbkgEG_RESOLUTION_ALL-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
 //    << " & " << std::setprecision(4) << std::fixed
-//    << ( (totbkgNominal && totbkgPH_EFF_ISO_Uncertainty) ? ((totbkgPH_EFF_ISO_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
-    << " & " << std::setprecision(4) << std::fixed
-    << ( (totbkgNominal && totbkgPH_EFF_ID_Uncertainty) ? ((totbkgPH_EFF_ID_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+//    << ( (totbkgNominal && totbkgEG_SCALE_ALL) ? ((totbkgEG_SCALE_ALL-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+////    << " & " << std::setprecision(4) << std::fixed
+////    << ( (totbkgNominal && totbkgPH_EFF_ISO_Uncertainty) ? ((totbkgPH_EFF_ISO_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
 //    << " & " << std::setprecision(4) << std::fixed
-//    << ( (totbkgNominal && totbkgPH_EFF_TRIGGER_Uncertainty) ? ((totbkgPH_EFF_TRIGGER_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
-    << R"--( \\ \hline)--" << '\n';
-
-    ss << R"--(\end{tabular}})--" << '\n';
-
-    ss << "\n\n\n";
-
-    std::ofstream out("Table22.txt");
-    out << ss.str() << '\n';
-    out.close();
-}
+//    << ( (totbkgNominal && totbkgPH_EFF_ID_Uncertainty) ? ((totbkgPH_EFF_ID_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+////    << " & " << std::setprecision(4) << std::fixed
+////    << ( (totbkgNominal && totbkgPH_EFF_TRIGGER_Uncertainty) ? ((totbkgPH_EFF_TRIGGER_Uncertainty-totbkgNominal)/totbkgNominal)*100.0 : 0.0)
+//    << R"--( \\ \hline)--" << '\n';
+//
+//    ss << R"--(\end{tabular}})--" << '\n';
+//
+//    ss << "\n\n\n";
+//
+//    std::ofstream out("Table22.txt");
+//    out << ss.str() << '\n';
+//    out.close();
+//}
 
 void Table23()
 {
@@ -5626,8 +5626,8 @@ void Section7_TablesPlots()
     
     auto start_time = Clock::now();
 //    auto verbosity = ROOT::Experimental::RLogScopedVerbosity(ROOT::Detail::RDF::RDFLogChannel(), ROOT::Experimental::ELogLevel::kInfo);
-    Table21();
-    Table22();
+//    Table21();
+//    Table22();
     Table23();
     Table24();
     Merged_Up_Higgs_Mass();
