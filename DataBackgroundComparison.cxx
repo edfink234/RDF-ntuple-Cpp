@@ -4587,7 +4587,7 @@ void DataBackgroundComparison()
 {
     auto start_time = Clock::now();
     fig26();
-    fig27();
+//    fig27();
     fig28();
     fig41();
     fig48();
