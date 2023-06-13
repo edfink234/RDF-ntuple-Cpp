@@ -84,494 +84,494 @@ constexpr std::array<const char*,35> triggers =
     "HLT_mu18_mu8noL1",
 };
 
-void fig26()
-{
-    std::vector<std::vector<std::string>> input_filenames = {
-        //Signal
-        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}, //1 GeV
-        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600751.PhPy8EG_AZNLO_ggH125_mA2p0_v1.root"}, // 2 GeV
-        //Z gamma background
-        {"/home/common/Za/NTuples/Background/user.kschmied.364860.eegammagamma_pty2_9_17.deriv.DAOD_STDM3.e7057_s3126_r10724_p4092_LGNTuple.root/user.kschmied.31617070._000001.LGNTuple.root"},
-        {"/home/common/Za/NTuples/Background/user.kschmied.364861.eegammagamma_pty_17_myy_0_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4062_LGNTuple.root/user.kschmied.31617064._000001.LGNTuple.root"},
-        {"/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000001.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000002.LGNTuple.root"},
-        //Data
-        {"/home/common/Za/NTuples/Ntuple_data_test.root"},
-        //Jets
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000005.LGNTuple.root"
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000007.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000005.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000004.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000003.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000004.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000005.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000007.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000008.LGNTuple.root"
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000005.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000007.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000008.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000009.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000010.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000011.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000012.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000013.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000014.LGNTuple.root",
-        },
-        {
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000001.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000002.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000003.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000004.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000005.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000006.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000007.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000008.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000009.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000010.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000011.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000012.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000013.LGNTuple.root",
-            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000014.LGNTuple.root",
-        },
-    };
-
-    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
-
-    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
-
-    std::vector<const char*> prefixes = {"Sig m_{A} = 1 GeV", "Sig m_{A} = 2 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
-    std::vector<EColor> colors = {kMagenta, static_cast<EColor>(kOrange+1), kBlue, kRed, kViolet, static_cast<EColor>(kGreen+2)};
-    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
-
-    std::vector<ROOT::RDF::RResultHandle> Nodes;
-    ROOT::RDF::RResultPtr<ULong64_t> SB_test, SR_test;
-
-    int count = 0;
-    for (auto& i: input_filenames)
-    {
-        SchottDataFrame df(MakeRDF(i, 8));
-
-        auto EventWeight = df.Define("EventWeight", //mc generator weight
-        [](const RVec<float>& ei_event_weights_generator)
-        {
-            return ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
-
-        }, {"ei_event_weights_generator"})
-        .Define("totEventWeightVec", //vector of efficiencies, product of photon_id_eff, photon_iso_eff, and photon_trg_eff
-        [](RVec<float> photon_id_eff/*, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff, RVec<float> ei_event_weights_generator*/)
-        {
-//            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
-//            photon_id_eff.resize(ResizeVal,1);
-//            photon_iso_eff.resize(ResizeVal,1);
-//            photon_trg_eff.resize(ResizeVal,1);
-
-            return photon_id_eff; // *photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
-
-        }, {"photon_id_eff"/*, "photon_iso_eff", "photon_trg_eff", "ei_event_weights_generator"*/});
-
-        //new dataframe node: contains only the events of newDf that pass the trigger cut
-        auto trigger_selection = EventWeight
-        .Filter([](const RVec<std::string>& trigger_passed_triggers)
-        {
-            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
-
-            if (!trigger_found)
-            {
-                return false; //this event is filtered out
-            }
-            return true; //this event is kept because the trigger was found in its `trigger_passed_triggers` branch entry
-
-        }, {"trigger_passed_triggers"});
-
-        auto two_leptons = trigger_selection
-        .Define("di_electrons", //the events that pass will have exactly 2 electrons that pass the following
-        [](RVec<Electron> electrons)
-        {
-            //keep the electrons in each event that have pt > 20 GeV, |η| < 2.37,
-            //|η| not between 1.37 and 1.52, and that satisfy a medium id criteria `electron_id_medium`
-            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
-            [](Electron& ep)
-            {
-                 return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
-                 (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
-                 && (ep.electron_id_medium == 1)));
-
-            }), electrons.end());
-
-            return electrons;
-
-        },{"electrons"}).Filter(
-        [](RVec<Muon>& muons, RVec<Electron> electrons)
-        {
-            return (electrons.size()==2 && muons.empty()); //keep events which have exactly 2 electrons for di_electrons and no muons
-
-        }, {"muons", "di_electrons"});
-
-        //new dataframe node: contains only the events from `two_leptons` whose electrons in the `di_electrons` branch have opposite charge
-        auto opp_charge = two_leptons
-        .Filter([](RVec<Electron>& electrons)
-        {
-            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
-
-        }, {"di_electrons"});
-
-        //new dataframe node: contains only the events from `opp_charge` that have 1 electron with pt > 20 GeV and the other with pt > 27 GeV
-        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
-        {
-            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
-        }, {"di_electrons"});
-
-        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
-        {
-            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
-        }, {"di_electrons"});
-
-        //new dataframe node: Contains a new column `dilep` in addition to the ones in `same_flavour` that stores the di-electron four-vector
-        auto dilep = deltaR.Define("dilep",[] (RVec<Electron>& electrons)
-        {
-            return (electrons[0].Vector() + electrons[1].Vector());
-        }, {"di_electrons"});
-
-        //new dataframe node: contains only the events from `dilep` that have di-electron invariant mass between 81 and 101 GeV
-        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
-        {
-            auto mass = dilep.M()/1e3;
-            return ((mass >= 81) && (mass <= 101));
-        }, {"dilep"});
-
-        //new dataframe node: contains only the events from `mass` that have dilepton pT > 10 GeV
-        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
-        {
-            auto pT = dilep.Pt()/1e3;
-            return pT > 10;
-        }, {"dilep"});
-
-        auto photon_passes_cuts = ptCut
-        .Define("photons_pass_cut_indices",
-        [&](const RVec<Photon>& photons)
-        {
-            RVec<int> photon_indices;
-            photon_indices.reserve(photons.size());
-
-            for (int i = 0; i < photons.size(); i++)
-            {
-                if (
-                (std::abs(photons[i].photon_eta) >= 2.37) or
-                (photons[i].photon_pt <= 10e3) or
-                (std::abs(photons[i].photon_eta) > 1.37 and std::abs(photons[i].photon_eta) < 1.52) or
-                (not photons[i].photon_id_loose)
-                )
-                {
-                    continue;
-                }
-                photon_indices.push_back(i);
-            }
-
-            return photon_indices;
-        }, {"photons"})
-        .Define("photons_pass_cuts",
-        [&](RVec<Photon>& photons, RVec<int>& photon_indices)
-        {
-            return Take(photons, photon_indices);
-        }, {"photons", "photons_pass_cut_indices"});
-
-        auto resolved = photon_passes_cuts.Define("chosen_two_indices",
-        [](RVec<Photon>& photons_pass_cuts)
-        {
-            RVec<unsigned long> x; //vector of indices
-            if (photons_pass_cuts.size() < 2)
-            {
-                return x;
-            }
-
-            auto combs = Combinations(photons_pass_cuts, 2); //all combinations of 2 reco-photons
-            size_t length = combs[0].size(); //number of combinations
-            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
-
-            for (size_t i=0; i<length; i++) //looping through all of the possible combinations of photons in each event
-            {
-                delta_r = DeltaR(photons_pass_cuts[combs[0][i]].Vector(), photons_pass_cuts[combs[1][i]].Vector());
-                m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
-                pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
-                X = delta_r*(pt/(2.0*m));
-                //if it's the first combination or if new X is closer to 1
-                //than current best_X and ΔR
-                //between the two reco-photons < 1.5, then update best_X, pt1, pt2,
-                //and the corresponding reco-photon indices x
-                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
-                {
-                    best_X = X;
-                    pt1 = photons_pass_cuts[combs[0][i]].photon_pt;
-                    pt2 = photons_pass_cuts[combs[1][i]].photon_pt;
-                    chosen_delta_r = delta_r;
-                    x = {combs[0][i], combs[1][i]};
-                }
-            }
-            if (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2) //two photons corresponding to best_X must both have p_T > 10 GeV, ΔR < 1.5, and 0.96 < best_X < 1.2
-            {
-                return x;
-            }
-
-            x.clear();
-            return x;
-        }, {"photons_pass_cuts"}).Filter(//keep only events that have passed the first part of the resolved category
-        [&](RVec<unsigned long>& indices)
-        {
-            return (indices.size()==2);
-
-        }, {"chosen_two_indices"})
-        .Define("chosen_two", //New column: consists of the good photons corresponding to the `chosen_two_indices` defined above
-        [&](RVec<Photon>& reco_photons_matched, RVec<unsigned long>& indices)
-        {
-            return Take(reco_photons_matched, indices);
-
-        }, {"photons_pass_cuts", "chosen_two_indices"})
-        .Define("diphoton",
-        [&](RVec<Photon>& reco_photons_matched)
-        {
-            return reco_photons_matched[0].Vector() + reco_photons_matched[1].Vector();
-        }, {"chosen_two"})
-        .Define("reco_higgs_mass",
-        [&](PtEtaPhiEVector& diphoton, PtEtaPhiEVector& dilep)
-        {
-            return (dilep + diphoton).M() / 1e3;
-        }, {"diphoton", "dilep"})
-        .Define("totEventWeight", //New column: weight factor for events in RDF `resolved`
-        [&](RVec<unsigned long> chosen_two_indices, RVec<int>& photons_pass_cut_indices, RVec<float>& photon_efficiencies)
-        {
-            //First, we take the elements from photon_efficiencies that correspond to the `photons_pass_cut_indices` defined
-            //earlier. Then, from that resulting vector, we take the elements corresponding to the
-            //`chosen_two_indices` defined above
-            RVec<float> resolved_photon_efficiencies = Take(Take(photon_efficiencies, photons_pass_cut_indices), chosen_two_indices);
-            //Now, multiply all of the elements of the vector we defined above
-            float total = 1.0f;
-            for (auto i: resolved_photon_efficiencies)
-            {
-                total *= i;
-            }
-            //and return the result
-            return total;
-        }, {"chosen_two_indices", "photons_pass_cut_indices", "totEventWeightVec"});
-
-        if (count < 2) //signal only
-        {
-            Nodes.push_back(resolved.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 80, 200}, "reco_higgs_mass", "totEventWeight"));
-            if (count == 1)
-            {
-                auto SB_test_Filter = resolved.Filter(
-                [](double reco_higgs_mass)
-                {
-                    return (!((reco_higgs_mass > 110) && (reco_higgs_mass < 140)));
-                }, {"reco_higgs_mass"});
-                SB_test = SB_test_Filter.Count();
-
-                auto SR_test_Filter = resolved.Filter(
-                [](double reco_higgs_mass)
-                {
-                    return ((reco_higgs_mass > 110) && (reco_higgs_mass < 140));
-                }, {"reco_higgs_mass"});
-                SR_test = SR_test_Filter.Count();
-            }
-        }
-        else
-        {
-            if ((count >= 2 && count <= 4) || (count >= 6))
-            {
-                Nodes.push_back(resolved.Sum<float>("totEventWeight"));
-                Nodes.push_back(EventWeight.Sum<float>("EventWeight"));
-            }
-
-            Nodes.push_back(resolved.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 80, 200}, "reco_higgs_mass", "totEventWeight"));
-        }
-    }
-
-//    0               ma5
-//    1               ma1
-//    2   3   4       Z-gamma
-//    5   6   7       Z-gamma
-//    8   9   10      Z-gamma
-//    11              data
-//    12  13  14      Z-jets
-//    15  16  17      Z-jets
-//    18  19  20      Z-jets
-//    21  22  23      Z-jets
-//    24  25  26      Z-jets
-//    27  28  29      Z-jets
-//    30  31  32      Z-jets
-//    33  34  35      Z-jets
-//    36  37  38      Z-jets
-
-    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
-
-    std::cout << "Sideband = " << *SB_test << '\n';
-    std::cout << "Signal region = " << *SR_test << '\n';
-
-    count = 0;
-    TCanvas* c1 = new TCanvas();
-    TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
-    double factor;
-    //signal
-    for (auto& i: {0,1})
-    {
-        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
-        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
-
-        if (i == 0)
-        {
-            factor = Nodes[i].GetResultPtr<TH1D>()->Integral();
-            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
-            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll#gamma#gamma} [GeV];Events");
-            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
-            Nodes[i].GetResultPtr<TH1D>()->SetAxisRange(0., 71, "Y");
-            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
-        }
-        else
-        {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
-            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
-            gPad->Modified(); gPad->Update();
-        }
-    }
-
-    gStyle->SetOptStat(0);
-    TLatex Tl;
-    Tl.SetTextSize(0.03);
-    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-    legend->SetBorderSize(0);
-    legend->Draw();
-    c1->SaveAs("Fig26B.pdf");
-
+//void fig26()
+//{
+//    std::vector<std::vector<std::string>> input_filenames = {
+//        //Signal
+//        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}, //1 GeV
+//        {"/home/common/Za/NTuples/Signal/mc16_13TeV.600751.PhPy8EG_AZNLO_ggH125_mA2p0_v1.root"}, // 2 GeV
+//        //Z gamma background
+//        {"/home/common/Za/NTuples/Background/user.kschmied.364860.eegammagamma_pty2_9_17.deriv.DAOD_STDM3.e7057_s3126_r10724_p4092_LGNTuple.root/user.kschmied.31617070._000001.LGNTuple.root"},
+//        {"/home/common/Za/NTuples/Background/user.kschmied.364861.eegammagamma_pty_17_myy_0_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4062_LGNTuple.root/user.kschmied.31617064._000001.LGNTuple.root"},
+//        {"/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000001.LGNTuple.root", "/home/common/Za/NTuples/Background/user.kschmied.364862.eegammagamma_pty_17_myy_80.deriv.DAOD_HIGG1D2.e7057_s3126_r10724_p4204_LGNTuple.root/user.kschmied.31660711._000002.LGNTuple.root"},
+//        //Data
+//        {"/home/common/Za/NTuples/Ntuple_data_test.root"},
+//        //Jets
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364114.v11.Zee_0_70_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835698._000005.LGNTuple.root"
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000006.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364117.v11.Zee_70_140_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835715._000007.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364120.v11.Zee_140_280_CVetoBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835749._000005.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364115.v11.Zee_0_70_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835769._000004.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364118.v11.Zee_70_140_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835773._000003.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364121.v11.Zee_140_280_CFilterBVeto.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835802._000004.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000005.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000006.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000007.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364116.v11.Zee_0_70_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835825._000008.LGNTuple.root"
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000005.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000006.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000007.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000008.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000009.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000010.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000011.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000012.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000013.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364119.v11.Zee_70_140_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835838._000014.LGNTuple.root",
+//        },
+//        {
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000001.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000002.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000003.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000004.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000005.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000006.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000007.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000008.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000009.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000010.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000011.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000012.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000013.LGNTuple.root",
+//            "/home/common/Za/NTuples/Background/user.kschmied.364122.v11.Zee_140_280_BFilter.DAOD_STDM3.e5299_s3126_r10724_p4252_LGNTuple.root/user.kschmied.31835843._000014.LGNTuple.root",
+//        },
+//    };
+//
+//    std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
+//
+//    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
+//
+//    std::vector<const char*> prefixes = {"Sig m_{A} = 1 GeV", "Sig m_{A} = 2 GeV", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "data", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
+//    std::vector<EColor> colors = {kMagenta, static_cast<EColor>(kOrange+1), kBlue, kRed, kViolet, static_cast<EColor>(kGreen+2)};
+//    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
+//
+//    std::vector<ROOT::RDF::RResultHandle> Nodes;
+//    ROOT::RDF::RResultPtr<ULong64_t> SB_test, SR_test;
+//
+//    int count = 0;
+//    for (auto& i: input_filenames)
+//    {
+//        SchottDataFrame df(MakeRDF(i, 8));
+//
+//        auto EventWeight = df.Define("EventWeight", //mc generator weight
+//        [](const RVec<float>& ei_event_weights_generator)
+//        {
+//            return ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
+//
+//        }, {"ei_event_weights_generator"})
+//        .Define("totEventWeightVec", //vector of efficiencies, product of photon_id_eff, photon_iso_eff, and photon_trg_eff
+//        [](RVec<float> photon_id_eff/*, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff, RVec<float> ei_event_weights_generator*/)
+//        {
+////            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+////            photon_id_eff.resize(ResizeVal,1);
+////            photon_iso_eff.resize(ResizeVal,1);
+////            photon_trg_eff.resize(ResizeVal,1);
+//
+//            return photon_id_eff; // *photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
+//
+//        }, {"photon_id_eff"/*, "photon_iso_eff", "photon_trg_eff", "ei_event_weights_generator"*/});
+//
+//        //new dataframe node: contains only the events of newDf that pass the trigger cut
+//        auto trigger_selection = EventWeight
+//        .Filter([](const RVec<std::string>& trigger_passed_triggers)
+//        {
+//            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+//
+//            if (!trigger_found)
+//            {
+//                return false; //this event is filtered out
+//            }
+//            return true; //this event is kept because the trigger was found in its `trigger_passed_triggers` branch entry
+//
+//        }, {"trigger_passed_triggers"});
+//
+//        auto two_leptons = trigger_selection
+//        .Define("di_electrons", //the events that pass will have exactly 2 electrons that pass the following
+//        [](RVec<Electron> electrons)
+//        {
+//            //keep the electrons in each event that have pt > 20 GeV, |η| < 2.37,
+//            //|η| not between 1.37 and 1.52, and that satisfy a medium id criteria `electron_id_medium`
+//            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+//            [](Electron& ep)
+//            {
+//                 return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+//                 (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
+//                 && (ep.electron_id_medium == 1)));
+//
+//            }), electrons.end());
+//
+//            return electrons;
+//
+//        },{"electrons"}).Filter(
+//        [](RVec<Muon>& muons, RVec<Electron> electrons)
+//        {
+//            return (electrons.size()==2 && muons.empty()); //keep events which have exactly 2 electrons for di_electrons and no muons
+//
+//        }, {"muons", "di_electrons"});
+//
+//        //new dataframe node: contains only the events from `two_leptons` whose electrons in the `di_electrons` branch have opposite charge
+//        auto opp_charge = two_leptons
+//        .Filter([](RVec<Electron>& electrons)
+//        {
+//            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+//
+//        }, {"di_electrons"});
+//
+//        //new dataframe node: contains only the events from `opp_charge` that have 1 electron with pt > 20 GeV and the other with pt > 27 GeV
+//        auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+//        {
+//            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+//        }, {"di_electrons"});
+//
+//        auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+//        {
+//            return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+//        }, {"di_electrons"});
+//
+//        //new dataframe node: Contains a new column `dilep` in addition to the ones in `same_flavour` that stores the di-electron four-vector
+//        auto dilep = deltaR.Define("dilep",[] (RVec<Electron>& electrons)
+//        {
+//            return (electrons[0].Vector() + electrons[1].Vector());
+//        }, {"di_electrons"});
+//
+//        //new dataframe node: contains only the events from `dilep` that have di-electron invariant mass between 81 and 101 GeV
+//        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+//        {
+//            auto mass = dilep.M()/1e3;
+//            return ((mass >= 81) && (mass <= 101));
+//        }, {"dilep"});
+//
+//        //new dataframe node: contains only the events from `mass` that have dilepton pT > 10 GeV
+//        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
+//        {
+//            auto pT = dilep.Pt()/1e3;
+//            return pT > 10;
+//        }, {"dilep"});
+//
+//        auto photon_passes_cuts = ptCut
+//        .Define("photons_pass_cut_indices",
+//        [&](const RVec<Photon>& photons)
+//        {
+//            RVec<int> photon_indices;
+//            photon_indices.reserve(photons.size());
+//
+//            for (int i = 0; i < photons.size(); i++)
+//            {
+//                if (
+//                (std::abs(photons[i].photon_eta) >= 2.37) or
+//                (photons[i].photon_pt <= 10e3) or
+//                (std::abs(photons[i].photon_eta) > 1.37 and std::abs(photons[i].photon_eta) < 1.52) or
+//                (not photons[i].photon_id_loose)
+//                )
+//                {
+//                    continue;
+//                }
+//                photon_indices.push_back(i);
+//            }
+//
+//            return photon_indices;
+//        }, {"photons"})
+//        .Define("photons_pass_cuts",
+//        [&](RVec<Photon>& photons, RVec<int>& photon_indices)
+//        {
+//            return Take(photons, photon_indices);
+//        }, {"photons", "photons_pass_cut_indices"});
+//
+//        auto resolved = photon_passes_cuts.Define("chosen_two_indices",
+//        [](RVec<Photon>& photons_pass_cuts)
+//        {
+//            RVec<unsigned long> x; //vector of indices
+//            if (photons_pass_cuts.size() < 2)
+//            {
+//                return x;
+//            }
+//
+//            auto combs = Combinations(photons_pass_cuts, 2); //all combinations of 2 reco-photons
+//            size_t length = combs[0].size(); //number of combinations
+//            double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+//
+//            for (size_t i=0; i<length; i++) //looping through all of the possible combinations of photons in each event
+//            {
+//                delta_r = DeltaR(photons_pass_cuts[combs[0][i]].Vector(), photons_pass_cuts[combs[1][i]].Vector());
+//                m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
+//                pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
+//                X = delta_r*(pt/(2.0*m));
+//                //if it's the first combination or if new X is closer to 1
+//                //than current best_X and ΔR
+//                //between the two reco-photons < 1.5, then update best_X, pt1, pt2,
+//                //and the corresponding reco-photon indices x
+//                if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
+//                {
+//                    best_X = X;
+//                    pt1 = photons_pass_cuts[combs[0][i]].photon_pt;
+//                    pt2 = photons_pass_cuts[combs[1][i]].photon_pt;
+//                    chosen_delta_r = delta_r;
+//                    x = {combs[0][i], combs[1][i]};
+//                }
+//            }
+//            if (chosen_delta_r < 1.5 && pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2) //two photons corresponding to best_X must both have p_T > 10 GeV, ΔR < 1.5, and 0.96 < best_X < 1.2
+//            {
+//                return x;
+//            }
+//
+//            x.clear();
+//            return x;
+//        }, {"photons_pass_cuts"}).Filter(//keep only events that have passed the first part of the resolved category
+//        [&](RVec<unsigned long>& indices)
+//        {
+//            return (indices.size()==2);
+//
+//        }, {"chosen_two_indices"})
+//        .Define("chosen_two", //New column: consists of the good photons corresponding to the `chosen_two_indices` defined above
+//        [&](RVec<Photon>& reco_photons_matched, RVec<unsigned long>& indices)
+//        {
+//            return Take(reco_photons_matched, indices);
+//
+//        }, {"photons_pass_cuts", "chosen_two_indices"})
+//        .Define("diphoton",
+//        [&](RVec<Photon>& reco_photons_matched)
+//        {
+//            return reco_photons_matched[0].Vector() + reco_photons_matched[1].Vector();
+//        }, {"chosen_two"})
+//        .Define("reco_higgs_mass",
+//        [&](PtEtaPhiEVector& diphoton, PtEtaPhiEVector& dilep)
+//        {
+//            return (dilep + diphoton).M() / 1e3;
+//        }, {"diphoton", "dilep"})
+//        .Define("totEventWeight", //New column: weight factor for events in RDF `resolved`
+//        [&](RVec<unsigned long> chosen_two_indices, RVec<int>& photons_pass_cut_indices, RVec<float>& photon_efficiencies)
+//        {
+//            //First, we take the elements from photon_efficiencies that correspond to the `photons_pass_cut_indices` defined
+//            //earlier. Then, from that resulting vector, we take the elements corresponding to the
+//            //`chosen_two_indices` defined above
+//            RVec<float> resolved_photon_efficiencies = Take(Take(photon_efficiencies, photons_pass_cut_indices), chosen_two_indices);
+//            //Now, multiply all of the elements of the vector we defined above
+//            float total = 1.0f;
+//            for (auto i: resolved_photon_efficiencies)
+//            {
+//                total *= i;
+//            }
+//            //and return the result
+//            return total;
+//        }, {"chosen_two_indices", "photons_pass_cut_indices", "totEventWeightVec"});
+//
+//        if (count < 2) //signal only
+//        {
+//            Nodes.push_back(resolved.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 80, 200}, "reco_higgs_mass", "totEventWeight"));
+//            if (count == 1)
+//            {
+//                auto SB_test_Filter = resolved.Filter(
+//                [](double reco_higgs_mass)
+//                {
+//                    return (!((reco_higgs_mass > 110) && (reco_higgs_mass < 140)));
+//                }, {"reco_higgs_mass"});
+//                SB_test = SB_test_Filter.Count();
+//
+//                auto SR_test_Filter = resolved.Filter(
+//                [](double reco_higgs_mass)
+//                {
+//                    return ((reco_higgs_mass > 110) && (reco_higgs_mass < 140));
+//                }, {"reco_higgs_mass"});
+//                SR_test = SR_test_Filter.Count();
+//            }
+//        }
+//        else
+//        {
+//            if ((count >= 2 && count <= 4) || (count >= 6))
+//            {
+//                Nodes.push_back(resolved.Sum<float>("totEventWeight"));
+//                Nodes.push_back(EventWeight.Sum<float>("EventWeight"));
+//            }
+//
+//            Nodes.push_back(resolved.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 80, 200}, "reco_higgs_mass", "totEventWeight"));
+//        }
+//    }
+//
+////    0               ma5
+////    1               ma1
+////    2   3   4       Z-gamma
+////    5   6   7       Z-gamma
+////    8   9   10      Z-gamma
+////    11              data
+////    12  13  14      Z-jets
+////    15  16  17      Z-jets
+////    18  19  20      Z-jets
+////    21  22  23      Z-jets
+////    24  25  26      Z-jets
+////    27  28  29      Z-jets
+////    30  31  32      Z-jets
+////    33  34  35      Z-jets
+////    36  37  38      Z-jets
+//
+//    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+//
+//    std::cout << "Sideband = " << *SB_test << '\n';
+//    std::cout << "Signal region = " << *SR_test << '\n';
+//
 //    count = 0;
-    factor = 0;
-    int back_count = 0;
-    for (auto i: {2,5,8})
-    {
-        factor += (*Nodes[i].GetResultPtr<float>())*(SFs[back_count++] / *Nodes[i+1].GetResultPtr<float>());
-    }
-    back_count = 0;
-    for (int i = 12; i <= 36; i+=3)
-    {
-        factor += (*Nodes[i].GetResultPtr<float>())*(JetNumeratorSFs[back_count++] / *Nodes[i+1].GetResultPtr<float>());
-    }
-
-    auto hs = new THStack("hs3","");
-    c1 = new TCanvas();
-    legend = new TLegend(0.14, 0.45, 0.35, 0.8);
-
-    //Z-gamma (4, 7, 10) and then data (11)
-    for (auto i: {4,7,10,11})
-    {
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 11)
-        {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count-2] / *Nodes[i-1].GetResultPtr<float>());
-        }
-
-        if (i != 11)
-        {
-            Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
-            legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
-            hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
-        }
-        else
-        {
-            Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
-            legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
-            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
-        }
-    }
-
-    for (int i = 14, j = 0; (i <= 38 && j <= 8); i += 3, j++)
-    {
-        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
-        {
-            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / *Nodes[i-1].GetResultPtr<float>());
-        }
-        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
-        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
-        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
-    }
-
-    hs->Draw("HIST");
-    Nodes[11].GetResultPtr<TH1D>()->Draw("HISTsame"); //draw data
-    count=0;
-
-    for (auto i: {0,1})
-    {
-//        Nodes[i].GetResultPtr<TH1D>()->SetLineWidth(2);
-        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count]);
-        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), prefixes[count++], "l");
-        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll#gamma#gamma} [GeV];Events");
-        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
-        Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
-        Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
-        std::cout << Nodes[i].GetResultPtr<TH1D>()->Integral() << '\n'
-        << factor << '\n';
-        Nodes[i].GetResultPtr<TH1D>()->DrawClone("HISTsame");
-        gPad->Modified();
-        gPad->Update();
-        c1->Modified();
-        c1->Update();
-    }
-    hs->SetMaximum(4000);
-    hs->SetTitle(";m_{ll#gamma#gamma} [GeV];Events");
-    hs->GetYaxis()->CenterTitle(true);
-    hs->GetXaxis()->SetTitleOffset(1.2);
-
-    gStyle->SetOptStat(0);
-    Tl.SetTextSize(0.03);
-    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-    legend->SetBorderSize(0);
-    legend->Draw("same");
-    c1->SaveAs("Fig26A.pdf");
-}
+//    TCanvas* c1 = new TCanvas();
+//    TLegend* legend = new TLegend(0.65, 0.4, 0.85, 0.6);
+//    double factor;
+//    //signal
+//    for (auto& i: {0,1})
+//    {
+//        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
+//        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
+//
+//        if (i == 0)
+//        {
+//            factor = Nodes[i].GetResultPtr<TH1D>()->Integral();
+//            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+//            Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll#gamma#gamma} [GeV];Events");
+//            Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+//            Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+//            Nodes[i].GetResultPtr<TH1D>()->SetAxisRange(0., 71, "Y");
+//            Nodes[i].GetResultPtr<TH1D>()->Draw("HIST");
+//        }
+//        else
+//        {
+//            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+//            Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
+//            gPad->Modified(); gPad->Update();
+//        }
+//    }
+//
+//    gStyle->SetOptStat(0);
+//    TLatex Tl;
+//    Tl.SetTextSize(0.03);
+//    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
+//    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+//    legend->SetBorderSize(0);
+//    legend->Draw();
+//    c1->SaveAs("Fig26B.pdf");
+//
+////    count = 0;
+//    factor = 0;
+//    int back_count = 0;
+//    for (auto i: {2,5,8})
+//    {
+//        factor += (*Nodes[i].GetResultPtr<float>())*(SFs[back_count++] / *Nodes[i+1].GetResultPtr<float>());
+//    }
+//    back_count = 0;
+//    for (int i = 12; i <= 36; i+=3)
+//    {
+//        factor += (*Nodes[i].GetResultPtr<float>())*(JetNumeratorSFs[back_count++] / *Nodes[i+1].GetResultPtr<float>());
+//    }
+//
+//    auto hs = new THStack("hs3","");
+//    c1 = new TCanvas();
+//    legend = new TLegend(0.14, 0.45, 0.35, 0.8);
+//
+//    //Z-gamma (4, 7, 10) and then data (11)
+//    for (auto i: {4,7,10,11})
+//    {
+//        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0 && i != 11)
+//        {
+//            Nodes[i].GetResultPtr<TH1D>()->Scale(SFs[count-2] / *Nodes[i-1].GetResultPtr<float>());
+//        }
+//
+//        if (i != 11)
+//        {
+//            Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count++]);
+//            legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+//            hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+//        }
+//        else
+//        {
+//            Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count++]);
+//            legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "l");
+//            Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+//        }
+//    }
+//
+//    for (int i = 14, j = 0; (i <= 38 && j <= 8); i += 3, j++)
+//    {
+//        if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
+//        {
+//            Nodes[i].GetResultPtr<TH1D>()->Scale(JetNumeratorSFs[j] / *Nodes[i-1].GetResultPtr<float>());
+//        }
+//        Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+//        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
+//        hs->Add(&*Nodes[i].GetResultPtr<TH1D>());
+//    }
+//
+//    hs->Draw("HIST");
+//    Nodes[11].GetResultPtr<TH1D>()->Draw("HISTsame"); //draw data
+//    count=0;
+//
+//    for (auto i: {0,1})
+//    {
+////        Nodes[i].GetResultPtr<TH1D>()->SetLineWidth(2);
+//        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count]);
+//        legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), prefixes[count++], "l");
+//        Nodes[i].GetResultPtr<TH1D>()->SetTitle(";m_{ll#gamma#gamma} [GeV];Events");
+//        Nodes[i].GetResultPtr<TH1D>()->GetYaxis()->CenterTitle(true);
+//        Nodes[i].GetResultPtr<TH1D>()->GetXaxis()->SetTitleOffset(1.2);
+//        Nodes[i].GetResultPtr<TH1D>()->Scale(factor/Nodes[i].GetResultPtr<TH1D>()->Integral());
+//        std::cout << Nodes[i].GetResultPtr<TH1D>()->Integral() << '\n'
+//        << factor << '\n';
+//        Nodes[i].GetResultPtr<TH1D>()->DrawClone("HISTsame");
+//        gPad->Modified();
+//        gPad->Update();
+//        c1->Modified();
+//        c1->Update();
+//    }
+//    hs->SetMaximum(4000);
+//    hs->SetTitle(";m_{ll#gamma#gamma} [GeV];Events");
+//    hs->GetYaxis()->CenterTitle(true);
+//    hs->GetXaxis()->SetTitleOffset(1.2);
+//
+//    gStyle->SetOptStat(0);
+//    Tl.SetTextSize(0.03);
+//    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
+//    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+//    legend->SetBorderSize(0);
+//    legend->Draw("same");
+//    c1->SaveAs("Fig26A.pdf");
+//}
 
 //void fig27()
 //{
@@ -4586,7 +4586,7 @@ void Table19()
 void DataBackgroundComparison()
 {
     auto start_time = Clock::now();
-    fig26();
+//    fig26();
 //    fig27();
     fig28();
     fig41();
