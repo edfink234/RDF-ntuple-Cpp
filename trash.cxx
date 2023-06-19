@@ -34,6 +34,26 @@ using namespace ROOT::Math; // PtEtaPhiEVector
 
 using Clock = std::chrono::high_resolution_clock;
 
+Zee\_lightJet\_0-70 & -0.3190 & 0.2127 & 0.0000 \\ \hline
+Zee\_lightJet\_70-140 & -0.1141 & 0.0570 & 0.0000 \\ \hline
+Zee\_lightJet\_140-280 & 0.0103 & 0.5253 & 0.0000 \\ \hline
+Zee\_cJet\_0-70 & -0.0889 & 0.3049 & 0.0000 \\ \hline
+Zee\_cJet\_70-140 & -0.0349 & 0.5064 & 0.0000 \\ \hline
+Zee\_cJet\_140-280 & -0.0349 & 0.3486 & 0.0000 \\ \hline
+Zee\_bJet\_0-70 & 0.2896 & 0.5793 & 0.0000 \\ \hline
+Zee\_bJet\_70-140 & 0.3704 & 2.2222 & 0.0000 \\ \hline
+Zee\_bJet\_140-280 & 0.0145 & 0.3913 & 0.0000 \\ \hline
+
+Zee\_lightJet\_0-70 & -0.3190 & 0.2127 & 0.0000 \\ \hline
+Zee\_lightJet\_70-140 & -0.1141 & 0.0570 & 0.0000 \\ \hline
+Zee\_lightJet\_140-280 & 0.0000 & 0.5150 & 0.0000 \\ \hline
+Zee\_cJet\_0-70 & -0.0889 & 0.3049 & 0.0000 \\ \hline
+Zee\_cJet\_70-140 & -0.0524 & 0.5064 & 0.0000 \\ \hline
+Zee\_cJet\_140-280 & -0.0349 & 0.3486 & 0.0000 \\ \hline
+Zee\_bJet\_0-70 & 0.2896 & 0.5793 & 0.0000 \\ \hline
+Zee\_bJet\_70-140 & 0.3704 & 2.2222 & 0.0000 \\ \hline
+Zee\_bJet\_140-280 & 0.0217 & 0.3986 & 0.0000 \\ \hline
+
 constexpr std::array<const char*,35> triggers =
 {
     "HLT_e26_lhtight_nod0_ivarloose",

@@ -122,14 +122,12 @@ void fig1A()
         {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
 
-    std::vector<RResultMap<TH1D>> resultmaps; //store varied histos
-
     std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
 
     std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "sig m_{A} = 2 GeV", "sig m_{A} = 3 GeV", "sig m_{A} = 9 GeV", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
     std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
-    std::vector<EColor> colors = {kBlue, kRed, kViolet, kBlack, kMagenta, kTeal, static_cast<EColor>(kOrange+10), static_cast<EColor>(kSpring + 5)};
-    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
+    std::vector<EColor> colors = {static_cast<EColor>(kRed-7), static_cast<EColor>(kRed-9), static_cast<EColor>(kRed-10), kBlack, kMagenta, kTeal, static_cast<EColor>(kOrange+10), static_cast<EColor>(kSpring + 5)};
+    std::vector<EColor> Jetscolors = {static_cast<EColor>(kGreen+0), static_cast<EColor>(kGreen-4), static_cast<EColor>(kGreen-7), static_cast<EColor>(kGreen-9), static_cast<EColor>(kGreen-10), static_cast<EColor>(kGreen+1), static_cast<EColor>(kGreen-3), static_cast<EColor>(kGreen-6), static_cast<EColor>(kGreen-8)};
 
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.625, 0.25, 0.88, 0.65);
@@ -448,14 +446,12 @@ void fig3()
         {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
     };
 
-    std::vector<RResultMap<TH1D>> resultmaps; //store varied histos
-
     std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
 
     std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "sig m_{A} = 2 GeV", "sig m_{A} = 3 GeV", "sig m_{A} = 9 GeV", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
     std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
-    std::vector<EColor> colors = {kBlue, kRed, kViolet, kBlack, kMagenta, kTeal, static_cast<EColor>(kOrange+10), static_cast<EColor>(kSpring + 5)};
-    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
+    std::vector<EColor> colors = {static_cast<EColor>(kRed-7), static_cast<EColor>(kRed-9), static_cast<EColor>(kRed-10), kBlack, kMagenta, kTeal, static_cast<EColor>(kOrange+10), static_cast<EColor>(kSpring + 5)};
+    std::vector<EColor> Jetscolors = {static_cast<EColor>(kGreen+0), static_cast<EColor>(kGreen-4), static_cast<EColor>(kGreen-7), static_cast<EColor>(kGreen-9), static_cast<EColor>(kGreen-10), static_cast<EColor>(kGreen+1), static_cast<EColor>(kGreen-3), static_cast<EColor>(kGreen-6), static_cast<EColor>(kGreen-8)};
 
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.625, 0.25, 0.88, 0.65);
@@ -851,7 +847,7 @@ void fig3()
 //    TLatex Tl;
 //    Tl.SetTextSize(0.03);
 //    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-//    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+//    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV");
 //    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 1 GeV");
 //    legend->SetBorderSize(0);
 //    legend->Draw();
@@ -882,7 +878,7 @@ void fig3()
 //    gStyle->SetOptStat(0);
 //    Tl.SetTextSize(0.03);
 //    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-//    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+//    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV");
 //    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 1 GeV");
 //    legend->SetBorderSize(0);
 //    legend->Draw();
@@ -897,7 +893,7 @@ void fig3()
 ////        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Test_oneMassPoint.root"
 //    };
 //
-//    std::vector<EColor> colors = {kRed, kBlue};
+//    std::vector<EColor> colors = {kRed, kBlue, static_cast<EColor>(kOrange+2)};
 //    TCanvas* c1 = new TCanvas();
 //    TLegend* legend = new TLegend(0.6, 0.4, 0.8, 0.525);
 //
@@ -1147,9 +1143,9 @@ void fig3()
 //
 //    std::vector<ROOT::RDF::RResultPtr<TH1D>> histos =
 //    {
-//        two_reco_photons_matched.Histo1D<double>({"Leading Photon", "Leading Photon", 30u, 0, 50}, "leading_pt", "totEventWeight"),
-//        two_reco_photons_matched.Histo1D<double>({"Sub-Leading Photon", "Sub-Leading Photon", 30u, 0, 50}, "sub_leading_pt", "totEventWeight"),
-//        one_reco_photons_matched.Histo1D<double>({"Leading Photon", "Leading Photon", 40u, 0, 100}, "leading_pt", "totEventWeight"),
+//        two_reco_photons_matched.Histo1D<double>({"Leading Photon Two Matched", "Leading Photon Two Matched", 30u, 0, 50}, "leading_pt", "totEventWeight"),
+//        two_reco_photons_matched.Histo1D<double>({"Sub-Leading Photon Two Matched", "Sub-Leading Photon Two Matched", 30u, 0, 50}, "sub_leading_pt", "totEventWeight"),
+//        one_reco_photons_matched.Histo1D<double>({"Leading Photon One Matched", "Leading Photon One Matched", 40u, 0, 100}, "leading_pt", "totEventWeight"),
 //    };
 //
 ////    auto truth_photons_from_axions_Count = truth_photons_from_axions.Count();
@@ -1161,7 +1157,7 @@ void fig3()
 //
 //    double factor = histos[0]->Integral();
 //
-//    histos[0]->Scale(factor/factor);
+////    histos[0]->Scale(factor/factor);
 //    histos[0]->SetLineColor(colors[0]);
 //    histos[0]->Draw("HIST");
 //    legend->AddEntry(&(*histos[0]), histos[0]->GetTitle(), "l");
@@ -1170,7 +1166,7 @@ void fig3()
 //    histos[0]->GetYaxis()->CenterTitle(true);
 //    histos[0]->SetAxisRange(0., 800,"Y");
 //
-//    histos[1]->Scale(factor/histos[1]->Integral());
+////    histos[1]->Scale(factor/histos[1]->Integral());
 //    histos[1]->SetLineColor(colors[1]);
 //    histos[1]->Draw("HISTsame");
 //    legend->AddEntry(&(*histos[1]), histos[1]->GetTitle(), "l");
@@ -1179,17 +1175,18 @@ void fig3()
 //    TLatex Tl;
 //    Tl.SetTextSize(0.03);
 //    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-//    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+//    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV");
 //    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 1 GeV");
 //    legend->SetBorderSize(0);
 //    legend->Draw();
+//    legend->SetTextSize(0.022);
 //    c1->SaveAs("Fig6A.pdf");
 //
 //    c1 = new TCanvas();
 //    legend = new TLegend(0.6, 0.4, 0.8, 0.6);
 //    factor = histos[2]->Integral();
 //    histos[2]->Scale(factor/factor);
-//    histos[2]->SetLineColor(colors[0]);
+//    histos[2]->SetLineColor(colors[2]);
 //    histos[2]->Draw("HIST");
 //    histos[2]->GetYaxis()->CenterTitle(true);
 //
@@ -1199,13 +1196,48 @@ void fig3()
 //    gStyle->SetOptStat(0);
 //    Tl.SetTextSize(0.03);
 //    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-//    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+//    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV");
 //    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 1 GeV");
 //    legend->SetBorderSize(0);
+//    legend->SetTextSize(0.022);
 //    legend->Draw();
 //    c1->SaveAs("Fig6B.pdf");
 //
+//    c1 = new TCanvas();
+//    legend = new TLegend(0.6, 0.4, 0.8, 0.6);
+//
+//    factor = histos[2]->Integral();
+//
+//    histos[0]->Draw("HIST");
+//    histos[0]->Scale(factor/histos[0]->Integral());
+//    legend->AddEntry(&(*histos[0]), "Leading Photon Two Matched", "l");
+//    histos[0]->SetTitle(";photon p_{T}  [GeV];Events");
+//    histos[0]->SetTitleOffset(1.2);
+//    histos[0]->GetYaxis()->CenterTitle(true);
+//    histos[0]->SetAxisRange(0., 8400,"Y");
+//
+//    histos[1]->SetLineColor(colors[1]);
+//    histos[1]->Draw("HISTsame");
+//    histos[1]->Scale(factor/histos[1]->Integral());
+//    legend->AddEntry(&(*histos[1]), "Sub-Leading Photon Two Matched", "l");
+//
+//    histos[2]->SetLineColor(colors[2]);
+//    histos[2]->Draw("HISTsame");
+//    legend->AddEntry(&(*histos[2]), "Leading Photon One Matched", "l");
+//
+//    gStyle->SetOptStat(0);
+//    Tl.SetTextSize(0.03);
+//    Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
+//    Tl.DrawLatexNDC(0.6, 0.77,"#sqrt{s} = 13 TeV");
+//    Tl.DrawLatexNDC(0.6, 0.7,"ggF m_{A} = 1 GeV");
+//    legend->SetBorderSize(0);
+//    legend->Draw();
+//    legend->SetTextSize(0.022);
+//    gPad->Modified(); gPad->Update();
+//
+//    c1->SaveAs("Fig6_A_and_B.pdf");
 //}
+
 
 //void fig8()
 //{
@@ -2593,8 +2625,8 @@ void fig24()
 
     std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))};
 
-    std::vector<EColor> colors = {kBlack, kMagenta, kBlue, kRed, kViolet};
-    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
+    std::vector<EColor> colors = {kBlack, kMagenta, static_cast<EColor>(kRed-7), static_cast<EColor>(kRed-9), static_cast<EColor>(kRed-10)};
+    std::vector<EColor> Jetscolors = {static_cast<EColor>(kGreen+0), static_cast<EColor>(kGreen-4), static_cast<EColor>(kGreen-7), static_cast<EColor>(kGreen-9), static_cast<EColor>(kGreen-10), static_cast<EColor>(kGreen+1), static_cast<EColor>(kGreen-3), static_cast<EColor>(kGreen-6), static_cast<EColor>(kGreen-8)};
     int count = 0;
 
     for (auto& sample: input_filenames)
@@ -3005,7 +3037,7 @@ void fig24()
     legend->Draw();
     c1->SaveAs("Fig24A.pdf");
 }
-//
+
 //void fig54()
 //{
 //    std::vector<std::string> input_filenames = {
@@ -4687,19 +4719,19 @@ void fig24()
 void ControlPlotsSignalShapes()
 {
     auto start_time = Clock::now();
-//    fig1A();
-//    fig3();
+    fig1A();
+    fig3();
 //    fig5();
 //    fig6();
 //    fig8();
 //    fig10();
 //    fig18();
-//    fig24();
+    fig24();
 //    fig54();
 //    fig29();
-    AxionMassEventCounter();
-    SignalShapes();
-    SignalShapesDeltaR();
+//    AxionMassEventCounter();
+//    SignalShapes();
+//    SignalShapesDeltaR();
 //    ALP_Decay_Lengths();
     
     auto end_time = Clock::now();
