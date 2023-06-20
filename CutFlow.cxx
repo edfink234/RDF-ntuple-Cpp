@@ -3260,6 +3260,7 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         name = std::string("C_{a#gamma#gamma}") + syst_index;
         double y_bins[] = {0.000099, 0.0008, 0.001, 0.008, 0.0099, 0.08, 0.1, 0.8, 1, 8, 10}; //y bins
         histo2d = new TH2D(name.c_str(), title.c_str(), 299, 0.1, 31, 10, y_bins); //numbers are: x_bins, x_min, x_max, y_bins, y_min, y_max
+        histo2d->SetMaximum(0.085);
         histo2d->GetYaxis()->SetMoreLogLabels();
         histo2d->GetYaxis()->SetNoExponent();
         histo2d->SetOption("LOGZ");
@@ -3349,7 +3350,7 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         gStyle->SetOptStat(0);
         Tl.SetTextSize(0.03);
         Tl.DrawLatexNDC(0.7, 0.83, "#it{ATLAS} Internal");
-        Tl.DrawLatexNDC(0.7, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+        Tl.DrawLatexNDC(0.7, 0.73,"#sqrt{s} = 13 TeV");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
         title = std::string("Cayy") + "DisplacedResolved" + syst_index + ".pdf";
@@ -3379,6 +3380,7 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         name = std::string("C_{a#gamma#gamma}") + syst_index;
         double prompt_y_bins[] = {0.008, 0.0099, 0.08, 0.1}; //y bins
         histo2d = new TH2D(name.c_str(), title.c_str(), 25, 0.1, 10, 3, prompt_y_bins); //numbers are: x_bins, x_min, x_max, y_bins, y_min, y_max
+        histo2d->SetMaximum(0.085);
         histo2d->GetXaxis()->SetTitleSize(0.04);
         histo2d->GetYaxis()->SetTitleSize(0.04);
         histo2d->GetZaxis()->SetTitleSize(0.04);
@@ -3439,7 +3441,7 @@ void Coupling_and_Systematics_resolved(std::unordered_map<float, float>& resolve
         gStyle->SetOptStat(0);
         Tl.SetTextSize(0.03);
         Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-        Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+        Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
         title = std::string("CayyPromptResolved") + syst_index + ".pdf";
@@ -4102,6 +4104,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         out << syst_names[syst_counter];
         out << R"--(  (Displaced Merged) \\ Efficiencies}}\\[5 pt] \hline)--" << '\n';
         out << R"--($m_a$ (GeV) & $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 1$ &   $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| =  0.01$ &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.001$  &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.0001$  \\ \hline)--" << '\n';
+        
         ///displaced case
         int start_index = 0;
 
@@ -4112,6 +4115,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         name = std::string("C_{a#gamma#gamma}") + syst_index;
         double y_bins[] = {0.000099, 0.0008, 0.001, 0.008, 0.0099, 0.08, 0.1, 0.8, 1, 8, 10}; //y bins
         histo2d = new TH2D(name.c_str(), title.c_str(), 299, 0.1, 31, 10, y_bins);
+        histo2d->SetMaximum(0.085);
         histo2d->GetYaxis()->SetMoreLogLabels();
         histo2d->GetYaxis()->SetNoExponent();
         histo2d->SetOption("LOGZ");
@@ -4201,7 +4205,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         gStyle->SetOptStat(0);
         Tl.SetTextSize(0.03);
         Tl.DrawLatexNDC(0.7, 0.83, "#it{ATLAS} Internal");
-        Tl.DrawLatexNDC(0.7, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+        Tl.DrawLatexNDC(0.7, 0.73,"#sqrt{s} = 13 TeV");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
         title = std::string("CayyDisplacedMerged") + syst_index + ".pdf";
@@ -4231,6 +4235,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         name = std::string("C_{a#gamma#gamma}") + syst_index;
         double prompt_y_bins[] = {0.008, 0.0099, 0.08, 0.1}; //y bins
         histo2d = new TH2D(name.c_str(), title.c_str(), 25, 0.1, 10, 3, prompt_y_bins);
+        histo2d->SetMaximum(0.085);
         histo2d->GetXaxis()->SetTitleSize(0.04);
         histo2d->GetYaxis()->SetTitleSize(0.04);
         histo2d->GetZaxis()->SetTitleSize(0.04);
@@ -4293,7 +4298,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         gStyle->SetOptStat(0);
         Tl.SetTextSize(0.03);
         Tl.DrawLatexNDC(0.6, 0.83, "#it{ATLAS} Internal");
-        Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+        Tl.DrawLatexNDC(0.6, 0.73,"#sqrt{s} = 13 TeV");
         c1->SetCanvasSize(2.5*c1->GetWw(), c1->GetWh());
         gPad->SetLeftMargin(0.06);
         title = std::string("CayyPromptMerged") + syst_index + ".pdf";

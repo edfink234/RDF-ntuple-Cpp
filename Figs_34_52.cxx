@@ -261,7 +261,7 @@ void Fig34()
     TLatex Tl;
     Tl.SetTextSize(0.03);
     Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV");
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig34A.pdf");
@@ -278,7 +278,7 @@ void Fig34()
     gStyle->SetOptStat(0);
     Tl.SetTextSize(0.03);
     Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV");
     legend->SetBorderSize(0);
     legend->Draw();
     c1->SaveAs("Fig34B.pdf");
