@@ -3957,9 +3957,9 @@ void Resolved_Up_Higgs_Mass()
 
         gStyle->SetOptStat(0);
         resultmapHists[i]["nominal"].SetLineColor(kBlack);
-        resultmapHists[i]["nominal"].SetTitle(";m_{ll#gamma} [GeV];Events");
+        resultmapHists[i]["nominal"].SetTitle(";m_{ll#gamma#gamma} [GeV];Events");
         resultmapHists[i]["nominal"].SetTitle(signalPlusDataSamples[i]);
-        resultmapHists[i]["nominal"].GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+        resultmapHists[i]["nominal"].GetXaxis()->SetTitle("m_{ll#gamma#gamma} [GeV]");
         resultmapHists[i]["nominal"].GetXaxis()->SetTitleOffset(1.2);
         resultmapHists[i]["nominal"].GetYaxis()->SetTitle("Events");
         resultmapHists[i]["nominal"].GetYaxis()->CenterTitle(true);
@@ -4027,8 +4027,8 @@ void Resolved_Up_Higgs_Mass()
 
             if (j == 0)
             {
-                errorHist->SetTitle(";m_{ll#gamma} [GeV];#frac{syst-nominal}{nominal}");
-                errorHist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+                errorHist->SetTitle(";m_{ll#gamma#gamma} [GeV];#frac{syst-nominal}{nominal}");
+                errorHist->GetXaxis()->SetTitle("m_{ll#gamma#gamma} [GeV]");
                 errorHist->GetXaxis()->SetTitleOffset(1.2);
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
@@ -4096,9 +4096,9 @@ void Resolved_Up_Higgs_Mass()
         if (i == 0)
         {
             nominalhist = static_cast<TH1D*>(hist->Clone());
-            hist->SetTitle(";m_{ll#gamma} [GeV];Events");
+            hist->SetTitle(";m_{ll#gamma#gamma} [GeV];Events");
             hist->SetTitle("Z#gamma#gamma");
-            hist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+            hist->GetXaxis()->SetTitle("m_{ll#gamma#gamma} [GeV]");
             hist->GetXaxis()->SetTitleOffset(1.2);
             hist->GetYaxis()->SetTitle("Events");
             hist->GetYaxis()->CenterTitle(true);
@@ -4144,8 +4144,8 @@ void Resolved_Up_Higgs_Mass()
 
             if (i == 1)
             {
-                errorHist->SetTitle(";m_{ll#gamma} [GeV];#frac{syst-nominal}{nominal}");
-                errorHist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+                errorHist->SetTitle(";m_{ll#gamma#gamma} [GeV];#frac{syst-nominal}{nominal}");
+                errorHist->GetXaxis()->SetTitle("m_{ll#gamma#gamma} [GeV]");
                 errorHist->GetXaxis()->SetTitleOffset(1.2);
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
@@ -4215,9 +4215,9 @@ void Resolved_Up_Higgs_Mass()
         if (i == 0)
         {
             nominalhist = static_cast<TH1D*>(hist->Clone());
-            hist->SetTitle(";m_{ll#gamma} [GeV];Events");
+            hist->SetTitle(";m_{ll#gamma#gamma} [GeV];Events");
             hist->SetTitle("Z+Jets");
-            hist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+            hist->GetXaxis()->SetTitle("m_{ll#gamma#gamma} [GeV]");
             hist->GetXaxis()->SetTitleOffset(1.2);
             hist->GetYaxis()->SetTitle("Events");
             hist->GetYaxis()->CenterTitle(true);
@@ -4262,8 +4262,8 @@ void Resolved_Up_Higgs_Mass()
 
             if (i == 1)
             {
-                errorHist->SetTitle(";m_{ll#gamma} [GeV];#frac{syst-nominal}{nominal}");
-                errorHist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+                errorHist->SetTitle(";m_{ll#gamma#gamma} [GeV];#frac{syst-nominal}{nominal}");
+                errorHist->GetXaxis()->SetTitle("m_{ll#gamma#gamma} [GeV]");
                 errorHist->GetXaxis()->SetTitleOffset(1.2);
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
@@ -4695,7 +4695,7 @@ void Resolved_Down_Higgs_Mass()
 
         gStyle->SetOptStat(0);
         resultmapHists[i]["nominal"].SetLineColor(kBlack);
-        resultmapHists[i]["nominal"].SetTitle(";m_{ll#gamma} [GeV];Events");
+        resultmapHists[i]["nominal"].SetTitle(";m_{ll#gamma#gamma} [GeV];Events");
         resultmapHists[i]["nominal"].SetTitle(signalPlusDataSamples[i]);
         resultmapHists[i]["nominal"].GetXaxis()->SetTitle("m_{ll#gamma#gamma} [GeV]");
         resultmapHists[i]["nominal"].GetXaxis()->SetTitleOffset(1.2);
@@ -4765,8 +4765,8 @@ void Resolved_Down_Higgs_Mass()
 
             if (j == 0)
             {
-                errorHist->SetTitle(";m_{ll#gamma} [GeV];#frac{syst-nominal}{nominal}");
-                errorHist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+                errorHist->SetTitle(";m_{ll#gamma#gamma} [GeV];#frac{syst-nominal}{nominal}");
+                errorHist->GetXaxis()->SetTitle("m_{ll#gamma#gamma} [GeV]");
                 errorHist->GetXaxis()->SetTitleOffset(1.2);
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
@@ -4881,8 +4881,8 @@ void Resolved_Down_Higgs_Mass()
 
             if (i == 1)
             {
-                errorHist->SetTitle(";m_{ll#gamma} [GeV];#frac{syst-nominal}{nominal}");
-                errorHist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+                errorHist->SetTitle(";m_{ll#gamma#gamma} [GeV];#frac{syst-nominal}{nominal}");
+                errorHist->GetXaxis()->SetTitle("m_{ll#gamma#gamma} [GeV]");
                 errorHist->GetXaxis()->SetTitleOffset(1.2);
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
@@ -4998,8 +4998,8 @@ void Resolved_Down_Higgs_Mass()
 
             if (i == 1)
             {
-                errorHist->SetTitle(";m_{ll#gamma} [GeV];#frac{syst-nominal}{nominal}");
-                errorHist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+                errorHist->SetTitle(";m_{ll#gamma#gamma} [GeV];#frac{syst-nominal}{nominal}");
+                errorHist->GetXaxis()->SetTitle("m_{ll#gamma#gamma} [GeV]");
                 errorHist->GetXaxis()->SetTitleOffset(1.2);
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
