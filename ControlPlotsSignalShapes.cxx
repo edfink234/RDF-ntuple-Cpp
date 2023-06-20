@@ -182,8 +182,8 @@ void fig1A()
 
     std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "sig m_{A} = 2 GeV", "sig m_{A} = 3 GeV", "sig m_{A} = 9 GeV", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
     std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
-    std::vector<EColor> colors = {kBlue, kRed, kViolet, kBlack, kMagenta, kTeal, static_cast<EColor>(kOrange+10), static_cast<EColor>(kSpring + 5)};
-    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
+    std::vector<EColor> colors = {static_cast<EColor>(kRed-7), static_cast<EColor>(kRed-9), static_cast<EColor>(kRed-10), kBlack, kMagenta, kTeal, static_cast<EColor>(kOrange+10), static_cast<EColor>(kSpring + 5)};
+    std::vector<EColor> Jetscolors = {static_cast<EColor>(kGreen+0), static_cast<EColor>(kGreen-4), static_cast<EColor>(kGreen-7), static_cast<EColor>(kGreen-9), static_cast<EColor>(kGreen-10), static_cast<EColor>(kGreen+1), static_cast<EColor>(kGreen-3), static_cast<EColor>(kGreen-6), static_cast<EColor>(kGreen-8)};
 
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.625, 0.25, 0.88, 0.65);
@@ -408,6 +408,7 @@ void fig1A()
     for (int i = 0; i <= 6; i += 3)
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count]);
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
         {
@@ -425,6 +426,7 @@ void fig1A()
     for (int i = 14, j = 0; (i <= 38 && j <= 8); i += 3, j++)
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(Jetscolors[j]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
         {
@@ -575,8 +577,8 @@ void fig3()
 
     std::vector<const char*> prefixes = {"pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "sig m_{A} = 5 GeV", "sig m_{A} = 1 GeV", "sig m_{A} = 2 GeV", "sig m_{A} = 3 GeV", "sig m_{A} = 9 GeV", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
     std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
-    std::vector<EColor> colors = {kBlue, kRed, kViolet, kBlack, kMagenta, kTeal, static_cast<EColor>(kOrange+10), static_cast<EColor>(kSpring + 5)};
-    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
+    std::vector<EColor> colors = {static_cast<EColor>(kRed-7), static_cast<EColor>(kRed-9), static_cast<EColor>(kRed-10), kBlack, kMagenta, kTeal, static_cast<EColor>(kOrange+10), static_cast<EColor>(kSpring + 5)};
+    std::vector<EColor> Jetscolors = {static_cast<EColor>(kGreen+0), static_cast<EColor>(kGreen-4), static_cast<EColor>(kGreen-7), static_cast<EColor>(kGreen-9), static_cast<EColor>(kGreen-10), static_cast<EColor>(kGreen+1), static_cast<EColor>(kGreen-3), static_cast<EColor>(kGreen-6), static_cast<EColor>(kGreen-8)};
 
     TCanvas* c1 = new TCanvas();
     TLegend* legend = new TLegend(0.625, 0.25, 0.88, 0.65);
@@ -735,6 +737,7 @@ void fig3()
     for (int i = 0; i <= 6; i += 3)
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[count]);
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
         {
@@ -752,6 +755,7 @@ void fig3()
     for (int i = 14, j = 0; (i <= 38 && j <= 8); i += 3, j++)
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(Jetscolors[j]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
         {
@@ -2836,7 +2840,7 @@ void fig24()
     hs->GetXaxis()->SetTitleOffset(1.2);
     hs->GetYaxis()->SetTitleOffset(1.4);
     hs->SetMinimum(0.);
-    hs->SetMaximum(24000);
+    hs->SetMaximum(23000);
 
     gStyle->SetOptStat(0);
     TLatex Tl;

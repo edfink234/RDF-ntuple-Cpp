@@ -136,7 +136,7 @@ void RDF_analyse()
     auto verbosity = ROOT::Experimental::RLogScopedVerbosity(ROOT::Detail::RDF::RDFLogChannel(), ROOT::Experimental::ELogLevel::kInfo);
     
     Event::systematics = {"EG_RESOLUTION_ALL__1down"};
-    std::vector<std::vector<std::string>> input_filenames = {{"/home/common/Za/NTuples/Ntuple_MC_Za_m5p0_v4.root"}};
+    std::vector<std::vector<std::string>> input_filenames = {{"/home/common/Za/NTuples/Ntuple_MC_Za_mA5p0_v4.root"}};
 
     SchottDataFrame df(MakeRDF(input_filenames[0]));
     
