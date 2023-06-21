@@ -4590,7 +4590,7 @@ void Resolved_Up_Higgs_Mass()
     pad2->SetBottomMargin(0.25);
     pad2->Draw();
     pad2->cd();
-    TLegend* errorLegend = new TLegend(0.46, 0.74, 0.66, 0.94);
+    TLegend* errorLegend = new TLegend(0.41, 0.74, 0.61, 0.94);
     TH1F* errorHist;
     double error;
 
@@ -4663,7 +4663,7 @@ void Resolved_Up_Higgs_Mass()
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
                 errorHist->GetYaxis()->CenterTitle(true);
-                errorHist->SetMaximum(100);
+                errorHist->SetMaximum(1000);
                 errorHist->SetMinimum(-2.2);
                 errorHist->Draw("histsame");
 
