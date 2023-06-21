@@ -2520,8 +2520,8 @@ void fig24()
 
     std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))};
 
-    std::vector<EColor> colors = {kBlack, kMagenta, kBlue, kRed, kViolet};
-    std::vector<EColor> Jetscolors = {kCyan, kOrange, kGreen, kYellow, kPink, kGray, kBlack, kSpring, kAzure};
+    std::vector<EColor> colors = {kBlack, kMagenta, static_cast<EColor>(kRed-7), static_cast<EColor>(kRed-9), static_cast<EColor>(kRed-10)};
+    std::vector<EColor> Jetscolors = {static_cast<EColor>(kGreen+0), static_cast<EColor>(kGreen-4), static_cast<EColor>(kGreen-7), static_cast<EColor>(kGreen-9), static_cast<EColor>(kGreen-10), static_cast<EColor>(kGreen+1), static_cast<EColor>(kGreen-3), static_cast<EColor>(kGreen-6), static_cast<EColor>(kGreen-8)};
     int count = 0;
 
     for (auto& sample: input_filenames)
@@ -2776,6 +2776,7 @@ void fig24()
     for (auto& i: {6,10,14})
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[2+back_count]);
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[2+back_count]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
         {
@@ -2792,6 +2793,7 @@ void fig24()
     for (int i = 18, j = 0; (i <= 50 && j <= 8); i += 4, j++)
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(Jetscolors[j]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
         {
@@ -2840,7 +2842,7 @@ void fig24()
     hs->GetXaxis()->SetTitleOffset(1.2);
     hs->GetYaxis()->SetTitleOffset(1.4);
     hs->SetMinimum(0.);
-    hs->SetMaximum(23000);
+    hs->SetMaximum(24000);
 
     gStyle->SetOptStat(0);
     TLatex Tl;
@@ -2860,6 +2862,7 @@ void fig24()
     for (auto& i: {7, 11, 15})
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(colors[2+back_count]);
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[2+back_count]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
         {
@@ -2877,6 +2880,7 @@ void fig24()
     for (int i = 19, j = 0; (i <= 51 && j <= 8); i += 4, j++)
     {
         Nodes[i].GetResultPtr<TH1D>()->SetFillColor(Jetscolors[j]);
+        Nodes[i].GetResultPtr<TH1D>()->SetLineColor(Jetscolors[j]);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), Nodes[i].GetResultPtr<TH1D>()->GetTitle(), "f");
         if (Nodes[i].GetResultPtr<TH1D>()->Integral() != 0)
         {
@@ -2922,7 +2926,7 @@ void fig24()
     hs->GetXaxis()->SetTitleOffset(1.2);
     hs->GetYaxis()->SetTitleOffset(1.4);
     hs->SetMinimum(0.);
-    hs->SetMaximum(24000);
+    hs->SetMaximum(23000);
 
     gStyle->SetOptStat(0);
     Tl.SetTextSize(0.03);
