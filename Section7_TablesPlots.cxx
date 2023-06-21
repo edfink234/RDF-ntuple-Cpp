@@ -3158,8 +3158,8 @@ void Merged_Up_Higgs_Mass()
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
                 errorHist->GetYaxis()->CenterTitle(true);
-                errorHist->SetMaximum(0.26);
-                errorHist->SetMinimum(-0.26);
+                errorHist->SetMaximum(0.22);
+                errorHist->SetMinimum(-0.2);
                 errorHist->Draw("histsame");
 
             }
@@ -3899,7 +3899,7 @@ void Merged_Down_Higgs_Mass()
     pad2->SetBottomMargin(0.25);
     pad2->Draw();
     pad2->cd();
-    errorLegend = new TLegend(0.3, 0.7, 0.5, 0.9);
+    errorLegend = new TLegend(0.3, 0.73, 0.5, 0.93);
 
     for (int i = 0; i < 4; i++) //systematics: Z-jets
     {
@@ -3967,8 +3967,8 @@ void Merged_Down_Higgs_Mass()
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
                 errorHist->GetYaxis()->CenterTitle(true);
-                errorHist->SetMaximum(0.26);
-                errorHist->SetMinimum(-0.36);
+                errorHist->SetMaximum(0.25);
+                errorHist->SetMinimum(-0.28);
                 errorHist->Draw("histsame");
 
             }
