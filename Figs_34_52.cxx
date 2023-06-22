@@ -85,7 +85,7 @@ constexpr std::array<const char*,35> triggers =
 
 void Fig34()
 {
-    const std::string path = "/home/common/Za/NTuples/Data/user.kschmied.HZa_Data_v14.2018_Period_O_v5_LGNTuple.root";
+    const std::string path = "/home/common/Za/NTuples/Data/user.kschmied.HZa_Data_v14.2018_Period_O_v5_LGNTuple.root/";
     const std::vector<std::string> input_filenames =
     {
 //        {"/home/common/Za/NTuples/Ntuple_data_test.root"}
