@@ -4635,7 +4635,8 @@ void Resolved_Up_Higgs_Mass()
             errorHist->SetMarkerStyle(20);
             errorHist->SetMarkerSize(0.9);
             errorHist->GetXaxis()->SetLabelSize(0.1);
-            errorHist->GetYaxis()->SetLabelSize(0.1);
+            errorHist->GetYaxis()->SetLabelSize(0.07);
+            errorHist->GetYaxis()->SetNoExponent();
             errorHist->GetXaxis()->SetTitleSize(0.1);
             errorHist->GetYaxis()->SetTitleSize(0.1);
             errorHist->SetMarkerColor(nominalColors[i]);
@@ -4663,7 +4664,7 @@ void Resolved_Up_Higgs_Mass()
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
                 errorHist->GetYaxis()->CenterTitle(true);
-                errorHist->SetMaximum(3e5);
+                errorHist->SetMaximum(2.8e5);
                 errorHist->SetMinimum(-2.2);
                 errorHist->Draw("histsame");
 
@@ -5444,7 +5445,8 @@ void Resolved_Down_Higgs_Mass()
             errorHist->SetMarkerStyle(20);
             errorHist->SetMarkerSize(0.9);
             errorHist->GetXaxis()->SetLabelSize(0.1);
-            errorHist->GetYaxis()->SetLabelSize(0.1);
+            errorHist->GetYaxis()->SetLabelSize(0.07);
+            errorHist->GetYaxis()->SetNoExponent();
             errorHist->GetXaxis()->SetTitleSize(0.1);
             errorHist->GetYaxis()->SetTitleSize(0.1);
             errorHist->SetMarkerColor(nominalColors[i]);
@@ -5472,7 +5474,7 @@ void Resolved_Down_Higgs_Mass()
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
                 errorHist->GetYaxis()->CenterTitle(true);
-                errorHist->SetMaximum(4e6);
+                errorHist->SetMaximum(2.8e5);
                 errorHist->SetMinimum(-2.2);
                 errorHist->Draw("histsame");
 
@@ -5589,7 +5591,7 @@ void Resolved_Down_Higgs_Mass()
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
                 errorHist->GetYaxis()->CenterTitle(true);
-                errorHist->SetMaximum(3.6);
+                errorHist->SetMaximum(3.45);
                 errorHist->SetMinimum(-1.2);
                 errorHist->Draw("histsame");
 
