@@ -4663,7 +4663,7 @@ void Resolved_Up_Higgs_Mass()
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
                 errorHist->GetYaxis()->CenterTitle(true);
-                errorHist->SetMaximum(1e7);
+                errorHist->SetMaximum(400);
                 errorHist->SetMinimum(-2.2);
                 errorHist->Draw("histsame");
 
@@ -5472,7 +5472,7 @@ void Resolved_Down_Higgs_Mass()
                 errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
                 errorHist->GetYaxis()->SetTitleOffset(0.4);
                 errorHist->GetYaxis()->CenterTitle(true);
-                errorHist->SetMaximum(1e7);
+                errorHist->SetMaximum(400);
                 errorHist->SetMinimum(-2.2);
                 errorHist->Draw("histsame");
 
