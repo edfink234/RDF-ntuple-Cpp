@@ -107,6 +107,8 @@ double unc(double eff_p, double eff_ll, double N_p, double N_ll)
     return (eff_p / eff_ll) * sqrt(((1 - eff_p)/(N_p * eff_p)) + ((1 - eff_ll)/(N_ll * eff_ll)));
 }
 
+
+
 //void Table3()
 //{
 //    std::vector<std::vector<std::string>> input_filenames = {
@@ -4277,7 +4279,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
             if (syst_index == "nominal")
             {
                 merged_prompt[massPoints_prompt[i]] = efficiency;
-                merged_prompt_N[massPoints[i]] = resultmaps[j]["nominal"];
+                merged_prompt_N[massPoints_prompt[i]] = prompt_resultmaps[j]["nominal"];
             }
             out << massPoints_prompt[i] << " & " << efficiency << R"--( \\ \hline)--" << '\n';
             histo2d->SetBinContent(bin_number, efficiency);
@@ -4310,11 +4312,8 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
 
 void LimitPlot()
 {
-    // >= 1 GeV -> resolved branching ratios, prompt effciencies, long-lived efficiencies
-    // <= 1 GeV -> merged branching ratios, prompt effciencies, long-lived efficiencies
-
-    //For Coupling_and_Systematics_merged(), return 1 GeV prompt efficiency and 1 GeV long-lived efficiency
-    //For Coupling_and_Systematics_resolved(), return 1, 5 GeV prompt efficiency and 1, 5 GeV long-lived efficiency
+    // >= 2 GeV -> resolved branching ratios, prompt effciencies, long-lived efficiencies
+    // <= 2 GeV -> merged branching ratios, prompt effciencies, long-lived efficiencies
 
     //key is mass, value is efficiency
     std::unordered_map<float, float> resolved_prompt_eff, merged_prompt_eff, resolved_prompt_N, merged_prompt_N;
@@ -4333,10 +4332,12 @@ void LimitPlot()
     for (auto& coupling: ALP_photon_couplings)
     {
         //looping over the prompot branching ratios for the merged category (<= 2 GeV);
+        //i.first = mass, i.second = branching ratio
         for (auto& i: BR_prompt_merged)
         {
-            // check if efficiencies for prompt and displaced merged for the mass point i.first were calculated
-            if (merged_prompt_eff.count(i.first) && merged_long_lived_eff[coupling].count(i.first))
+            // check if efficiencies for prompt and displaced merged for the mass point i.first were calculated, and that the prompt efficiencies are not 0
+            if (merged_prompt_eff.count(i.first) && merged_long_lived_eff[coupling].count(i.first)  &&
+                merged_prompt_eff[i.first] != 0)
             {
                 // BR_ll = BR_prompt * (eff_prompt / eff_long_lived)
                 BR_ll_merged[coupling][i.first] = i.second * (merged_prompt_eff[i.first] / merged_long_lived_eff[coupling][i.first]);
@@ -4346,10 +4347,12 @@ void LimitPlot()
         }
 
         //looping over the prompt branching ratios for the resolved category (>= 2 GeV)
+        //i.first = mass, i.second = branching ratio
         for (auto& i: BR_prompt_resolved)
         {
-            // check if efficiencies for prompt and displaced resolved for the mass point i.first were calculated
-            if (resolved_prompt_eff.count(i.first) && resolved_long_lived_eff[coupling].count(i.first))
+            // check if efficiencies for prompt and displaced resolved for the mass point i.first were calculated, and that the prompt efficiencies are not 0
+            if (resolved_prompt_eff.count(i.first) && resolved_long_lived_eff[coupling].count(i.first) &&
+                resolved_prompt_eff[i.first] != 0)
             {
                 // BR_ll = BR_prompt * (eff_prompt / eff_long_lived)
                 BR_ll_resolved[coupling][i.first] = i.second * (resolved_prompt_eff[i.first] / resolved_long_lived_eff[coupling][i.first]);
@@ -4358,6 +4361,7 @@ void LimitPlot()
         }
     }
 
+    ///Plotting Branching Ratio vs Mass
     // Create a TCanvas to hold the plot
     TCanvas* canvas = new TCanvas("canvas", "Lines Plot", 800, 600);
     canvas->SetLogy();
@@ -4374,9 +4378,22 @@ void LimitPlot()
     //index for colors and ALP_photon_couplings
     int index = 0;
     // Iterate over the outer unordered_map BR_ll_merged to get the couplings and inner unordered_maps (masses and branching ratios)
+    std::ofstream BR_ll_merged_vals("BR_ll_merged_vals.txt");
+    
+    BR_ll_merged_vals << R"--(\begin{table})--" << '\n';
+    BR_ll_merged_vals << R"--(\centering)--" << '\n';
+    BR_ll_merged_vals << R"--(\hspace{0cm}\scalebox{1}{)--" << '\n';
+    BR_ll_merged_vals << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
+    BR_ll_merged_vals << R"--(\begin{tabular}{|c|c|c|})--" << '\n';
+    BR_ll_merged_vals << R"--(\hline)--" << '\n';
+    BR_ll_merged_vals << R"--(\multicolumn{3}{|c|}{\parbox{\linewidth}{\centering )--";
+    BR_ll_merged_vals << R"--(  (Merged) Branching Ratio \\ Upper Limits}}\\[5 pt] \hline)--" << '\n';
+    BR_ll_merged_vals << R"--($\left|C_{\gamma\gamma}^{\mathrm{eff}}\right|$ & $m_a = 1$ GeV &   $m_a = 2$ GeV \\ \hline)--" << '\n';
+        
     for (const auto& Coupling : BR_ll_merged)
     {
         const float coupling = Coupling.first;
+        BR_ll_merged_vals << coupling << " & ";
         const std::map<float, float>& innerMap = Coupling.second;
 
         // Create arrays to hold the x and y values for the current line
@@ -4385,8 +4402,8 @@ void LimitPlot()
         float* yValues = new float[nPoints];
         float* yErrValues = new float[nPoints];
 
-        // Iterate over the inner unordered_map to get the x and y values
-        size_t i = 0;
+        // Iterate over the inner unordered_map (masses and branching ratios) to get the x and y values
+        size_t i = 0, count = 0, innerMapSize = innerMap.size();
         for (const auto& innerPair : innerMap)
         {
             if (not std::isinf(innerPair.second))
@@ -4397,12 +4414,28 @@ void LimitPlot()
                 yErrValues[i] = BR_ll_merged_unc[coupling][innerPair.first]; //uncertainty on branching ratio
                 if (std::isinf(BR_ll_merged_unc[coupling][innerPair.first]))
                 {
+                    std::cout << "Merged called\n";
                     yErrValues[i] = 0;
                 }
+                BR_ll_merged_vals << yValues[i] << R"--($\, \pm \,$)--" << yErrValues[i];
                 ++i;
             }
+            else
+            {
+                BR_ll_merged_vals << " Inf ";
+            }
+            
+            if (count >= innerMapSize - 1)
+            {
+                BR_ll_merged_vals << R"--( \\ \hline )--" << '\n';
+            }
+            else
+            {
+                BR_ll_merged_vals << " & ";
+            }
+            count++;
         }
-
+        
         // Create a TGraph for the current line
         TGraphErrors* graph = new TGraphErrors(i, xValues, yValues, 0, yErrValues);
 
@@ -4423,11 +4456,34 @@ void LimitPlot()
         delete[] xValues;
         delete[] yValues;
     }
+    
+    BR_ll_merged_vals << R"--(Paper Draft Limits & 0.0324852 & 0.02782953 \\ \hline)--" << '\n';
+    BR_ll_merged_vals << R"--(\end{tabular}})--" << '\n';
+    BR_ll_merged_vals << R"--(\caption{\raggedright )--";
+    BR_ll_merged_vals << R"--(Branching ratio upper limits in Figure \ref{fig:Limit_Recastings} for the \textbf{merged category} + \textbf{SR}.})--" << '\n';
+    BR_ll_merged_vals << R"--(\label{tab:Merged_BR_Upper_Limits})--" << '\n';
+    BR_ll_merged_vals << R"--(\end{table})--" << '\n';
+    
+    BR_ll_merged_vals.close();
+    
+    std::ofstream BR_ll_resolved_vals("BR_ll_resolved_vals.txt");
+    
+    BR_ll_resolved_vals << R"--(\begin{table})--" << '\n';
+    BR_ll_resolved_vals << R"--(\centering)--" << '\n';
+    BR_ll_resolved_vals << R"--(\hspace{0cm}\scalebox{1}{)--" << '\n';
+    BR_ll_resolved_vals << R"--(\setlength\extrarowheight{2pt}\renewcommand{\arraystretch}{1.5})--" << '\n';
+    BR_ll_resolved_vals << R"--(\begin{tabular}{|c|c|c|c|})--" << '\n';
+    BR_ll_resolved_vals << R"--(\hline)--" << '\n';
+    BR_ll_resolved_vals << R"--(\multicolumn{4}{|c|}{\parbox{\linewidth}{\centering )--";
+    BR_ll_resolved_vals << R"--(  (Resolved) Branching Ratio \\ Upper Limits}}\\[5 pt] \hline)--" << '\n';
+    BR_ll_resolved_vals << R"--($\left|C_{\gamma\gamma}^{\mathrm{eff}}\right|$ & $m_a = 2$ GeV & $m_a = 3$ GeV & $m_a = 5$ GeV \\ \hline)--" << '\n';
+    
     index = 0;
     // Iterate over the outer unordered_map BR_ll_resolved to get the couplings and inner unordered_maps (masses and branching ratios, and uncertainties)
     for (const auto& Coupling : BR_ll_resolved)
     {
         const float coupling = Coupling.first;
+        BR_ll_resolved_vals << coupling << " & ";
         const std::map<float, float>& innerMap = Coupling.second;
 
         // Create arrays to hold the x and y values for the current line
@@ -4436,21 +4492,38 @@ void LimitPlot()
         float* yValues = new float[nPoints];
         float* yErrValues = new float[nPoints];
 
-        // Iterate over the inner unordered_map to get the x and y values
-        size_t i = 0;
+        // Iterate over the inner unordered_map (masses and branching ratios) to get the x and y values
+        size_t i = 0, count = 0, innerMapSize = innerMap.size();
         for (const auto& innerPair : innerMap)
         {
             if (not std::isinf(innerPair.second))
             {
-                xValues[i] = innerPair.first;
-                yValues[i] = innerPair.second;
-                yErrValues[i] = BR_ll_resolved_unc[coupling][innerPair.first];
-                if (std::isinf(BR_ll_merged_unc[coupling][innerPair.first]))
+                xValues[i] = innerPair.first; //mass
+                yValues[i] = innerPair.second; //branching ratio
+                
+                yErrValues[i] = BR_ll_resolved_unc[coupling][innerPair.first]; //uncertainty on branching ratio
+                if (std::isinf(BR_ll_resolved_unc[coupling][innerPair.first]))
                 {
+                    std::cout << "Resolved called\n";
                     yErrValues[i] = 0;
                 }
+                BR_ll_resolved_vals << yValues[i] << R"--($\, \pm \,$)--" << yErrValues[i];
                 ++i;
             }
+            else
+            {
+                BR_ll_resolved_vals << " Inf ";
+            }
+            
+            if (count >= innerMapSize - 1)
+            {
+                BR_ll_resolved_vals << R"--( \\ \hline )--" << '\n';
+            }
+            else
+            {
+                BR_ll_resolved_vals << " & ";
+            }
+            count++;
         }
 
         // Create a TGraph for the current line
@@ -4475,6 +4548,15 @@ void LimitPlot()
         delete[] yValues;
     }
 
+    BR_ll_resolved_vals << R"--(Paper Draft Limits & 0.0198092 & 0.00362767 & 0.001756 \\ \hline)--" << '\n';
+    BR_ll_resolved_vals << R"--(\end{tabular}})--" << '\n';
+    BR_ll_resolved_vals << R"--(\caption{\raggedright )--";
+    BR_ll_resolved_vals << R"--(Branching ratio upper limits in Figure \ref{fig:Limit_Recastings} for the \textbf{resolved category} + \textbf{SR}.})--" << '\n';
+    BR_ll_resolved_vals << R"--(\label{tab:Resolved_BR_Upper_Limits})--" << '\n';
+    BR_ll_resolved_vals << R"--(\end{table})--" << '\n';
+    
+    BR_ll_resolved_vals.close();
+    
     //now plot the prompt case from the paper draft
     float massValues[] = {1.0f, 2.0f, 2.0f, 3.0f, 5.0f};
     float promptBR[] = {0.0324852f, 0.02782953f, 0.0198092f, 0.00362767f, 0.001756f};
@@ -4507,14 +4589,11 @@ void LimitPlot()
     canvas->Update();
     // Save the plot
     canvas->SaveAs("Limits.pdf");
-
-
 }
 
 void CutFlow()
 {
     auto start_time = Clock::now();
-
 //    Table3();
 //    Table8();
 //    Table11();
