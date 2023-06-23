@@ -707,7 +707,7 @@ void fig26()
         c1->Modified();
         c1->Update();
     }
-    hs->SetMaximum(200);
+    hs->SetMaximum(500);
     hs->SetTitle(";m_{ll#gamma#gamma} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -1672,7 +1672,7 @@ void fig28()
     hs->Draw("HIST");
     Nodes[19].GetResultPtr<TH1D>()->Draw("E1Same"); //data
     hs->SetMinimum(0);
-    hs->SetMaximum(1300);
+    hs->SetMaximum(1500);
     hs->SetTitle(";#DeltaR_{#gamma#gamma};Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -1731,7 +1731,7 @@ void fig28()
     hs->Draw("HIST");
     Nodes[20].GetResultPtr<TH1D>()->Draw("E1Same"); //data
     hs->SetMinimum(0);
-    hs->SetMaximum(340);
+    hs->SetMaximum(540);
     hs->SetTitle(";#Delta#phi_{#gamma#gamma};Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetYaxis()->SetTitleOffset(1.4);
@@ -1746,7 +1746,7 @@ void fig28()
 
     hs = new THStack("hs4","");
     c1 = new TCanvas();
-    legend = new TLegend(0.375, 0.4, 0.625, 0.75);
+    legend = new TLegend(0.3, 0.45, 0.55, 0.8);
     data_integral = Nodes[21].GetResultPtr<TH1D>()->Integral();
     std::cout<<"data_integral = " << data_integral << '\n';
     count = 0;
@@ -2414,10 +2414,10 @@ void fig41()
         c1->Modified();
         c1->Update();
     }
-    hs->SetMaximum(21000);
+    hs->SetMaximum(26000);
     hs->SetTitle(";m_{ll#gamma} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
-    hs->GetYaxis()->SetTitleOffset(1.1);
+    hs->GetYaxis()->SetTitleOffset(1.25);
     hs->GetXaxis()->SetTitleOffset(1.2);
 
     gStyle->SetOptStat(0);
@@ -3041,7 +3041,7 @@ void fig48()
     }
 
     hs->Draw("HIST");
-    hs->SetMaximum(2500);
+    hs->SetMaximum(2600);
     Nodes[13].GetResultPtr<TH1D>()->Draw("E1same");
     hs->SetTitle(";photon p_{T} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
@@ -3734,7 +3734,7 @@ void fig59()
     for (auto& i: {1,3}) // signal SR
     {
         Nodes[i].GetResultPtr<TH1D>()->SetLineColor(colors[count]);
-        Nodes[i].GetResultPtr<TH1D>()->Scale(data_integral / Nodes[i].GetResultPtr<TH1D>()->Integral());
+//        Nodes[i].GetResultPtr<TH1D>()->Scale(data_integral / Nodes[i].GetResultPtr<TH1D>()->Integral());
         Nodes[i].GetResultPtr<TH1D>()->SetLineWidth(2);
         legend->AddEntry(&(*Nodes[i].GetResultPtr<TH1D>()), prefixes[count++], "l");
 
@@ -3807,7 +3807,7 @@ void fig59()
         Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
         gPad->Modified(); gPad->Update();
     }
-    hs->SetMaximum(190);
+    hs->SetMaximum(145);
     hs->SetTitle(";#DeltaR (ll#gamma);Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
