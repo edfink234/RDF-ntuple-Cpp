@@ -707,7 +707,7 @@ void fig26()
         c1->Modified();
         c1->Update();
     }
-//    hs->SetMaximum(2);
+    hs->SetMaximum(200);
     hs->SetTitle(";m_{ll#gamma#gamma} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -1672,7 +1672,7 @@ void fig28()
     hs->Draw("HIST");
     Nodes[19].GetResultPtr<TH1D>()->Draw("E1Same"); //data
     hs->SetMinimum(0);
-//    hs->SetMaximum(7000);
+    hs->SetMaximum(1300);
     hs->SetTitle(";#DeltaR_{#gamma#gamma};Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
@@ -1731,7 +1731,7 @@ void fig28()
     hs->Draw("HIST");
     Nodes[20].GetResultPtr<TH1D>()->Draw("E1Same"); //data
     hs->SetMinimum(0);
-//    hs->SetMaximum(3400);
+    hs->SetMaximum(340);
     hs->SetTitle(";#Delta#phi_{#gamma#gamma};Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetYaxis()->SetTitleOffset(1.4);
@@ -1790,7 +1790,7 @@ void fig28()
     hs->Draw("HIST");
     Nodes[21].GetResultPtr<TH1D>()->Draw("E1Same"); //data
     hs->SetMinimum(0);
-//    hs->SetMaximum(1);
+    hs->SetMaximum(220);
     hs->SetTitle(";#Delta#eta_{#gamma#gamma};Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetYaxis()->SetTitleOffset(1.4);
@@ -2414,9 +2414,10 @@ void fig41()
         c1->Modified();
         c1->Update();
     }
-//    hs->SetMaximum(0.9e2);
+    hs->SetMaximum(21000);
     hs->SetTitle(";m_{ll#gamma} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
+    hs->GetYaxis()->SetTitleOffset(1.1);
     hs->GetXaxis()->SetTitleOffset(1.2);
 
     gStyle->SetOptStat(0);
@@ -3040,6 +3041,7 @@ void fig48()
     }
 
     hs->Draw("HIST");
+    hs->SetMaximum(2500);
     Nodes[13].GetResultPtr<TH1D>()->Draw("E1same");
     hs->SetTitle(";photon p_{T} [GeV];Events");
     hs->GetYaxis()->CenterTitle(true);
@@ -3805,7 +3807,7 @@ void fig59()
         Nodes[i].GetResultPtr<TH1D>()->Draw("HISTsame");
         gPad->Modified(); gPad->Update();
     }
-    hs->SetMaximum(120);
+    hs->SetMaximum(190);
     hs->SetTitle(";#DeltaR (ll#gamma);Events");
     hs->GetYaxis()->CenterTitle(true);
     hs->GetXaxis()->SetTitleOffset(1.2);
