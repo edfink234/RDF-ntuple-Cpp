@@ -4461,7 +4461,7 @@ void Merged_Down_Higgs_Mass()
     constexpr std::array<EColor, 3> colors = {kBlue, kRed, static_cast<EColor>(kOrange+1)};
     constexpr std::array<EColor, 4> nominalColors = {kBlack, kBlue, kRed, static_cast<EColor>(kOrange+1)};
     constexpr std::array<float, 6> signalPlusDataResidualMaxima = {2.1, 2.35, 1.05, 0.45, 1.2, 1.05};
-    constexpr std::array<float, 6> signalPlusDataResidualMinima = {-1.2, -1.2, -1.1, -1.1, -1.1, 0};
+    constexpr std::array<float, 6> signalPlusDataResidualMinima = {-1.2, -1.2, -1.1, -1.1, -1.1, -1.05};
 
     constexpr std::array<std::array<float, 4>, 6> signalPlusDataResidualLegend =
     {{
@@ -5412,7 +5412,7 @@ void Resolved_Up_Higgs_Mass()
     constexpr std::array<EColor, 4> nominalColors = {kBlack, kBlue, kRed, static_cast<EColor>(kOrange+1)};
     constexpr std::array<int, 5> maxima = {62, 80, 270, 155, 155};
     constexpr std::array<float, 6> signalPlusDataResidualMaxima = {1.2, 1.1, 2.15, 0.55, 1.2, 1.05};
-    constexpr std::array<float, 6> signalPlusDataResidualMinima = {-1.2, -1.2, -1.1, -1.15, -1.2, 0};
+    constexpr std::array<float, 6> signalPlusDataResidualMinima = {-1.2, -1.2, -1.1, -1.15, -1.2, -1.05};
     constexpr std::array<std::array<float, 4>, 6> signalPlusDataResidualLegend =
     {{
         {0.12, 0.74, 0.32, 0.94},
@@ -5433,7 +5433,7 @@ void Resolved_Up_Higgs_Mass()
         c1 = new TCanvas();
         if (i == 5)
         {
-            legend = new TLegend(0.15, 0.35, 0.4, 0.7);
+            legend = new TLegend(0.14, 0.5, 0.34, 0.8);
         }
         else
         {
@@ -6365,7 +6365,7 @@ void Resolved_Down_Higgs_Mass()
     constexpr std::array<EColor, 4> nominalColors = {kBlack, kBlue, kRed, static_cast<EColor>(kOrange+1)};
     constexpr std::array<int, 5> maxima = {62, 80, 270, 155, 155};
     constexpr std::array<float, 6> signalPlusDataResidualMaxima = {2.2, 2.6, 1.1, 1.05, 1.2, 1.05};
-    constexpr std::array<float, 6> signalPlusDataResidualMinima = {-1.1, -1.2, -1.1, -1.15, -1.2, 0};
+    constexpr std::array<float, 6> signalPlusDataResidualMinima = {-1.1, -1.2, -1.1, -1.15, -1.2, -1.05};
     constexpr std::array<std::array<float, 4>, 6> signalPlusDataResidualLegend =
     {{
         {0.12, 0.74, 0.32, 0.94},
@@ -6387,7 +6387,7 @@ void Resolved_Down_Higgs_Mass()
         c1 = new TCanvas();
         if (i == 5)
         {
-            legend = new TLegend(0.15, 0.35, 0.35, 0.65);
+            legend = new TLegend(0.14, 0.5, 0.34, 0.8);
         }
         else
         {
