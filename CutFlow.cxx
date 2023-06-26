@@ -4305,6 +4305,9 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         gPad->SetLeftMargin(0.06);
         title = std::string("CayyPromptMerged") + syst_index + ".pdf";
         c1->SaveAs(title.c_str());
+        
+        syst_counter++;
+
     }
 
     out.close();
