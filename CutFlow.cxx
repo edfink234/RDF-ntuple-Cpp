@@ -4106,7 +4106,7 @@ void Coupling_and_Systematics_merged(std::unordered_map<float, float>& merged_pr
         out << syst_names[syst_counter];
         out << R"--(  (Displaced Merged) \\ Efficiencies}}\\[5 pt] \hline)--" << '\n';
         out << R"--($m_a$ (GeV) & $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 1$ &   $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| =  0.01$ &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.001$  &  $\left|C_{\gamma\gamma}^{\mathrm{eff}}\right| = 0.0001$  \\ \hline)--" << '\n';
-        
+
         ///displaced case
         int start_index = 0;
 
@@ -4328,7 +4328,7 @@ void LimitPlot()
     std::map<float, std::map<float, float>>
     BR_ll_merged, BR_ll_resolved, BR_ll_merged_unc, BR_ll_resolved_unc,
     BR_ll_merged_mcbr, BR_ll_resolved_mcbr, BR_ll_merged_unc_mcbr, BR_ll_resolved_unc_mcbr;
-    
+
     std::vector<float> ALP_photon_couplings = {1.0f, 0.01f, 0.001f, 0.0001f};
 
     ///Now, time to populate the branching ratios for the long-lived case
@@ -4345,7 +4345,7 @@ void LimitPlot()
                 // BR_ll = BR_prompt * (eff_prompt / eff_long_lived)
                 BR_ll_merged[coupling][i.first] = i.second * (merged_prompt_eff[i.first] / merged_long_lived_eff[coupling][i.first]);
                 BR_ll_merged_unc[coupling][i.first] = unc(merged_prompt_eff[i.first], merged_long_lived_eff[coupling][i.first], merged_prompt_N[i.first], merged_long_lived_N[coupling][i.first]);
-                
+
                 BR_ll_merged_mcbr[i.first][coupling] = BR_ll_merged[coupling][i.first];
                 BR_ll_merged_unc_mcbr[i.first][coupling] = BR_ll_merged_unc[coupling][i.first];
             }
@@ -4362,7 +4362,7 @@ void LimitPlot()
                 // BR_ll = BR_prompt * (eff_prompt / eff_long_lived)
                 BR_ll_resolved[coupling][i.first] = i.second * (resolved_prompt_eff[i.first] / resolved_long_lived_eff[coupling][i.first]);
                 BR_ll_resolved_unc[coupling][i.first] = unc(resolved_prompt_eff[i.first], resolved_long_lived_eff[coupling][i.first], resolved_prompt_N[i.first], resolved_long_lived_N[coupling][i.first]);
-                
+
                 BR_ll_resolved_mcbr[i.first][coupling] = BR_ll_resolved[coupling][i.first];
                 BR_ll_resolved_unc_mcbr[i.first][coupling] = BR_ll_resolved_unc[coupling][i.first];
             }
@@ -4387,7 +4387,7 @@ void LimitPlot()
     int index = 0;
     // Iterate over the outer unordered_map BR_ll_merged to get the couplings and inner unordered_maps (masses and branching ratios)
     std::ofstream BR_ll_merged_vals("BR_ll_merged_vals.txt");
-    
+
     BR_ll_merged_vals << R"--(\begin{table})--" << '\n';
     BR_ll_merged_vals << R"--(\centering)--" << '\n';
     BR_ll_merged_vals << R"--(\hspace{0cm}\scalebox{1}{)--" << '\n';
@@ -4397,7 +4397,7 @@ void LimitPlot()
     BR_ll_merged_vals << R"--(\multicolumn{3}{|c|}{\parbox{\linewidth}{\centering )--";
     BR_ll_merged_vals << R"--(  (Merged) Branching Ratio \\ Upper Limits}}\\[5 pt] \hline)--" << '\n';
     BR_ll_merged_vals << R"--($\left|C_{\gamma\gamma}^{\mathrm{eff}}\right|$ & $m_a = 1$ GeV &   $m_a = 2$ GeV \\ \hline)--" << '\n';
-        
+
     for (const auto& Coupling : BR_ll_merged)
     {
         const float coupling = Coupling.first;
@@ -4426,17 +4426,17 @@ void LimitPlot()
                     yErrValues[i] = 0;
                 }
                 BR_ll_merged_vals << yValues[i] << R"--($\, \pm \,$)--" << yErrValues[i];
-                
+
 //                BR_ll_merged_mcbr[innerPair.first][coupling] = yValues[i];
 //                BR_ll_merged_unc_mcbr[innerPair.first][coupling] = yErrValues[i];
-                
+
                 ++i;
             }
             else
             {
                 BR_ll_merged_vals << " Inf ";
             }
-            
+
             if (count >= nPoints - 1)
             {
                 BR_ll_merged_vals << R"--( \\ \hline )--" << '\n';
@@ -4447,7 +4447,7 @@ void LimitPlot()
             }
             count++;
         }
-        
+
         // Create a TGraph for the current line
         TGraphErrors* graph = new TGraphErrors(i, xValues, yValues, 0, yErrValues);
 
@@ -4468,18 +4468,18 @@ void LimitPlot()
         delete[] xValues;
         delete[] yValues;
     }
-    
+
     BR_ll_merged_vals << R"--(Paper Draft Limits & 0.0324852 & 0.02782953 \\ \hline)--" << '\n';
     BR_ll_merged_vals << R"--(\end{tabular}})--" << '\n';
     BR_ll_merged_vals << R"--(\caption{\raggedright )--";
     BR_ll_merged_vals << R"--(Branching ratio upper limits in Figure \ref{fig:Limit_Recastings} for the \textbf{merged category} + \textbf{SR}.})--" << '\n';
     BR_ll_merged_vals << R"--(\label{tab:Merged_BR_Upper_Limits})--" << '\n';
     BR_ll_merged_vals << R"--(\end{table})--" << '\n';
-    
+
 //    BR_ll_merged_vals.close();
-    
+
     std::ofstream BR_ll_resolved_vals("BR_ll_resolved_vals.txt");
-    
+
     BR_ll_resolved_vals << R"--(\begin{table})--" << '\n';
     BR_ll_resolved_vals << R"--(\centering)--" << '\n';
     BR_ll_resolved_vals << R"--(\hspace{0cm}\scalebox{1}{)--" << '\n';
@@ -4489,7 +4489,7 @@ void LimitPlot()
     BR_ll_resolved_vals << R"--(\multicolumn{4}{|c|}{\parbox{\linewidth}{\centering )--";
     BR_ll_resolved_vals << R"--(  (Resolved) Branching Ratio \\ Upper Limits}}\\[5 pt] \hline)--" << '\n';
     BR_ll_resolved_vals << R"--($\left|C_{\gamma\gamma}^{\mathrm{eff}}\right|$ & $m_a = 2$ GeV & $m_a = 3$ GeV & $m_a = 5$ GeV \\ \hline)--" << '\n';
-    
+
     index = 0;
     // Iterate over the outer unordered_map BR_ll_resolved to get the couplings and inner unordered_maps (masses and branching ratios, and uncertainties)
     for (const auto& Coupling : BR_ll_resolved)
@@ -4512,7 +4512,7 @@ void LimitPlot()
             {
                 xValues[i] = innerPair.first; //mass
                 yValues[i] = innerPair.second; //branching ratio
-                
+
                 yErrValues[i] = BR_ll_resolved_unc[coupling][innerPair.first]; //uncertainty on branching ratio
                 if (std::isinf(BR_ll_resolved_unc[coupling][innerPair.first]))
                 {
@@ -4521,7 +4521,7 @@ void LimitPlot()
                 }
 //                BR_ll_resolved_mcbr[innerPair.first][coupling] = yValues[i];
 //                BR_ll_resolved_unc_mcbr[innerPair.first][coupling] = yErrValues[i];
-                
+
                 BR_ll_resolved_vals << yValues[i] << R"--($\, \pm \,$)--" << yErrValues[i];
                 ++i;
             }
@@ -4529,7 +4529,7 @@ void LimitPlot()
             {
                 BR_ll_resolved_vals << " Inf ";
             }
-            
+
             if (count >= nPoints - 1)
             {
                 BR_ll_resolved_vals << R"--( \\ \hline )--" << '\n';
@@ -4569,9 +4569,9 @@ void LimitPlot()
     BR_ll_resolved_vals << R"--(Branching ratio upper limits in Figure \ref{fig:Limit_Recastings} for the \textbf{resolved category} + \textbf{SR}.})--" << '\n';
     BR_ll_resolved_vals << R"--(\label{tab:Resolved_BR_Upper_Limits})--" << '\n';
     BR_ll_resolved_vals << R"--(\end{table})--" << '\n';
-    
+
 //    BR_ll_resolved_vals.close();
-    
+
     //now plot the prompt case from the paper draft
     float massValues[] = {1.0f, 2.0f, 2.0f, 3.0f, 5.0f};
     float promptBR[] = {0.0324852f, 0.02782953f, 0.0198092f, 0.00362767f, 0.001756f};
@@ -4604,9 +4604,9 @@ void LimitPlot()
     canvas->Update();
     // Save the plot
     canvas->SaveAs("Limits.pdf");
-    
+
     //Now create a plot of branching ratio vs coupling (instead of mass like before)
-    
+
     constexpr std::array<EColor, 5> limits_mcbr_colors = {kBlue, kSpring, static_cast<EColor>(kGreen + 2), kMagenta, kRed};
     canvas = new TCanvas("canvas", "Lines Plot", 800, 600);
     canvas->SetLogy();
@@ -4616,7 +4616,7 @@ void LimitPlot()
     // Create a legend for the limit plot
     legend = new TLegend(0.53, 0.65, 0.83, 0.9);
     index = 0;
-    
+
 //    BR_ll_merged_mcbr, BR_ll_resolved_mcbr, BR_ll_merged_unc_mcbr, BR_ll_resolved_unc_mcbr;
     for (const auto& [mass, Coupling_BR] : BR_ll_merged_mcbr)
     {
@@ -4636,7 +4636,7 @@ void LimitPlot()
                 yValues[i] = innerPair.second; //branching ratio
 
                 yErrValues[i] = BR_ll_merged_unc_mcbr[mass][innerPair.first]; //uncertainty on branching ratio
-                
+
                 if (std::isinf(BR_ll_merged_unc_mcbr[mass][innerPair.first]))
                 {
                     std::cout << "Merged called\n";
@@ -4650,7 +4650,7 @@ void LimitPlot()
             {
 //                BR_ll_merged_vals << " Inf ";
             }
-            
+
 //            if (count >= nPoints - 1)
 //            {
 //                BR_ll_merged_vals << R"--( \\ \hline )--" << '\n';
@@ -4661,7 +4661,7 @@ void LimitPlot()
 //            }
             count++;
         }
-        
+
         // Create a TGraph for the current line
         TGraphErrors* graph = new TGraphErrors(i, xValues, yValues, 0, yErrValues);
 
@@ -4690,7 +4690,7 @@ void LimitPlot()
         delete[] xValues;
         delete[] yValues;
     }
-    
+
 //    BR_ll_merged_mcbr, BR_ll_resolved_mcbr, BR_ll_merged_unc_mcbr, BR_ll_resolved_unc_mcbr;
     for (const auto& [mass, Coupling_BR] : BR_ll_resolved_mcbr)
     {
@@ -4708,14 +4708,14 @@ void LimitPlot()
             {
                 xValues[i] = innerPair.first; //coupling
                 yValues[i] = innerPair.second; //branching ratio
-                
+
                 yErrValues[i] = BR_ll_resolved_unc_mcbr[mass][innerPair.first]; //uncertainty on branching ratio
                 if (std::isinf(BR_ll_resolved_unc_mcbr[mass][innerPair.first]))
                 {
                     std::cout << "Resolved called\n";
                     yErrValues[i] = 0;
                 }
-                
+
 //                BR_ll_resolved_vals << yValues[i] << R"--($\, \pm \,$)--" << yErrValues[i];
                 ++i;
             }
@@ -4723,7 +4723,7 @@ void LimitPlot()
             {
 //                BR_ll_resolved_vals << " Inf ";
             }
-            
+
 //            if (count >= nPoints - 1)
 //            {
 //                BR_ll_resolved_vals << R"--( \\ \hline )--" << '\n';
@@ -4754,7 +4754,7 @@ void LimitPlot()
 
         // Add the graph to the multi-graph
         mg->Add(graph);
-        
+
         if (mass == 2.0f)
         {
             legend->AddEntry(graph, Form("Limit for m_{a} = %.0f GeV (Resolved)", mass), "p");
@@ -4763,19 +4763,19 @@ void LimitPlot()
         {
             legend->AddEntry(graph, Form("Limit for m_{a} = %.0f GeV", mass), "p");
         }
-        
+
 
         // Clean up dynamic memory
         delete[] xValues;
         delete[] yValues;
     }
-    
+
     mg->GetHistogram()->SetMaximum(4);
 
     mg->SetTitle(";C_{a#gamma#gamma};Br(H#rightarrow Za) #times Br(a#rightarrow#gamma#gamma)");
     mg->GetHistogram()->GetXaxis()->SetLimits(0.00008, 1.5);
 //    mg->GetXaxis()->SetBit(TAxis::kAxisRange);
-    
+
     mg->GetYaxis()->SetTitleOffset(1.4); //By default, the title offset is 1.0
     mg->GetXaxis()->SetTitleOffset(1.2); //By default, the title offset is 1.0
     mg->GetXaxis()->SetTitle("C_{a#gamma#gamma}");
@@ -4785,12 +4785,12 @@ void LimitPlot()
 
     legend->Draw("same");
     // Update the canvas
-    
+
     canvas->Update();
     // Save the plot
     canvas->SaveAs("Limits_mcbr.pdf");
-    
-    
+
+
 }
 
 void CutFlow()
@@ -4805,7 +4805,7 @@ void CutFlow()
 //    Coupling();
 //    Coupling_and_Systematics_resolved();
 //    Coupling_and_Systematics_merged();
-    LimitPlot();
+    LimitPlot(); //this calls Coupling_and_Systematics_resolved and Coupling_and_Systematics_merged already!
 
     auto end_time = Clock::now();
     std::cout << "Time difference: "

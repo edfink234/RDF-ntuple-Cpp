@@ -589,7 +589,7 @@ float roundToOneDecimalPlace(float num) {
 ////    std::cout << ss.str() << '\n';
 //
 //}
-
+//
 //void Table22()
 //{
 //    Event::systematics =
@@ -2093,736 +2093,736 @@ float roundToOneDecimalPlace(float num) {
 //    out << ss.str() << '\n';
 //    out.close();
 //}
-
-void Merged_Up_Higgs_Mass()
-{
-    Event::systematics =
-    {
-//        "PH_EFF_ISO_Uncertainty",
-//        "PH_EFF_ISO_Uncertainty",
-//        "EL_EFF_ID_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "PRW_DATASF",
-//        "MUON_EFF_RECO_SYS",
-//        "MUON_EFF_ISO_SYS",
-//        "MUON_EFF_TrigSystUncertainty",
-//        "EL_EFF_Reco_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "MUON_EFF_TrigStatUncertainty",
-//        "MUON_EFF_RECO_STAT",
-//        "MUON_EFF_TTVA_STAT",
-//        "EL_EFF_Iso_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "MUON_EFF_TTVA_SYS",
-//        "MUON_EFF_ISO_STAT",
-//        "MUON_SAGITTA_RHO",
-//        "EG_RESOLUTION_ALL",
-//        "EG_SCALE_ALL",
-//        "MUON_MS",
-//        "MUON_ID",
-//        "EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR",
-//        "MUON_SAGITTA_RESBIAS",
-//        "MUON_SCALE",
-
-//        "PH_EFF_ISO_Uncertainty__1down",
-//        "EG_SCALE_ALL__1down",
-//        "PH_EFF_ID_Uncertainty__1down",
-//        "PH_EFF_TRIGGER_Uncertainty__1down",
-        "EG_RESOLUTION_ALL__1up",
-        "EG_SCALE_ALL__1up",
-//        "PH_EFF_ISO_Uncertainty__1up",
-        "PH_EFF_ID_Uncertainty__1up",
-//        "PH_EFF_TRIGGER_Uncertainty__1up",
-//        "EG_RESOLUTION_ALL__1down",
-    };
-
-    std::vector<std::vector<std::string>> input_filenames = {
-        //Signal
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}, //1 GeV
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600751.PhPy8EG_AZNLO_ggH125_mA2p0_v1.root"}, // 2 GeV
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600752.PhPy8EG_AZNLO_ggH125_mA3p0_v1.root"}, // 3 GeV
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"}, //5 GeV
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600756.PhPy8EG_AZNLO_ggH125_mA9p0_v1.root"}, // 9 GeV
-        //Data
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
-        //Z gamma background
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
-//        //Jets
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
-        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
-    };
-
-    std::vector<const char*> prefixes = {"Sig m_{A} = 1 GeV", "Sig m_{A} = 2 GeV", "Sig m_{A} = 3 GeV", "Sig m_{A} = 5 GeV", "Sig m_{A} = 9 GeV", "data", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
-
-    std::vector<ROOT::RDF::RResultHandle> Nodes;
-
-    int count = 0;
-
-    std::vector<RResultMap<float>> resultmaps;
-    std::vector<RResultMap<TH1D>> resultmapHists;
-
-    auto verbosity = ROOT::Experimental::RLogScopedVerbosity(ROOT::Detail::RDF::RDFLogChannel(), ROOT::Experimental::ELogLevel::kInfo);
-
-    for (auto& i: input_filenames)
-    {
-        SchottDataFrame df(MakeRDF(i, 8));
-
-        auto EventWeight = df.Define("EventWeight", //mc generator weight
-        [](const RVec<float>& ei_event_weights_generator)
-        {
-            return ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
-
-        }, {"ei_event_weights_generator"})
-        .Define("totEventWeightVec", //vector of efficiencies, product of photon_id_eff, photon_iso_eff, and photon_trg_eff
-        [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
-        {
-            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
-            photon_id_eff.resize(ResizeVal,1);
-            photon_iso_eff.resize(ResizeVal,1);
-            photon_trg_eff.resize(ResizeVal,1);
-
-            return photon_id_eff;
-            // *photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
-
-        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
-
-        //new dataframe node: contains only the events of newDf that pass the trigger cut
-        auto trigger_selection = EventWeight
-        .Filter([](const RVec<std::string>& trigger_passed_triggers)
-        {
-            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
-
-            if (!trigger_found)
-            {
-                return false; //this event is filtered out
-            }
-            return true; //this event is kept because the trigger was found in its `trigger_passed_triggers` branch entry
-
-        }, {"trigger_passed_triggers"});
-
-        auto two_leptons = trigger_selection
-        .Define("di_electrons", //the events that pass will have exactly 2 electrons that pass the following
-        [](RVec<AbstractParticle> electrons)
-        {
-            //keep the electrons in each event that have pt > 20 GeV, |η| < 2.37,
-            //|η| not between 1.37 and 1.52, and that satisfy a medium id criteria `electron_id_medium`
-            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
-            [](AbstractParticle& ep)
-            {
-                 return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
-                 (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
-                 && (ep.electron_id_medium == 1)));
-
-            }), electrons.end());
-
-            return electrons;
-
-        },{"abstract_electrons"}).Filter(
-        [](RVec<Muon>& muons, RVec<AbstractParticle>& electrons)
-        {
-            return (electrons.size()==2 && muons.empty()); //keep events which have exactly 2 electrons for di_electrons and no muons
-
-        }, {"muons", "di_electrons"});
-
-        //new dataframe node: contains only the events from `two_leptons` whose electrons in the `di_electrons` branch have opposite charge
-        auto opp_charge = two_leptons
-        .Filter([](RVec<AbstractParticle>& electrons)
-        {
-            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
-
-        }, {"di_electrons"});
-
-        //new dataframe node: contains only the events from `opp_charge` that have 1 electron with pt > 20 GeV and the other with pt > 27 GeV
-        auto leadingPt = opp_charge.Filter([](RVec<AbstractParticle>& electrons)
-        {
-            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
-        }, {"di_electrons"});
-
-        auto deltaR = leadingPt.Filter([] (RVec<AbstractParticle>& electrons)
-        {
-            return (DeltaR(electrons[0].ElectronVector(), electrons[1].ElectronVector()) > 0.01);
-        }, {"di_electrons"});
-
-        //new dataframe node: Contains a new column `dilep` in addition to the ones in `same_flavour` that stores the di-electron four-vector
-        auto dilep = deltaR.Define("dilep",[] (RVec<AbstractParticle>& electrons)
-        {
-            return (electrons[0].ElectronVector() + electrons[1].ElectronVector());
-        }, {"di_electrons"});
-
-        //new dataframe node: contains only the events from `dilep` that have di-electron invariant mass between 81 and 101 GeV
-        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
-        {
-            auto mass = dilep.M()/1e3;
-            return ((mass >= 81) && (mass <= 101));
-        }, {"dilep"});
-
-        //new dataframe node: contains only the events from `mass` that have dilepton pT > 10 GeV
-        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
-        {
-            auto pT = dilep.Pt()/1e3;
-            return pT > 10;
-        }, {"dilep"});
-
-        auto photon_passes_cuts = ptCut
-        .Define("photons_pass_cut_indices",
-        [&](const RVec<AbstractParticle>& photons)
-        {
-            RVec<int> photon_indices;
-            photon_indices.reserve(photons.size());
-
-            for (int i = 0; i < photons.size(); i++)
-            {
-                if (
-                (std::abs(photons[i].photon_eta) >= 2.37) or
-                (photons[i].photon_pt <= 10e3) or
-                (std::abs(photons[i].photon_eta) > 1.37 and std::abs(photons[i].photon_eta) < 1.52) or
-                (not photons[i].photon_id_loose)
-                )
-                {
-                    continue;
-                }
-                photon_indices.push_back(i);
-            }
-
-            return photon_indices;
-        }, {"abstract_photons"})
-        .Define("photons_pass_cuts",
-        [&](RVec<AbstractParticle>& photons, RVec<int>& photon_indices)
-        {
-            return Take(photons, photon_indices);
-        }, {"abstract_photons", "photons_pass_cut_indices"});
-
-        //New dataframe node: contains only events from `photon_passes_cuts` that fail the resolved category and pass the merged category
-        auto merged_reco_photons_matched = photon_passes_cuts.Filter(
-        [&](RVec<AbstractParticle>& reco_photons_matched)
-        {
-           if (reco_photons_matched.size() == 1) // 1 photon in the event
-           {
-               return reco_photons_matched[0].photon_pt > 20e3; //event passes if photon pt > 20 GeV
-           }
-           else if (reco_photons_matched.empty())
-           {
-               return false; //fails if no photons in event
-           }
-
-           auto combs = Combinations(reco_photons_matched, 2); //all combinations of 2 reco-photons
-           size_t length = combs[0].size(); //number of combinations
-           double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
-
-           for (size_t i=0; i<length; i++) //looping through all of the possible combinations of photons in each event
-           {
-               delta_r = DeltaR(reco_photons_matched[combs[0][i]].PhotonVector(), reco_photons_matched[combs[1][i]].PhotonVector());
-               m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
-               pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
-               X = delta_r*(pt/(2.0*m));
-               //if it's the first combination or if new X is closer to 1
-               //than current best_X and ΔR
-               //between the two reco-photons < 1.5, then update best_X, pt1, pt2,
-               //and the corresponding reco-photon indices x
-               if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
-               {
-                   best_X = X;
-                   pt1 = reco_photons_matched[combs[0][i]].photon_pt;
-                   pt2 = reco_photons_matched[combs[1][i]].photon_pt;
-                   chosen_delta_r = delta_r;
-               }
-           }
-           if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5) //two photons corresponding to best_X must both have p_T > 10 GeV, ΔR < 1.5, and 0.96 < best_X < 1.2 for resolved... but this is merged, so if it passes resolved it fails merged
-           {
-               return false;
-           }
-           //if we get to this point, it means we've failed resolved
-           for (auto& p: reco_photons_matched) //merged means at least 1 reco photon must have pt > 20 GeV
-           {
-               if (p.photon_pt > 20e3)
-               {
-                   return true; //passed merged if there's a reco-photon with pt > 20 GeV
-               }
-           }
-           return false; //failed merged
-
-        }, {"photons_pass_cuts"})
-        .Define("merged_photon_index", //new column: consists of the index corresponding to the photon that made the event be classified as merged
-        [&](const RVec<AbstractParticle>& rpm) //rpm = reco photons matched
-        {
-            for (auto i = 0; i < rpm.size(); i++)
-            {
-                if (rpm[i].photon_pt > 20e3)
-                {
-                    return i; //returning the index of the first photon that has photon_pt > 20 GeV
-                }
-            }
-            return 0; //jic the compiler complains, should not come to this
-
-        }, {"photons_pass_cuts"})
-        .Define("merged_photon", //new column: The reco-photon corresponding to `merged_photon_index`
-        [&](const RVec<AbstractParticle>& reco_photons_matched, int merged_photon_index)
-        {
-            return reco_photons_matched[merged_photon_index];
-
-        }, {"photons_pass_cuts", "merged_photon_index"});
-
-        auto dilepton_and_photon = merged_reco_photons_matched
-        .Define("reconstructed_mass",[&](RVec<AbstractParticle>& di_electrons, AbstractParticle& merged_photon)
-        {
-            auto four_momentum = di_electrons[0].ElectronVector() + di_electrons[1].ElectronVector();
-
-            return (four_momentum + merged_photon.PhotonVector()).M()/1e3;
-
-        }, {"di_electrons", "merged_photon"})
-        .Define("totEventWeight", [](RVec<float> totEventWeightVec, RVec<int>& photons_pass_cut_indices, int mpi)
-        {
-            return Take(totEventWeightVec, photons_pass_cut_indices)[mpi];
-
-        }, {"totEventWeightVec", "photons_pass_cut_indices", "merged_photon_index"});
-
-        if (count >= 6)
-        {
-            Nodes.push_back(EventWeight.Sum<float>("EventWeight"));
-        }
-        resultmapHists.push_back(VariationsFor(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 80, 200}, "reconstructed_mass", "totEventWeight")));
-
-    }
-
-//EG_RESOLUTION_ALL__1down:           42864.7 ID 1.00524  ISO 1.02283  TRIG 1.04157
-//EG_RESOLUTION_ALL__1up:             42751.5 ID 1.00524  ISO 1.02283  TRIG 1.04157
-//EG_SCALE_ALL__1down:                42521.1 ID 1.00524  ISO 1.02283  TRIG 1.04157
-//EG_SCALE_ALL__1up:                  43059.8 ID 1.00524  ISO 1.02283  TRIG 1.04157
-//PH_EFF_ID_Uncertainty__1down:       42790.4 ID 0.992328 ISO 1.02283  TRIG 1.04157
-//PH_EFF_ID_Uncertainty__1up:         42790.4 ID 1.01816  ISO 1.02283  TRIG 1.04157
-//PH_EFF_ISO_Uncertainty__1down:      42790.4 ID 1.00524  ISO 1.00971  TRIG 1.04157
-//PH_EFF_ISO_Uncertainty__1up:        42790.4 ID 1.00524  ISO 1.03595  TRIG 1.04157
-//PH_EFF_TRIGGER_Uncertainty__1down:  42790.4 ID 1.00524  ISO 1.02283  TRIG 1.01646
-//PH_EFF_TRIGGER_Uncertainty__1up:    42790.4 ID 1.00524  ISO 1.02283  TRIG 1.06668
-
-    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
-
-//    resultmapHists
-//    ==============
-//    0   //ma1
-//    1   //ma2
-//    2   //ma3
-//    3   //ma5
-//    4   //ma9
-//    5   //data
-//    6   //Z-gamma
-//    7   //Z-gamma
-//    8   //Z-gamma
-//    9   //Z-jets
-//    10  //Z-jets
-//    11  //Z-jets
-//    12  //Z-jets
-//    13  //Z-jets
-//    14  //Z-jets
-//    15  //Z-jets
-//    16  //Z-jets
-//    17  //Z-jets
 //
-//    resultmaps
-//    ==========
+//void Merged_Up_Higgs_Mass()
+//{
+//    Event::systematics =
+//    {
+////        "PH_EFF_ISO_Uncertainty",
+////        "PH_EFF_ISO_Uncertainty",
+////        "EL_EFF_ID_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "PRW_DATASF",
+////        "MUON_EFF_RECO_SYS",
+////        "MUON_EFF_ISO_SYS",
+////        "MUON_EFF_TrigSystUncertainty",
+////        "EL_EFF_Reco_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "MUON_EFF_TrigStatUncertainty",
+////        "MUON_EFF_RECO_STAT",
+////        "MUON_EFF_TTVA_STAT",
+////        "EL_EFF_Iso_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "MUON_EFF_TTVA_SYS",
+////        "MUON_EFF_ISO_STAT",
+////        "MUON_SAGITTA_RHO",
+////        "EG_RESOLUTION_ALL",
+////        "EG_SCALE_ALL",
+////        "MUON_MS",
+////        "MUON_ID",
+////        "EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR",
+////        "MUON_SAGITTA_RESBIAS",
+////        "MUON_SCALE",
 //
-//    0       //Z-gamma
-//    1       //Z-gamma
-//    2       //Z-gamma
-//    3       //Z-jets
-//    4       //Z-jets
-//    5       //Z-jets
-//    6       //Z-jets
-//    7       //Z-jets
-//    8       //Z-jets
-//    9       //Z-jets
-//    10      //Z-jets
-//    11      //Z-jets
-
-    constexpr std::array<const char*, 3> systematics = {"photons_and_electrons:EG_RESOLUTION_ALL__1up", "photons_and_electrons:EG_SCALE_ALL__1up", "photon_id_eff:PH_EFF_ID_Uncertainty__1up"};
-    constexpr std::array<const char*, 4> nominal_systematics =
-    {
-        "nominal",
-        "photons_and_electrons:EG_RESOLUTION_ALL__1up",
-        "photons_and_electrons:EG_SCALE_ALL__1up",
-        "photon_id_eff:PH_EFF_ID_Uncertainty__1up",
-    };
-    constexpr std::array<const char*, 3> Systematics = {"EG_RESOLUTION_ALL__1up", "EG_SCALE_ALL__1up", "PH_EFF_ID_Uncertainty__1up"};
-    constexpr std::array<const char*, 4> nominalSystematics = {"nominal", "EG_RESOLUTION_ALL__1up", "EG_SCALE_ALL__1up", "PH_EFF_ID_Uncertainty__1up"};
-    constexpr std::array<const char*, 6> signalPlusDataSamples = {"Sig m_{A} = 1 GeV", "Sig m_{A} = 2 GeV", "Sig m_{A} = 3 GeV", "Sig m_{A} = 5 GeV", "Sig m_{A} = 9 GeV", "Data"};
-    constexpr std::array<const char*, 6> signalPlusDataFileNames = {"prompt_ma1_merged_higgs_syst_up.pdf", "prompt_ma2_merged_higgs_syst_up.pdf", "prompt_ma3_merged_higgs_syst_up.pdf", "prompt_ma5_merged_higgs_syst_up.pdf", "prompt_ma9_merged_higgs_syst_up.pdf", "data_merged_higgs_syst_up.pdf"};
-    constexpr std::array<EColor, 3> colors = {kBlue, kRed, static_cast<EColor>(kOrange+1)};
-    constexpr std::array<EColor, 4> nominalColors = {kBlack, kBlue, kRed, static_cast<EColor>(kOrange+1)};
-    constexpr std::array<float, 6> signalPlusDataResidualMaxima = {2.1, 1.15, 1.3, 0.89, 1.8, 1.05};
-
-    TCanvas* c1;
-    TLegend* legend;
-    TLatex Tl;
-
-    //signal+data
-    for (int i = 0; i < 6; i++) //signal samples plus data
-    {
-        c1 = new TCanvas();
-        legend = new TLegend(0.5, 0.2, 0.85, 0.6);
-        c1->cd();
-        TPad* pad1 = new TPad("pad1", "pad1", 0, 0.25, 1, 0.95);
-        pad1->SetTopMargin(0.1);
-        pad1->SetBottomMargin(0);
-        pad1->Draw();
-        pad1->cd();
-
-        gStyle->SetOptStat(0);
-        resultmapHists[i]["nominal"].SetLineColor(kBlack);
-        resultmapHists[i]["nominal"].SetTitle(";m_{ll#gamma} [GeV];Events");
-        resultmapHists[i]["nominal"].SetTitle(signalPlusDataSamples[i]);
-        resultmapHists[i]["nominal"].GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
-        resultmapHists[i]["nominal"].GetXaxis()->SetTitleOffset(1.2);
-        resultmapHists[i]["nominal"].GetYaxis()->SetTitle("Events");
-        resultmapHists[i]["nominal"].GetYaxis()->CenterTitle(true);
-        legend->AddEntry(&resultmapHists[i]["nominal"], "nominal", "l");
-
-        resultmapHists[i]["nominal"].Draw("HIST");
-
-        for (int j = 0; j < 3; j++)
-        {
-            std::cout << "difference = "
-            << resultmapHists[i][systematics[j]].Integral() - resultmapHists[i]["nominal"].Integral() << '\n';
-            resultmapHists[i][systematics[j]].SetLineColor(colors[j]);
-            legend->AddEntry(&resultmapHists[i][systematics[j]], Systematics[j], "l");
-            resultmapHists[i][systematics[j]].Draw("HISTsame");
-        }
-
-        Tl.SetTextSize(0.03);
-        Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
-        Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV");
-        legend->SetBorderSize(0);
-        legend->Draw("same");
-
-        // Create and draw the error plot
-        TH1F* errorHist;
-        double error;
-
-        c1->cd();
-        TPad* pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.25);
-        pad2->SetTopMargin(0);
-        pad2->SetBottomMargin(0.25);
-        pad2->Draw();
-        pad2->cd();
-        legend = new TLegend(0.675, 0.7, 0.875, 0.9);
-
-        for (int j = 0; j < 3; j++)
-        {
-            errorHist = new TH1F(Form("errorHist_%d%d", i, j), "", resultmapHists[i]["nominal"].GetNbinsX(),
-                                       resultmapHists[i]["nominal"].GetXaxis()->GetXmin(),
-                                       resultmapHists[i]["nominal"].GetXaxis()->GetXmax());
-            errorHist->SetLineColor(colors[j]);
-            errorHist->SetLineWidth(1);
-            errorHist->SetMarkerStyle(20);
-            errorHist->SetMarkerSize(0.9);
-            errorHist->GetXaxis()->SetLabelSize(0.1);
-            errorHist->GetYaxis()->SetLabelSize(0.1);
-            errorHist->GetXaxis()->SetTitleSize(0.1);
-            errorHist->GetYaxis()->SetTitleSize(0.1);
-            errorHist->SetMarkerColor(colors[j]);
-
-            for (int bin = 1; bin <= resultmapHists[i]["nominal"].GetNbinsX(); bin++)
-            {
-                double nominal = resultmapHists[i]["nominal"].GetBinContent(bin);
-                if (!nominal)
-                {
-                    error = 0;
-                }
-                else
-                {
-                    double systematic = resultmapHists[i][systematics[j]].GetBinContent(bin);
-                    error = (systematic - nominal) / nominal;
-                }
-                errorHist->SetBinContent(bin, error);
-            }
-
-            if (j == 0)
-            {
-                errorHist->SetTitle(";m_{ll#gamma} [GeV];#frac{syst-nominal}{nominal}");
-                errorHist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
-                errorHist->GetXaxis()->SetTitleOffset(1.2);
-                errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
-                errorHist->GetYaxis()->SetTitleOffset(0.4);
-                errorHist->GetYaxis()->CenterTitle(true);
-                errorHist->SetMaximum(signalPlusDataResidualMaxima[i]);
-                errorHist->Draw("histsame");
-
-            }
-            else
-            {
-                c1->cd();
-                pad2->cd();
-                errorHist->Draw("histsame");
-            }
-
-            legend->AddEntry(errorHist, Systematics[j], "l");
-
-            c1->cd();
-            c1->Update();
-
-        }
-        pad2->cd();
-        legend->SetBorderSize(0);
-        legend->Draw("same");
-        c1->SaveAs(signalPlusDataFileNames[i]);
-    }
-
-    constexpr std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
-
-
-    //Z-gamma
-    c1 = new TCanvas();
-    legend = new TLegend(0.65, 0.43, 0.875, 0.7);
-    TH1D *hist, *nominalhist;
-    gStyle->SetOptStat(0);
-    c1->cd();
-    TPad* pad1 = new TPad("pad1", "pad1", 0, 0.25, 1, 0.95);
-    pad1->SetTopMargin(0.1);
-    pad1->SetBottomMargin(0);
-    pad1->Draw();
-    pad1->cd();
-    gStyle->SetOptStat(0);
-    c1->cd();
-    TPad* pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.25);
-    pad2->SetTopMargin(0);
-    pad2->SetBottomMargin(0.25);
-    pad2->Draw();
-    pad2->cd();
-    TLegend* errorLegend = new TLegend(0.475, 0.7, 0.675, 0.9);
-    TH1F* errorHist;
-    double error;
-
-    for (int i = 0; i < 4; i++) //systematics: Z-gamma
-    {
-        pad1->cd();
-        hist = new TH1D(Form("Z#gamma#gamma%d",i),Form("Z#gamma#gamma%d",i), 100u, 80, 200);
-        for (int j = 0, k = 6; k <= 8; j++, k++)
-        {
-            hist->Add(&resultmapHists[k][nominal_systematics[i]], SFs[j] / *Nodes[j].GetResultPtr<float>());
-        }
-        hist->SetLineColor(nominalColors[i]);
-        std::cout <<  hist->Integral() << '\n';
-
-        if (i == 0)
-        {
-            nominalhist = static_cast<TH1D*>(hist->Clone());
-            hist->SetTitle(";m_{ll#gamma} [GeV];Events");
-            hist->SetTitle("Z#gamma#gamma");
-            hist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
-            hist->GetXaxis()->SetTitleOffset(1.2);
-            hist->GetYaxis()->SetTitle("Events");
-            hist->GetYaxis()->CenterTitle(true);
-            hist->Draw("HIST");
-        }
-        else
-        {
-            
-            hist->Draw("HISTsame");
-            
-            //Now do the error plot
-            
-            c1->cd();
-            pad2->cd();
-            
-            
-            
-            errorHist = new TH1F(Form("errorHist_%d", i), "", nominalhist->GetNbinsX(),
-                                 nominalhist->GetXaxis()->GetXmin(),
-                                 nominalhist->GetXaxis()->GetXmax());
-            errorHist->SetLineColor(colors[i-1]);
-            errorHist->SetLineWidth(1);
-            errorHist->SetMarkerStyle(20);
-            errorHist->SetMarkerSize(0.9);
-            errorHist->GetXaxis()->SetLabelSize(0.1);
-            errorHist->GetYaxis()->SetLabelSize(0.1);
-//            errorHist->GetYaxis()->SetLabelOffset(0.02);
-//            errorHist->GetYaxis()->SetNoExponent();
-            
-            errorHist->GetXaxis()->SetTitleSize(0.1);
-            errorHist->GetYaxis()->SetTitleSize(0.1);
-            errorHist->SetMarkerColor(nominalColors[i]);
-
-            for (int bin = 1; bin <= nominalhist->GetNbinsX(); bin++)
-            {
-                double nominal = nominalhist->GetBinContent(bin);
-                if (!nominal)
-                {
-                    error = 0;
-                }
-                else
-                {
-                    double systematic = hist->GetBinContent(bin);
-                    error = (systematic - nominal) / nominal;
-                }
-                errorHist->SetBinContent(bin, error);
-            }
-
-            if (i == 1)
-            {
-                errorHist->SetTitle(";m_{ll#gamma} [GeV];#frac{syst-nominal}{nominal}");
-                errorHist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
-                errorHist->GetXaxis()->SetTitleOffset(1.2);
-                errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
-                errorHist->GetYaxis()->SetTitleOffset(0.4);
-                errorHist->GetYaxis()->CenterTitle(true);
-                errorHist->SetMaximum(1.9);
-                errorHist->SetMinimum(-0.85);
-                errorHist->Draw("histsame");
-
-            }
-            else
-            {
-                c1->cd();
-                pad2->cd();
-                errorHist->Draw("histsame");
-            }
-
-            errorLegend->AddEntry(errorHist, nominalSystematics[i], "l");
-
-            c1->cd();
-            c1->Update();
-            pad2->cd();
-            errorLegend->SetBorderSize(0);
-            errorLegend->Draw("same");
-
-        }
-        legend->AddEntry(hist, nominalSystematics[i], "l");
-    }
-    pad1->cd();
-    Tl.SetTextSize(0.03);
-    Tl.DrawLatexNDC(0.6, 0.85, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.6, 0.775,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-    legend->SetBorderSize(0);
-    legend->Draw("same");
-
-    c1->SaveAs("Zgamma_merged_higgs_syst_up.pdf");
-    //Z-jets
-    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
-
-    c1 = new TCanvas();
-    legend = new TLegend(0.56, 0.25, 0.85, 0.65);
-    gStyle->SetOptStat(0);
-    c1->cd();
-    pad1 = new TPad("pad1", "pad1", 0, 0.25, 1, 0.95);
-    pad1->SetTopMargin(0.1);
-    pad1->SetBottomMargin(0);
-    pad1->Draw();
-    pad1->cd();
-    gStyle->SetOptStat(0);
-    c1->cd();
-    pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.25);
-    pad2->SetTopMargin(0);
-    pad2->SetBottomMargin(0.25);
-    pad2->Draw();
-    pad2->cd();
-    errorLegend = new TLegend(0.375, 0.7, 0.575, 0.9);
-
-    for (int i = 0; i < 4; i++) //systematics: Z-jets
-    {
-        pad1->cd();
-        hist = new TH1D(Form("Z+Jets%d",i),Form("Z+Jets%d",i), 100u, 80, 200);
-        for (int j = 0, k = 9; k <= 17; j++, k++)
-        {
-            hist->Add(&resultmapHists[k][nominal_systematics[i]], JetNumeratorSFs[j] / *Nodes[j+3].GetResultPtr<float>());
-        }
-        hist->SetLineColor(nominalColors[i]);
-        std::cout <<  hist->Integral() << '\n';
-
-        if (i == 0)
-        {
-            nominalhist = static_cast<TH1D*>(hist->Clone());
-            hist->SetTitle(";m_{ll#gamma} [GeV];Events");
-            hist->SetTitle("Z+Jets");
-            hist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
-            hist->GetXaxis()->SetTitleOffset(1.2);
-            hist->GetYaxis()->SetTitle("Events");
-            hist->GetYaxis()->CenterTitle(true);
-            hist->Draw("HIST");
-        }
-        else
-        {
-            hist->Draw("HISTsame");
-            //Now do the error plot
-
-            c1->cd();
-            pad2->cd();
-
-
-
-            errorHist = new TH1F(Form("errorHist_%d", i), "", nominalhist->GetNbinsX(),
-                                 nominalhist->GetXaxis()->GetXmin(),
-                                 nominalhist->GetXaxis()->GetXmax());
-            errorHist->SetLineColor(colors[i-1]);
-            errorHist->SetLineWidth(1);
-            errorHist->SetMarkerStyle(20);
-            errorHist->SetMarkerSize(0.9);
-            errorHist->GetXaxis()->SetLabelSize(0.1);
-            errorHist->GetYaxis()->SetLabelSize(0.1);
-            errorHist->GetXaxis()->SetTitleSize(0.1);
-            errorHist->GetYaxis()->SetTitleSize(0.1);
-            errorHist->SetMarkerColor(nominalColors[i]);
-
-            for (int bin = 1; bin <= nominalhist->GetNbinsX(); bin++)
-            {
-                double nominal = nominalhist->GetBinContent(bin);
-                if (!nominal)
-                {
-                    error = 0;
-                }
-                else
-                {
-                    double systematic = hist->GetBinContent(bin);
-                    error = (systematic - nominal) / nominal;
-                }
-                errorHist->SetBinContent(bin, error);
-            }
-
-            if (i == 1)
-            {
-                errorHist->SetTitle(";m_{ll#gamma} [GeV];#frac{syst-nominal}{nominal}");
-                errorHist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
-                errorHist->GetXaxis()->SetTitleOffset(1.2);
-                errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
-                errorHist->GetYaxis()->SetTitleOffset(0.4);
-                errorHist->GetYaxis()->CenterTitle(true);
-                errorHist->SetMaximum(1.4);
-                errorHist->SetMinimum(-0.7);
-                errorHist->Draw("histsame");
-
-            }
-            else
-            {
-                c1->cd();
-                pad2->cd();
-                errorHist->Draw("histsame");
-            }
-
-            errorLegend->AddEntry(errorHist, nominalSystematics[i], "l");
-
-            c1->cd();
-            c1->Update();
-            pad2->cd();
-            errorLegend->SetBorderSize(0);
-            errorLegend->Draw("same");
-        }
-        legend->AddEntry(hist, nominalSystematics[i], "l");
-    }
-    pad1->cd();
-    Tl.SetTextSize(0.03);
-    Tl.DrawLatexNDC(0.6, 0.85, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.6, 0.775,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
-    legend->SetBorderSize(0);
-    legend->Draw("same");
-    c1->SaveAs("Zjets_merged_higgs_syst_up.pdf");
-
-}
-
+////        "PH_EFF_ISO_Uncertainty__1down",
+////        "EG_SCALE_ALL__1down",
+////        "PH_EFF_ID_Uncertainty__1down",
+////        "PH_EFF_TRIGGER_Uncertainty__1down",
+//        "EG_RESOLUTION_ALL__1up",
+//        "EG_SCALE_ALL__1up",
+////        "PH_EFF_ISO_Uncertainty__1up",
+//        "PH_EFF_ID_Uncertainty__1up",
+////        "PH_EFF_TRIGGER_Uncertainty__1up",
+////        "EG_RESOLUTION_ALL__1down",
+//    };
+//
+//    std::vector<std::vector<std::string>> input_filenames = {
+//        //Signal
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600750.PhPy8EG_AZNLO_ggH125_mA1p0_Cyy0p01_Czh1p0.NTUPLE.e8324_e7400_s3126_r10724_r10726_v3.root"}, //1 GeV
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600751.PhPy8EG_AZNLO_ggH125_mA2p0_v1.root"}, // 2 GeV
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600752.PhPy8EG_AZNLO_ggH125_mA3p0_v1.root"}, // 3 GeV
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_MC_Za_mA5p0_v4.root"}, //5 GeV
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/mc16_13TeV.600756.PhPy8EG_AZNLO_ggH125_mA9p0_v1.root"}, // 9 GeV
+//        //Data
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"},
+//        //Z gamma background
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617070._000001.LGNTuple.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617064._000001.LGNTuple.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/user.kschmied.31617074._000001.LGNTuple.root"},
+////        //Jets
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_0-70.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_70-140.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_lightJet_140-280.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_0-70.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_70-140.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_cJet_140-280.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_0-70.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_70-140.root"},
+//        {"/Users/edwardfinkelstein/ATLAS_axion/Jets/Zee_bJet_140-280.root"},
+//    };
+//
+//    std::vector<const char*> prefixes = {"Sig m_{A} = 1 GeV", "Sig m_{A} = 2 GeV", "Sig m_{A} = 3 GeV", "Sig m_{A} = 5 GeV", "Sig m_{A} = 9 GeV", "data", "pty2_9_17", "pty_17_myy_0_80", "pty_17_myy_80", "Zee_lightJet_0-70", "Zee_lightJet_70-140", "Zee_lightJet_140-280", "Zee_cJet_0-70", "Zee_cJet_70-140", "Zee_cJet_140-280", "Zee_bJet_0-70", "Zee_bJet_70-140", "Zee_bJet_140-280"};
+//
+//    std::vector<ROOT::RDF::RResultHandle> Nodes;
+//
+//    int count = 0;
+//
+//    std::vector<RResultMap<float>> resultmaps;
+//    std::vector<RResultMap<TH1D>> resultmapHists;
+//
+//    auto verbosity = ROOT::Experimental::RLogScopedVerbosity(ROOT::Detail::RDF::RDFLogChannel(), ROOT::Experimental::ELogLevel::kInfo);
+//
+//    for (auto& i: input_filenames)
+//    {
+//        SchottDataFrame df(MakeRDF(i, 8));
+//
+//        auto EventWeight = df.Define("EventWeight", //mc generator weight
+//        [](const RVec<float>& ei_event_weights_generator)
+//        {
+//            return ((ei_event_weights_generator[0]) ? 1 / ei_event_weights_generator[0] : 1);
+//
+//        }, {"ei_event_weights_generator"})
+//        .Define("totEventWeightVec", //vector of efficiencies, product of photon_id_eff, photon_iso_eff, and photon_trg_eff
+//        [](RVec<float> photon_id_eff, RVec<float> photon_iso_eff, RVec<float> photon_trg_eff/*, RVec<float> ei_event_weights_generator*/)
+//        {
+//            auto ResizeVal = std::max({photon_id_eff.size(), photon_iso_eff.size(), photon_trg_eff.size()});
+//            photon_id_eff.resize(ResizeVal,1);
+//            photon_iso_eff.resize(ResizeVal,1);
+//            photon_trg_eff.resize(ResizeVal,1);
+//
+//            return photon_id_eff;
+//            // *photon_iso_eff*photon_trg_eff; //Returns a vector of efficiencies
+//
+//        }, {"photon_id_eff", "photon_iso_eff", "photon_trg_eff",/* "ei_event_weights_generator"*/});
+//
+//        //new dataframe node: contains only the events of newDf that pass the trigger cut
+//        auto trigger_selection = EventWeight
+//        .Filter([](const RVec<std::string>& trigger_passed_triggers)
+//        {
+//            bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+//
+//            if (!trigger_found)
+//            {
+//                return false; //this event is filtered out
+//            }
+//            return true; //this event is kept because the trigger was found in its `trigger_passed_triggers` branch entry
+//
+//        }, {"trigger_passed_triggers"});
+//
+//        auto two_leptons = trigger_selection
+//        .Define("di_electrons", //the events that pass will have exactly 2 electrons that pass the following
+//        [](RVec<AbstractParticle> electrons)
+//        {
+//            //keep the electrons in each event that have pt > 20 GeV, |η| < 2.37,
+//            //|η| not between 1.37 and 1.52, and that satisfy a medium id criteria `electron_id_medium`
+//            electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+//            [](AbstractParticle& ep)
+//            {
+//                 return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+//                 (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
+//                 && (ep.electron_id_medium == 1)));
+//
+//            }), electrons.end());
+//
+//            return electrons;
+//
+//        },{"abstract_electrons"}).Filter(
+//        [](RVec<Muon>& muons, RVec<AbstractParticle>& electrons)
+//        {
+//            return (electrons.size()==2 && muons.empty()); //keep events which have exactly 2 electrons for di_electrons and no muons
+//
+//        }, {"muons", "di_electrons"});
+//
+//        //new dataframe node: contains only the events from `two_leptons` whose electrons in the `di_electrons` branch have opposite charge
+//        auto opp_charge = two_leptons
+//        .Filter([](RVec<AbstractParticle>& electrons)
+//        {
+//            return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+//
+//        }, {"di_electrons"});
+//
+//        //new dataframe node: contains only the events from `opp_charge` that have 1 electron with pt > 20 GeV and the other with pt > 27 GeV
+//        auto leadingPt = opp_charge.Filter([](RVec<AbstractParticle>& electrons)
+//        {
+//            return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+//        }, {"di_electrons"});
+//
+//        auto deltaR = leadingPt.Filter([] (RVec<AbstractParticle>& electrons)
+//        {
+//            return (DeltaR(electrons[0].ElectronVector(), electrons[1].ElectronVector()) > 0.01);
+//        }, {"di_electrons"});
+//
+//        //new dataframe node: Contains a new column `dilep` in addition to the ones in `same_flavour` that stores the di-electron four-vector
+//        auto dilep = deltaR.Define("dilep",[] (RVec<AbstractParticle>& electrons)
+//        {
+//            return (electrons[0].ElectronVector() + electrons[1].ElectronVector());
+//        }, {"di_electrons"});
+//
+//        //new dataframe node: contains only the events from `dilep` that have di-electron invariant mass between 81 and 101 GeV
+//        auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+//        {
+//            auto mass = dilep.M()/1e3;
+//            return ((mass >= 81) && (mass <= 101));
+//        }, {"dilep"});
+//
+//        //new dataframe node: contains only the events from `mass` that have dilepton pT > 10 GeV
+//        auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
+//        {
+//            auto pT = dilep.Pt()/1e3;
+//            return pT > 10;
+//        }, {"dilep"});
+//
+//        auto photon_passes_cuts = ptCut
+//        .Define("photons_pass_cut_indices",
+//        [&](const RVec<AbstractParticle>& photons)
+//        {
+//            RVec<int> photon_indices;
+//            photon_indices.reserve(photons.size());
+//
+//            for (int i = 0; i < photons.size(); i++)
+//            {
+//                if (
+//                (std::abs(photons[i].photon_eta) >= 2.37) or
+//                (photons[i].photon_pt <= 10e3) or
+//                (std::abs(photons[i].photon_eta) > 1.37 and std::abs(photons[i].photon_eta) < 1.52) or
+//                (not photons[i].photon_id_loose)
+//                )
+//                {
+//                    continue;
+//                }
+//                photon_indices.push_back(i);
+//            }
+//
+//            return photon_indices;
+//        }, {"abstract_photons"})
+//        .Define("photons_pass_cuts",
+//        [&](RVec<AbstractParticle>& photons, RVec<int>& photon_indices)
+//        {
+//            return Take(photons, photon_indices);
+//        }, {"abstract_photons", "photons_pass_cut_indices"});
+//
+//        //New dataframe node: contains only events from `photon_passes_cuts` that fail the resolved category and pass the merged category
+//        auto merged_reco_photons_matched = photon_passes_cuts.Filter(
+//        [&](RVec<AbstractParticle>& reco_photons_matched)
+//        {
+//           if (reco_photons_matched.size() == 1) // 1 photon in the event
+//           {
+//               return reco_photons_matched[0].photon_pt > 20e3; //event passes if photon pt > 20 GeV
+//           }
+//           else if (reco_photons_matched.empty())
+//           {
+//               return false; //fails if no photons in event
+//           }
+//
+//           auto combs = Combinations(reco_photons_matched, 2); //all combinations of 2 reco-photons
+//           size_t length = combs[0].size(); //number of combinations
+//           double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+//
+//           for (size_t i=0; i<length; i++) //looping through all of the possible combinations of photons in each event
+//           {
+//               delta_r = DeltaR(reco_photons_matched[combs[0][i]].PhotonVector(), reco_photons_matched[combs[1][i]].PhotonVector());
+//               m = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).M();
+//               pt = (reco_photons_matched[combs[0][i]].PhotonVector() + reco_photons_matched[combs[1][i]].PhotonVector()).Pt();
+//               X = delta_r*(pt/(2.0*m));
+//               //if it's the first combination or if new X is closer to 1
+//               //than current best_X and ΔR
+//               //between the two reco-photons < 1.5, then update best_X, pt1, pt2,
+//               //and the corresponding reco-photon indices x
+//               if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
+//               {
+//                   best_X = X;
+//                   pt1 = reco_photons_matched[combs[0][i]].photon_pt;
+//                   pt2 = reco_photons_matched[combs[1][i]].photon_pt;
+//                   chosen_delta_r = delta_r;
+//               }
+//           }
+//           if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5) //two photons corresponding to best_X must both have p_T > 10 GeV, ΔR < 1.5, and 0.96 < best_X < 1.2 for resolved... but this is merged, so if it passes resolved it fails merged
+//           {
+//               return false;
+//           }
+//           //if we get to this point, it means we've failed resolved
+//           for (auto& p: reco_photons_matched) //merged means at least 1 reco photon must have pt > 20 GeV
+//           {
+//               if (p.photon_pt > 20e3)
+//               {
+//                   return true; //passed merged if there's a reco-photon with pt > 20 GeV
+//               }
+//           }
+//           return false; //failed merged
+//
+//        }, {"photons_pass_cuts"})
+//        .Define("merged_photon_index", //new column: consists of the index corresponding to the photon that made the event be classified as merged
+//        [&](const RVec<AbstractParticle>& rpm) //rpm = reco photons matched
+//        {
+//            for (auto i = 0; i < rpm.size(); i++)
+//            {
+//                if (rpm[i].photon_pt > 20e3)
+//                {
+//                    return i; //returning the index of the first photon that has photon_pt > 20 GeV
+//                }
+//            }
+//            return 0; //jic the compiler complains, should not come to this
+//
+//        }, {"photons_pass_cuts"})
+//        .Define("merged_photon", //new column: The reco-photon corresponding to `merged_photon_index`
+//        [&](const RVec<AbstractParticle>& reco_photons_matched, int merged_photon_index)
+//        {
+//            return reco_photons_matched[merged_photon_index];
+//
+//        }, {"photons_pass_cuts", "merged_photon_index"});
+//
+//        auto dilepton_and_photon = merged_reco_photons_matched
+//        .Define("reconstructed_mass",[&](RVec<AbstractParticle>& di_electrons, AbstractParticle& merged_photon)
+//        {
+//            auto four_momentum = di_electrons[0].ElectronVector() + di_electrons[1].ElectronVector();
+//
+//            return (four_momentum + merged_photon.PhotonVector()).M()/1e3;
+//
+//        }, {"di_electrons", "merged_photon"})
+//        .Define("totEventWeight", [](RVec<float> totEventWeightVec, RVec<int>& photons_pass_cut_indices, int mpi)
+//        {
+//            return Take(totEventWeightVec, photons_pass_cut_indices)[mpi];
+//
+//        }, {"totEventWeightVec", "photons_pass_cut_indices", "merged_photon_index"});
+//
+//        if (count >= 6)
+//        {
+//            Nodes.push_back(EventWeight.Sum<float>("EventWeight"));
+//        }
+//        resultmapHists.push_back(VariationsFor(dilepton_and_photon.Histo1D<double>({prefixes[count], prefixes[count++], 100u, 80, 200}, "reconstructed_mass", "totEventWeight")));
+//
+//    }
+//
+////EG_RESOLUTION_ALL__1down:           42864.7 ID 1.00524  ISO 1.02283  TRIG 1.04157
+////EG_RESOLUTION_ALL__1up:             42751.5 ID 1.00524  ISO 1.02283  TRIG 1.04157
+////EG_SCALE_ALL__1down:                42521.1 ID 1.00524  ISO 1.02283  TRIG 1.04157
+////EG_SCALE_ALL__1up:                  43059.8 ID 1.00524  ISO 1.02283  TRIG 1.04157
+////PH_EFF_ID_Uncertainty__1down:       42790.4 ID 0.992328 ISO 1.02283  TRIG 1.04157
+////PH_EFF_ID_Uncertainty__1up:         42790.4 ID 1.01816  ISO 1.02283  TRIG 1.04157
+////PH_EFF_ISO_Uncertainty__1down:      42790.4 ID 1.00524  ISO 1.00971  TRIG 1.04157
+////PH_EFF_ISO_Uncertainty__1up:        42790.4 ID 1.00524  ISO 1.03595  TRIG 1.04157
+////PH_EFF_TRIGGER_Uncertainty__1down:  42790.4 ID 1.00524  ISO 1.02283  TRIG 1.01646
+////PH_EFF_TRIGGER_Uncertainty__1up:    42790.4 ID 1.00524  ISO 1.02283  TRIG 1.06668
+//
+//    ROOT::RDF::RunGraphs(Nodes); // running all computation nodes concurrently
+//
+////    resultmapHists
+////    ==============
+////    0   //ma1
+////    1   //ma2
+////    2   //ma3
+////    3   //ma5
+////    4   //ma9
+////    5   //data
+////    6   //Z-gamma
+////    7   //Z-gamma
+////    8   //Z-gamma
+////    9   //Z-jets
+////    10  //Z-jets
+////    11  //Z-jets
+////    12  //Z-jets
+////    13  //Z-jets
+////    14  //Z-jets
+////    15  //Z-jets
+////    16  //Z-jets
+////    17  //Z-jets
+////
+////    resultmaps
+////    ==========
+////
+////    0       //Z-gamma
+////    1       //Z-gamma
+////    2       //Z-gamma
+////    3       //Z-jets
+////    4       //Z-jets
+////    5       //Z-jets
+////    6       //Z-jets
+////    7       //Z-jets
+////    8       //Z-jets
+////    9       //Z-jets
+////    10      //Z-jets
+////    11      //Z-jets
+//
+//    constexpr std::array<const char*, 3> systematics = {"photons_and_electrons:EG_RESOLUTION_ALL__1up", "photons_and_electrons:EG_SCALE_ALL__1up", "photon_id_eff:PH_EFF_ID_Uncertainty__1up"};
+//    constexpr std::array<const char*, 4> nominal_systematics =
+//    {
+//        "nominal",
+//        "photons_and_electrons:EG_RESOLUTION_ALL__1up",
+//        "photons_and_electrons:EG_SCALE_ALL__1up",
+//        "photon_id_eff:PH_EFF_ID_Uncertainty__1up",
+//    };
+//    constexpr std::array<const char*, 3> Systematics = {"EG_RESOLUTION_ALL__1up", "EG_SCALE_ALL__1up", "PH_EFF_ID_Uncertainty__1up"};
+//    constexpr std::array<const char*, 4> nominalSystematics = {"nominal", "EG_RESOLUTION_ALL__1up", "EG_SCALE_ALL__1up", "PH_EFF_ID_Uncertainty__1up"};
+//    constexpr std::array<const char*, 6> signalPlusDataSamples = {"Sig m_{A} = 1 GeV", "Sig m_{A} = 2 GeV", "Sig m_{A} = 3 GeV", "Sig m_{A} = 5 GeV", "Sig m_{A} = 9 GeV", "Data"};
+//    constexpr std::array<const char*, 6> signalPlusDataFileNames = {"prompt_ma1_merged_higgs_syst_up.pdf", "prompt_ma2_merged_higgs_syst_up.pdf", "prompt_ma3_merged_higgs_syst_up.pdf", "prompt_ma5_merged_higgs_syst_up.pdf", "prompt_ma9_merged_higgs_syst_up.pdf", "data_merged_higgs_syst_up.pdf"};
+//    constexpr std::array<EColor, 3> colors = {kBlue, kRed, static_cast<EColor>(kOrange+1)};
+//    constexpr std::array<EColor, 4> nominalColors = {kBlack, kBlue, kRed, static_cast<EColor>(kOrange+1)};
+//    constexpr std::array<float, 6> signalPlusDataResidualMaxima = {2.1, 1.15, 1.3, 0.89, 1.8, 1.05};
+//
+//    TCanvas* c1;
+//    TLegend* legend;
+//    TLatex Tl;
+//
+//    //signal+data
+//    for (int i = 0; i < 6; i++) //signal samples plus data
+//    {
+//        c1 = new TCanvas();
+//        legend = new TLegend(0.5, 0.2, 0.85, 0.6);
+//        c1->cd();
+//        TPad* pad1 = new TPad("pad1", "pad1", 0, 0.25, 1, 0.95);
+//        pad1->SetTopMargin(0.1);
+//        pad1->SetBottomMargin(0);
+//        pad1->Draw();
+//        pad1->cd();
+//
+//        gStyle->SetOptStat(0);
+//        resultmapHists[i]["nominal"].SetLineColor(kBlack);
+//        resultmapHists[i]["nominal"].SetTitle(";m_{ll#gamma} [GeV];Events");
+//        resultmapHists[i]["nominal"].SetTitle(signalPlusDataSamples[i]);
+//        resultmapHists[i]["nominal"].GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+//        resultmapHists[i]["nominal"].GetXaxis()->SetTitleOffset(1.2);
+//        resultmapHists[i]["nominal"].GetYaxis()->SetTitle("Events");
+//        resultmapHists[i]["nominal"].GetYaxis()->CenterTitle(true);
+//        legend->AddEntry(&resultmapHists[i]["nominal"], "nominal", "l");
+//
+//        resultmapHists[i]["nominal"].Draw("HIST");
+//
+//        for (int j = 0; j < 3; j++)
+//        {
+//            std::cout << "difference = "
+//            << resultmapHists[i][systematics[j]].Integral() - resultmapHists[i]["nominal"].Integral() << '\n';
+//            resultmapHists[i][systematics[j]].SetLineColor(colors[j]);
+//            legend->AddEntry(&resultmapHists[i][systematics[j]], Systematics[j], "l");
+//            resultmapHists[i][systematics[j]].Draw("HISTsame");
+//        }
+//
+//        Tl.SetTextSize(0.03);
+//        Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
+//        Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV");
+//        legend->SetBorderSize(0);
+//        legend->Draw("same");
+//
+//        // Create and draw the error plot
+//        TH1F* errorHist;
+//        double error;
+//
+//        c1->cd();
+//        TPad* pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.25);
+//        pad2->SetTopMargin(0);
+//        pad2->SetBottomMargin(0.25);
+//        pad2->Draw();
+//        pad2->cd();
+//        legend = new TLegend(0.675, 0.7, 0.875, 0.9);
+//
+//        for (int j = 0; j < 3; j++)
+//        {
+//            errorHist = new TH1F(Form("errorHist_%d%d", i, j), "", resultmapHists[i]["nominal"].GetNbinsX(),
+//                                       resultmapHists[i]["nominal"].GetXaxis()->GetXmin(),
+//                                       resultmapHists[i]["nominal"].GetXaxis()->GetXmax());
+//            errorHist->SetLineColor(colors[j]);
+//            errorHist->SetLineWidth(1);
+//            errorHist->SetMarkerStyle(20);
+//            errorHist->SetMarkerSize(0.9);
+//            errorHist->GetXaxis()->SetLabelSize(0.1);
+//            errorHist->GetYaxis()->SetLabelSize(0.1);
+//            errorHist->GetXaxis()->SetTitleSize(0.1);
+//            errorHist->GetYaxis()->SetTitleSize(0.1);
+//            errorHist->SetMarkerColor(colors[j]);
+//
+//            for (int bin = 1; bin <= resultmapHists[i]["nominal"].GetNbinsX(); bin++)
+//            {
+//                double nominal = resultmapHists[i]["nominal"].GetBinContent(bin);
+//                if (!nominal)
+//                {
+//                    error = 0;
+//                }
+//                else
+//                {
+//                    double systematic = resultmapHists[i][systematics[j]].GetBinContent(bin);
+//                    error = (systematic - nominal) / nominal;
+//                }
+//                errorHist->SetBinContent(bin, error);
+//            }
+//
+//            if (j == 0)
+//            {
+//                errorHist->SetTitle(";m_{ll#gamma} [GeV];#frac{syst-nominal}{nominal}");
+//                errorHist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+//                errorHist->GetXaxis()->SetTitleOffset(1.2);
+//                errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
+//                errorHist->GetYaxis()->SetTitleOffset(0.4);
+//                errorHist->GetYaxis()->CenterTitle(true);
+//                errorHist->SetMaximum(signalPlusDataResidualMaxima[i]);
+//                errorHist->Draw("histsame");
+//
+//            }
+//            else
+//            {
+//                c1->cd();
+//                pad2->cd();
+//                errorHist->Draw("histsame");
+//            }
+//
+//            legend->AddEntry(errorHist, Systematics[j], "l");
+//
+//            c1->cd();
+//            c1->Update();
+//
+//        }
+//        pad2->cd();
+//        legend->SetBorderSize(0);
+//        legend->Draw("same");
+//        c1->SaveAs(signalPlusDataFileNames[i]);
+//    }
+//
+//    constexpr std::array<double,3> SFs = {((139e15)*(.871e-12)),((139e15)*(.199e-12)), ((139e15)*(.0345e-15))}; //numerators for Z-gamma bkg
+//
+//
+//    //Z-gamma
+//    c1 = new TCanvas();
+//    legend = new TLegend(0.65, 0.43, 0.875, 0.7);
+//    TH1D *hist, *nominalhist;
+//    gStyle->SetOptStat(0);
+//    c1->cd();
+//    TPad* pad1 = new TPad("pad1", "pad1", 0, 0.25, 1, 0.95);
+//    pad1->SetTopMargin(0.1);
+//    pad1->SetBottomMargin(0);
+//    pad1->Draw();
+//    pad1->cd();
+//    gStyle->SetOptStat(0);
+//    c1->cd();
+//    TPad* pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.25);
+//    pad2->SetTopMargin(0);
+//    pad2->SetBottomMargin(0.25);
+//    pad2->Draw();
+//    pad2->cd();
+//    TLegend* errorLegend = new TLegend(0.475, 0.7, 0.675, 0.9);
+//    TH1F* errorHist;
+//    double error;
+//
+//    for (int i = 0; i < 4; i++) //systematics: Z-gamma
+//    {
+//        pad1->cd();
+//        hist = new TH1D(Form("Z#gamma#gamma%d",i),Form("Z#gamma#gamma%d",i), 100u, 80, 200);
+//        for (int j = 0, k = 6; k <= 8; j++, k++)
+//        {
+//            hist->Add(&resultmapHists[k][nominal_systematics[i]], SFs[j] / *Nodes[j].GetResultPtr<float>());
+//        }
+//        hist->SetLineColor(nominalColors[i]);
+//        std::cout <<  hist->Integral() << '\n';
+//
+//        if (i == 0)
+//        {
+//            nominalhist = static_cast<TH1D*>(hist->Clone());
+//            hist->SetTitle(";m_{ll#gamma} [GeV];Events");
+//            hist->SetTitle("Z#gamma#gamma");
+//            hist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+//            hist->GetXaxis()->SetTitleOffset(1.2);
+//            hist->GetYaxis()->SetTitle("Events");
+//            hist->GetYaxis()->CenterTitle(true);
+//            hist->Draw("HIST");
+//        }
+//        else
+//        {
+//
+//            hist->Draw("HISTsame");
+//
+//            //Now do the error plot
+//
+//            c1->cd();
+//            pad2->cd();
+//
+//
+//
+//            errorHist = new TH1F(Form("errorHist_%d", i), "", nominalhist->GetNbinsX(),
+//                                 nominalhist->GetXaxis()->GetXmin(),
+//                                 nominalhist->GetXaxis()->GetXmax());
+//            errorHist->SetLineColor(colors[i-1]);
+//            errorHist->SetLineWidth(1);
+//            errorHist->SetMarkerStyle(20);
+//            errorHist->SetMarkerSize(0.9);
+//            errorHist->GetXaxis()->SetLabelSize(0.1);
+//            errorHist->GetYaxis()->SetLabelSize(0.1);
+////            errorHist->GetYaxis()->SetLabelOffset(0.02);
+////            errorHist->GetYaxis()->SetNoExponent();
+//
+//            errorHist->GetXaxis()->SetTitleSize(0.1);
+//            errorHist->GetYaxis()->SetTitleSize(0.1);
+//            errorHist->SetMarkerColor(nominalColors[i]);
+//
+//            for (int bin = 1; bin <= nominalhist->GetNbinsX(); bin++)
+//            {
+//                double nominal = nominalhist->GetBinContent(bin);
+//                if (!nominal)
+//                {
+//                    error = 0;
+//                }
+//                else
+//                {
+//                    double systematic = hist->GetBinContent(bin);
+//                    error = (systematic - nominal) / nominal;
+//                }
+//                errorHist->SetBinContent(bin, error);
+//            }
+//
+//            if (i == 1)
+//            {
+//                errorHist->SetTitle(";m_{ll#gamma} [GeV];#frac{syst-nominal}{nominal}");
+//                errorHist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+//                errorHist->GetXaxis()->SetTitleOffset(1.2);
+//                errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
+//                errorHist->GetYaxis()->SetTitleOffset(0.4);
+//                errorHist->GetYaxis()->CenterTitle(true);
+//                errorHist->SetMaximum(1.9);
+//                errorHist->SetMinimum(-0.85);
+//                errorHist->Draw("histsame");
+//
+//            }
+//            else
+//            {
+//                c1->cd();
+//                pad2->cd();
+//                errorHist->Draw("histsame");
+//            }
+//
+//            errorLegend->AddEntry(errorHist, nominalSystematics[i], "l");
+//
+//            c1->cd();
+//            c1->Update();
+//            pad2->cd();
+//            errorLegend->SetBorderSize(0);
+//            errorLegend->Draw("same");
+//
+//        }
+//        legend->AddEntry(hist, nominalSystematics[i], "l");
+//    }
+//    pad1->cd();
+//    Tl.SetTextSize(0.03);
+//    Tl.DrawLatexNDC(0.6, 0.85, "#it{ATLAS} Internal");
+//    Tl.DrawLatexNDC(0.6, 0.775,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+//    legend->SetBorderSize(0);
+//    legend->Draw("same");
+//
+//    c1->SaveAs("Zgamma_merged_higgs_syst_up.pdf");
+//    //Z-jets
+//    std::array<double,9> JetNumeratorSFs = {((139e15)*(1.9828e-9)*(0.821204)),((139e15)*(110.64e-12)*(0.69275)),((139e15)*(40.645e-12)*(0.615906)),((139e15)*(1.9817e-9)*(0.1136684)),((139e15)*(110.47e-12)*(0.1912956)),((139e15)*(40.674e-12)*(0.2326772)),((139e15)*(1.9819e-9)*(0.0656969)),((139e15)*(110.53e-12)*(0.1158741)),((139e15)*(40.68e-12)*(0.1535215))}; //numerators for jet bkg
+//
+//    c1 = new TCanvas();
+//    legend = new TLegend(0.56, 0.25, 0.85, 0.65);
+//    gStyle->SetOptStat(0);
+//    c1->cd();
+//    pad1 = new TPad("pad1", "pad1", 0, 0.25, 1, 0.95);
+//    pad1->SetTopMargin(0.1);
+//    pad1->SetBottomMargin(0);
+//    pad1->Draw();
+//    pad1->cd();
+//    gStyle->SetOptStat(0);
+//    c1->cd();
+//    pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.25);
+//    pad2->SetTopMargin(0);
+//    pad2->SetBottomMargin(0.25);
+//    pad2->Draw();
+//    pad2->cd();
+//    errorLegend = new TLegend(0.375, 0.7, 0.575, 0.9);
+//
+//    for (int i = 0; i < 4; i++) //systematics: Z-jets
+//    {
+//        pad1->cd();
+//        hist = new TH1D(Form("Z+Jets%d",i),Form("Z+Jets%d",i), 100u, 80, 200);
+//        for (int j = 0, k = 9; k <= 17; j++, k++)
+//        {
+//            hist->Add(&resultmapHists[k][nominal_systematics[i]], JetNumeratorSFs[j] / *Nodes[j+3].GetResultPtr<float>());
+//        }
+//        hist->SetLineColor(nominalColors[i]);
+//        std::cout <<  hist->Integral() << '\n';
+//
+//        if (i == 0)
+//        {
+//            nominalhist = static_cast<TH1D*>(hist->Clone());
+//            hist->SetTitle(";m_{ll#gamma} [GeV];Events");
+//            hist->SetTitle("Z+Jets");
+//            hist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+//            hist->GetXaxis()->SetTitleOffset(1.2);
+//            hist->GetYaxis()->SetTitle("Events");
+//            hist->GetYaxis()->CenterTitle(true);
+//            hist->Draw("HIST");
+//        }
+//        else
+//        {
+//            hist->Draw("HISTsame");
+//            //Now do the error plot
+//
+//            c1->cd();
+//            pad2->cd();
+//
+//
+//
+//            errorHist = new TH1F(Form("errorHist_%d", i), "", nominalhist->GetNbinsX(),
+//                                 nominalhist->GetXaxis()->GetXmin(),
+//                                 nominalhist->GetXaxis()->GetXmax());
+//            errorHist->SetLineColor(colors[i-1]);
+//            errorHist->SetLineWidth(1);
+//            errorHist->SetMarkerStyle(20);
+//            errorHist->SetMarkerSize(0.9);
+//            errorHist->GetXaxis()->SetLabelSize(0.1);
+//            errorHist->GetYaxis()->SetLabelSize(0.1);
+//            errorHist->GetXaxis()->SetTitleSize(0.1);
+//            errorHist->GetYaxis()->SetTitleSize(0.1);
+//            errorHist->SetMarkerColor(nominalColors[i]);
+//
+//            for (int bin = 1; bin <= nominalhist->GetNbinsX(); bin++)
+//            {
+//                double nominal = nominalhist->GetBinContent(bin);
+//                if (!nominal)
+//                {
+//                    error = 0;
+//                }
+//                else
+//                {
+//                    double systematic = hist->GetBinContent(bin);
+//                    error = (systematic - nominal) / nominal;
+//                }
+//                errorHist->SetBinContent(bin, error);
+//            }
+//
+//            if (i == 1)
+//            {
+//                errorHist->SetTitle(";m_{ll#gamma} [GeV];#frac{syst-nominal}{nominal}");
+//                errorHist->GetXaxis()->SetTitle("m_{ll#gamma} [GeV]");
+//                errorHist->GetXaxis()->SetTitleOffset(1.2);
+//                errorHist->GetYaxis()->SetTitle("#frac{syst-nominal}{nominal}");
+//                errorHist->GetYaxis()->SetTitleOffset(0.4);
+//                errorHist->GetYaxis()->CenterTitle(true);
+//                errorHist->SetMaximum(1.4);
+//                errorHist->SetMinimum(-0.7);
+//                errorHist->Draw("histsame");
+//
+//            }
+//            else
+//            {
+//                c1->cd();
+//                pad2->cd();
+//                errorHist->Draw("histsame");
+//            }
+//
+//            errorLegend->AddEntry(errorHist, nominalSystematics[i], "l");
+//
+//            c1->cd();
+//            c1->Update();
+//            pad2->cd();
+//            errorLegend->SetBorderSize(0);
+//            errorLegend->Draw("same");
+//        }
+//        legend->AddEntry(hist, nominalSystematics[i], "l");
+//    }
+//    pad1->cd();
+//    Tl.SetTextSize(0.03);
+//    Tl.DrawLatexNDC(0.6, 0.85, "#it{ATLAS} Internal");
+//    Tl.DrawLatexNDC(0.6, 0.775,"#sqrt{s} = 13 TeV  #int L #bullet dt = 139 fb^{-1}");
+//    legend->SetBorderSize(0);
+//    legend->Draw("same");
+//    c1->SaveAs("Zjets_merged_higgs_syst_up.pdf");
+//
+//}
+//
 //void Merged_Down_Higgs_Mass()
 //{
 //    Event::systematics =
@@ -6798,12 +6798,11 @@ void Section7_TablesPlots()
 {
     
     auto start_time = Clock::now();
-//    auto verbosity = ROOT::Experimental::RLogScopedVerbosity(ROOT::Detail::RDF::RDFLogChannel(), ROOT::Experimental::ELogLevel::kInfo);
 //    Table21();
 //    Table22();
 //    Table23();
 //    Table24();
-    Merged_Up_Higgs_Mass();
+//    Merged_Up_Higgs_Mass();
 //    Merged_Down_Higgs_Mass();
 //    Resolved_Up_Higgs_Mass();
 //    Resolved_Down_Higgs_Mass();

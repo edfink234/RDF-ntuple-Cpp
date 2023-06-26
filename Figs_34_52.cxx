@@ -83,207 +83,207 @@ constexpr std::array<const char*,35> triggers =
     "HLT_mu18_mu8noL1",
 };
 
-void Fig34()
-{
-    std::vector<std::string> input_filenames = {
-        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"
-    };
-    
-    SchottDataFrame df(MakeRDF(input_filenames, 8));
-    
-    auto two_leptons = df
-    .Filter([](const RVec<std::string>& trigger_passed_triggers)
-    {
-        bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
-
-        if (!trigger_found)
-        {
-            return false; //this event is filtered out
-        }
-        return true; //this event is kept because the trigger was found in its `trigger_passed_triggers` branch entry
-
-    }, {"trigger_passed_triggers"})
-    .Define("di_electrons", //the events that pass will have exactly 2 electrons that pass the following
-    [](RVec<Electron> electrons)
-    {
-        //keep the electrons in each event that have pt > 20 GeV, |η| < 2.37,
-        //|η| not between 1.37 and 1.52, and that satisfy a medium id criteria `electron_id_medium`
-        electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
-        [](Electron& ep)
-        {
-             return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
-             (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
-             && (ep.electron_id_medium == 1)));
-
-        }), electrons.end());
-
-        return electrons;
-
-    },{"electrons"}).Filter(
-    [](RVec<Muon>& muons, RVec<Electron> electrons)
-    {
-        return (electrons.size()==2 && muons.empty()); //keep events which have exactly 2 electrons for di_electrons and no muons
-
-    }, {"muons", "di_electrons"});
-    
-    //new dataframe node: contains only the events from `two_leptons` whose electrons in the `di_electrons` branch have opposite charge
-    auto opp_charge = two_leptons
-    .Filter([](RVec<Electron>& electrons)
-    {
-        return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
-
-    }, {"di_electrons"});
-
-    //new dataframe node: contains only the events from `opp_charge` that have 1 electron with pt > 20 GeV and the other with pt > 27 GeV
-    auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
-    {
-        return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
-    }, {"di_electrons"});
-
-    auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
-    {
-        return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
-    }, {"di_electrons"});
-
-    //new dataframe node: Contains a new column `dilep` in addition to the ones in `same_flavour` that stores the di-electron four-vector
-    auto dilep = deltaR.Define("dilep",[] (RVec<Electron>& electrons)
-    {
-        return (electrons[0].Vector() + electrons[1].Vector());
-    }, {"di_electrons"});
-
-    //new dataframe node: contains only the events from `dilep` that have di-electron invariant mass between 81 and 101 GeV
-    auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
-    {
-        auto mass = dilep.M()/1e3;
-        return ((mass >= 81) && (mass <= 101));
-    }, {"dilep"});
-
-    //new dataframe node: contains only the events from `mass` that have dilepton pT > 10 GeV
-    auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
-    {
-        auto pT = dilep.Pt()/1e3;
-        return pT > 10;
-    }, {"dilep"});
-    
-    //end pre-selection -----------
-    
-    auto photon_passes_cuts = ptCut.Define("photons_pass_cuts",
-    [&](RVec<Photon> photons)
-    {
-        photons.erase(std::remove_if(photons.begin(),photons.end(),
-        [](Photon& x)
-        {
-            return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52));// || (!x.photon_id_loose));
-
-        }), photons.end());
-
-        return photons;
-    }, {"photons"});
-    
-    auto resolved = photon_passes_cuts.Define("chosen_two",
-    [](RVec<Photon>& photons_pass_cuts)
-    {
-        RVec<Photon> x;
-        if (photons_pass_cuts.size() < 2)
-        {
-            return x;
-        }
-        auto combs = Combinations(photons_pass_cuts, 2);
-        size_t length = combs[0].size();
-        double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
-
-        for (size_t i=0; i<length; i++)
-        {
-            delta_r = DeltaR(photons_pass_cuts[combs[0][i]].Vector(), photons_pass_cuts[combs[1][i]].Vector());
-            m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
-            pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
-            X = delta_r*(pt/(2.0*m));
-            if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
-            {
-                best_X = X;
-                pt1 = photons_pass_cuts[combs[0][i]].photon_pt;
-                pt2 = photons_pass_cuts[combs[1][i]].photon_pt;
-                chosen_delta_r = delta_r;
-                x = {photons_pass_cuts[combs[0][i]], photons_pass_cuts[combs[1][i]]};
-            }
-        }
-        if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
-        {
-            return x;
-        }
-        x.clear();
-        return x;
-    }, {"photons_pass_cuts"}).Filter(
-    [&](RVec<Photon>& reco_photons_matched)
-    {
-        return (reco_photons_matched.size()==2);
-    }, {"chosen_two"})
-    .Define("higgs_mass_resolved",
-    [&](RVec<Photon>& chosen_two, RVec<Electron>& electrons)
-    {
-        PtEtaPhiEVector gg = chosen_two[0].Vector()+chosen_two[1].Vector();
-        PtEtaPhiEVector ll = electrons[0].Vector()+electrons[1].Vector();
-        return (ll.M() + gg.M())/1e3;
-    }, {"chosen_two", "di_electrons"})
-    .Define("m_gg",
-    [&](RVec<Photon>& chosen_two)
-    {
-        PtEtaPhiEVector gg = chosen_two[0].Vector()+chosen_two[1].Vector();
-        return gg.M()/1e3;
-    }, {"chosen_two"});
-    
-    auto SB = resolved.Filter(
-    [&](double m_llgg)
-    {
-        return !((110 <= m_llgg) && (m_llgg <= 140));
-        
-    }, {"higgs_mass_resolved"});
-    
-    auto SR = resolved.Filter(
-    [&](double m_llgg)
-    {
-        return ((110 <= m_llgg) && (m_llgg <= 140));
-        
-    }, {"higgs_mass_resolved"});
-    
-    auto di_ph_mm_SB = SB.Histo1D<double>({"data", "data", 10u, 0.6, 7.2}, "m_gg");
-    auto di_ph_mm_SR = SR.Histo1D<double>({"data", "data", 10u, 0, 0}, "m_gg");
-    
-    TCanvas* c1 = new TCanvas();
-    TLegend* legend = new TLegend(0.65, 0.4, 0.75, 0.6);
-    di_ph_mm_SB->SetLineColor(kBlue);
-    legend->AddEntry(&(*di_ph_mm_SB), di_ph_mm_SB->GetTitle(), "l");
-    di_ph_mm_SB->SetTitle(";m_{#gamma#gamma} [GeV];Events");
-    di_ph_mm_SB->GetYaxis()->CenterTitle(true);
-    di_ph_mm_SB->GetXaxis()->SetTitleOffset(1.2);
-    di_ph_mm_SB->Draw("HISTsame");
-    gStyle->SetOptStat(0);
-    TLatex Tl;
-    Tl.SetTextSize(0.03);
-    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV");
-    legend->SetBorderSize(0);
-    legend->Draw();
-    c1->SaveAs("Fig34A.pdf");
-    
-//    std::cout << SR.Count().GetValue() << '\n';
-    c1 = new TCanvas();
-    legend = new TLegend(0.65, 0.4, 0.75, 0.6);
-    di_ph_mm_SR->SetLineColor(kBlue);
-    legend->AddEntry(&(*di_ph_mm_SR), di_ph_mm_SR->GetTitle(), "l");
-    di_ph_mm_SR->SetTitle(";m_{#gamma#gamma} [GeV];Events");
-    di_ph_mm_SR->GetYaxis()->CenterTitle(true);
-    di_ph_mm_SR->GetXaxis()->SetTitleOffset(1.2);
-    di_ph_mm_SR->Draw("HISTsame");
-    gStyle->SetOptStat(0);
-    Tl.SetTextSize(0.03);
-    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
-    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV");
-    legend->SetBorderSize(0);
-    legend->Draw();
-    c1->SaveAs("Fig34B.pdf");
-    
-}
+//void Fig34()
+//{
+//    std::vector<std::string> input_filenames = {
+//        "/Users/edwardfinkelstein/ATLAS_axion/ntupleC++_v2/Ntuple_data_test.root"
+//    };
+//
+//    SchottDataFrame df(MakeRDF(input_filenames, 8));
+//
+//    auto two_leptons = df
+//    .Filter([](const RVec<std::string>& trigger_passed_triggers)
+//    {
+//        bool trigger_found = (std::find_first_of(trigger_passed_triggers.begin(), trigger_passed_triggers.end(), triggers.begin(), triggers.end()) != trigger_passed_triggers.end());
+//
+//        if (!trigger_found)
+//        {
+//            return false; //this event is filtered out
+//        }
+//        return true; //this event is kept because the trigger was found in its `trigger_passed_triggers` branch entry
+//
+//    }, {"trigger_passed_triggers"})
+//    .Define("di_electrons", //the events that pass will have exactly 2 electrons that pass the following
+//    [](RVec<Electron> electrons)
+//    {
+//        //keep the electrons in each event that have pt > 20 GeV, |η| < 2.37,
+//        //|η| not between 1.37 and 1.52, and that satisfy a medium id criteria `electron_id_medium`
+//        electrons.erase(std::remove_if(electrons.begin(),electrons.end(),
+//        [](Electron& ep)
+//        {
+//             return (!((ep.electron_pt/1e3 > 20) && (std::abs(ep.electron_eta) < 2.37) &&
+//             (!((1.37 < std::abs(ep.electron_eta)) && (std::abs(ep.electron_eta) < 1.52)))
+//             && (ep.electron_id_medium == 1)));
+//
+//        }), electrons.end());
+//
+//        return electrons;
+//
+//    },{"electrons"}).Filter(
+//    [](RVec<Muon>& muons, RVec<Electron> electrons)
+//    {
+//        return (electrons.size()==2 && muons.empty()); //keep events which have exactly 2 electrons for di_electrons and no muons
+//
+//    }, {"muons", "di_electrons"});
+//
+//    //new dataframe node: contains only the events from `two_leptons` whose electrons in the `di_electrons` branch have opposite charge
+//    auto opp_charge = two_leptons
+//    .Filter([](RVec<Electron>& electrons)
+//    {
+//        return (electrons[0].electron_charge*electrons[1].electron_charge < 0);
+//
+//    }, {"di_electrons"});
+//
+//    //new dataframe node: contains only the events from `opp_charge` that have 1 electron with pt > 20 GeV and the other with pt > 27 GeV
+//    auto leadingPt = opp_charge.Filter([](RVec<Electron>& electrons)
+//    {
+//        return ((electrons[0].electron_pt > 20e3 && electrons[1].electron_pt > 27e3) || (electrons[1].electron_pt > 20e3 && electrons[0].electron_pt > 27e3));
+//    }, {"di_electrons"});
+//
+//    auto deltaR = leadingPt.Filter([] (RVec<Electron>& electrons)
+//    {
+//        return (DeltaR(electrons[0].Vector(), electrons[1].Vector()) > 0.01);
+//    }, {"di_electrons"});
+//
+//    //new dataframe node: Contains a new column `dilep` in addition to the ones in `same_flavour` that stores the di-electron four-vector
+//    auto dilep = deltaR.Define("dilep",[] (RVec<Electron>& electrons)
+//    {
+//        return (electrons[0].Vector() + electrons[1].Vector());
+//    }, {"di_electrons"});
+//
+//    //new dataframe node: contains only the events from `dilep` that have di-electron invariant mass between 81 and 101 GeV
+//    auto mass = dilep.Filter([] (PtEtaPhiEVector& dilep)
+//    {
+//        auto mass = dilep.M()/1e3;
+//        return ((mass >= 81) && (mass <= 101));
+//    }, {"dilep"});
+//
+//    //new dataframe node: contains only the events from `mass` that have dilepton pT > 10 GeV
+//    auto ptCut = mass.Filter([] (PtEtaPhiEVector& dilep)
+//    {
+//        auto pT = dilep.Pt()/1e3;
+//        return pT > 10;
+//    }, {"dilep"});
+//
+//    //end pre-selection -----------
+//
+//    auto photon_passes_cuts = ptCut.Define("photons_pass_cuts",
+//    [&](RVec<Photon> photons)
+//    {
+//        photons.erase(std::remove_if(photons.begin(),photons.end(),
+//        [](Photon& x)
+//        {
+//            return ((std::abs(x.photon_eta) >= 2.37) || (std::abs(x.photon_eta) > 1.37 && std::abs(x.photon_eta) < 1.52));// || (!x.photon_id_loose));
+//
+//        }), photons.end());
+//
+//        return photons;
+//    }, {"photons"});
+//
+//    auto resolved = photon_passes_cuts.Define("chosen_two",
+//    [](RVec<Photon>& photons_pass_cuts)
+//    {
+//        RVec<Photon> x;
+//        if (photons_pass_cuts.size() < 2)
+//        {
+//            return x;
+//        }
+//        auto combs = Combinations(photons_pass_cuts, 2);
+//        size_t length = combs[0].size();
+//        double delta_r, m, pt, X, best_X, pt1, pt2, chosen_delta_r;
+//
+//        for (size_t i=0; i<length; i++)
+//        {
+//            delta_r = DeltaR(photons_pass_cuts[combs[0][i]].Vector(), photons_pass_cuts[combs[1][i]].Vector());
+//            m = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).M();
+//            pt = (photons_pass_cuts[combs[0][i]].Vector() + photons_pass_cuts[combs[1][i]].Vector()).Pt();
+//            X = delta_r*(pt/(2.0*m));
+//            if (i==0 || ((std::abs(1-X) < std::abs(1-best_X)) and (delta_r < 1.5)))
+//            {
+//                best_X = X;
+//                pt1 = photons_pass_cuts[combs[0][i]].photon_pt;
+//                pt2 = photons_pass_cuts[combs[1][i]].photon_pt;
+//                chosen_delta_r = delta_r;
+//                x = {photons_pass_cuts[combs[0][i]], photons_pass_cuts[combs[1][i]]};
+//            }
+//        }
+//        if (pt1 > 10e3 && pt2 > 10e3 && best_X > 0.96 && best_X < 1.2 && chosen_delta_r < 1.5)
+//        {
+//            return x;
+//        }
+//        x.clear();
+//        return x;
+//    }, {"photons_pass_cuts"}).Filter(
+//    [&](RVec<Photon>& reco_photons_matched)
+//    {
+//        return (reco_photons_matched.size()==2);
+//    }, {"chosen_two"})
+//    .Define("higgs_mass_resolved",
+//    [&](RVec<Photon>& chosen_two, RVec<Electron>& electrons)
+//    {
+//        PtEtaPhiEVector gg = chosen_two[0].Vector()+chosen_two[1].Vector();
+//        PtEtaPhiEVector ll = electrons[0].Vector()+electrons[1].Vector();
+//        return (ll.M() + gg.M())/1e3;
+//    }, {"chosen_two", "di_electrons"})
+//    .Define("m_gg",
+//    [&](RVec<Photon>& chosen_two)
+//    {
+//        PtEtaPhiEVector gg = chosen_two[0].Vector()+chosen_two[1].Vector();
+//        return gg.M()/1e3;
+//    }, {"chosen_two"});
+//
+//    auto SB = resolved.Filter(
+//    [&](double m_llgg)
+//    {
+//        return !((110 <= m_llgg) && (m_llgg <= 140));
+//
+//    }, {"higgs_mass_resolved"});
+//
+//    auto SR = resolved.Filter(
+//    [&](double m_llgg)
+//    {
+//        return ((110 <= m_llgg) && (m_llgg <= 140));
+//
+//    }, {"higgs_mass_resolved"});
+//
+//    auto di_ph_mm_SB = SB.Histo1D<double>({"data", "data", 10u, 0.6, 7.2}, "m_gg");
+//    auto di_ph_mm_SR = SR.Histo1D<double>({"data", "data", 10u, 0, 0}, "m_gg");
+//
+//    TCanvas* c1 = new TCanvas();
+//    TLegend* legend = new TLegend(0.65, 0.4, 0.75, 0.6);
+//    di_ph_mm_SB->SetLineColor(kBlue);
+//    legend->AddEntry(&(*di_ph_mm_SB), di_ph_mm_SB->GetTitle(), "l");
+//    di_ph_mm_SB->SetTitle(";m_{#gamma#gamma} [GeV];Events");
+//    di_ph_mm_SB->GetYaxis()->CenterTitle(true);
+//    di_ph_mm_SB->GetXaxis()->SetTitleOffset(1.2);
+//    di_ph_mm_SB->Draw("HISTsame");
+//    gStyle->SetOptStat(0);
+//    TLatex Tl;
+//    Tl.SetTextSize(0.03);
+//    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
+//    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV");
+//    legend->SetBorderSize(0);
+//    legend->Draw();
+//    c1->SaveAs("Fig34A.pdf");
+//
+////    std::cout << SR.Count().GetValue() << '\n';
+//    c1 = new TCanvas();
+//    legend = new TLegend(0.65, 0.4, 0.75, 0.6);
+//    di_ph_mm_SR->SetLineColor(kBlue);
+//    legend->AddEntry(&(*di_ph_mm_SR), di_ph_mm_SR->GetTitle(), "l");
+//    di_ph_mm_SR->SetTitle(";m_{#gamma#gamma} [GeV];Events");
+//    di_ph_mm_SR->GetYaxis()->CenterTitle(true);
+//    di_ph_mm_SR->GetXaxis()->SetTitleOffset(1.2);
+//    di_ph_mm_SR->Draw("HISTsame");
+//    gStyle->SetOptStat(0);
+//    Tl.SetTextSize(0.03);
+//    Tl.DrawLatexNDC(0.6, 0.8, "#it{ATLAS} Internal");
+//    Tl.DrawLatexNDC(0.6, 0.7,"#sqrt{s} = 13 TeV");
+//    legend->SetBorderSize(0);
+//    legend->Draw();
+//    c1->SaveAs("Fig34B.pdf");
+//
+//}
 
 //void Fig52()
 //{
